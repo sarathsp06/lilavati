@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Circles: draw a shape, get its equation · Math Toys</title>
+  <meta name="description" content="Draw any closed shape and get its Fourier series: two equations and a chain of spinning circles that draws it back.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <main class="container-fluid">
+    <nav class="top"><a href="../">← Math Toys</a></nav>
+    <header>
+      <h1>Circles</h1>
+      <p>Any closed outline can be drawn by adding up circles spinning at different speeds. Draw a shape: its outline becomes two equations, x(t) and y(t), each a sum of sines and cosines, and a chain of spinning circles draws it back. Scroll down to see how, step by step.</p>
+    </header>
+    <div class="grid layout">
+      <section>
+        <div class="stage">
+          <canvas id="canvas" class="draw" width="900" height="600"></canvas>
+          <p id="hint" class="hint hidden">Draw a closed shape here with the mouse or a finger</p>
+        </div>
+        <div class="row">
+          <button id="clear" class="secondary outline">Clear and draw your own</button>
+          <span class="muted">Try: <a href="#" data-preset="heart">heart</a> · <a href="#" data-preset="star">star</a> · <a href="#" data-preset="square">square</a> · <a href="#" data-preset="bird">bird</a></span>
+        </div>
+      </section>
+      <aside>
+        <label>Terms (frequencies) <strong id="termsVal">10</strong>
+          <input type="range" id="terms" min="1" max="100" value="10">
+        </label>
+        <label>Speed
+          <input type="range" id="speed" min="0" max="3" step="0.05" value="0.6">
+        </label>
+        <fieldset class="row">
+          <label><input type="checkbox" id="showCircles" checked> circles</label>
+          <label><input type="checkbox" id="showTrail" checked> trail</label>
+          <label><input type="checkbox" id="showOriginal" checked> original</label>
+        </fieldset>
+        <p class="stats"><span id="error"></span></p>
+        <h3>Equations</h3>
+        <pre id="equations" class="equations">Draw something first.</pre>
+        <div class="row">
+          <label>Digits <select id="digits"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
+          <button id="copyText" class="outline" disabled>Copy</button>
+          <button id="copyLatex" class="outline" disabled>Copy LaTeX</button>
+          <button id="copyJson" class="outline" disabled>Copy JSON</button>
+        </div>
+        <p class="muted"><small>Coordinates are canvas pixels, origin top-left, y pointing down. t runs from 0 to 2π once round the outline.</small></p>
+      </aside>
+    </div>
+
+    <section class="explain">
+      <h2>From a drawing to an equation, step by step</h2>
+      <p class="prose">The pictures below are made from <em>your</em> shape. Draw something new above and they all change.</p>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">1</span>Walk round the outline at an even pace</h3>
+          <p>Your hand drew some parts slowly and others fast, so the points it left are bunched up in places. First the outline is re-measured: points are placed at equal distances along it, a few hundred of them, all the way round and back to the start.</p>
+          <p>Now a single number, t, says where the pen is: t = 0 at the start, t = 2π after one lap. Equal steps in t are equal steps along the outline.</p>
+        </div>
+        <figure><canvas id="step1" width="600" height="400"></canvas><figcaption>Every 8th point is shown. Green is the start; the arrow shows the direction of travel.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">2</span>Split it into two wiggles</h3>
+          <p>As the pen walks round, its left-right position goes up and down, and so does its up-down position. Plot each against t and you get two separate wiggly lines: x(t) and y(t).</p>
+          <p>Both repeat exactly every lap, because the outline is closed. Anything that repeats can be built from waves that also repeat every lap: one wave per lap, two per lap, three per lap, and so on.</p>
+        </div>
+        <figure><canvas id="step2" width="600" height="400"></canvas><figcaption>Blue: x(t). Red: y(t). One lap, t from 0 to 2π.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">3</span>Measure how much of each wave is in there</h3>
+          <p>To find how much of the "k waves per lap" cosine is in x(t), multiply the two together at every point and take the average. Where they rise and fall together the products are positive; where they don't, they cancel out. Doubled, that average is the coefficient aₖ.</p>
+          <code class="formula">aₖ = 2 · average of x(t)·cos(kt)<br>bₖ = 2 · average of x(t)·sin(kt)<br>cₖ, dₖ: the same for y(t)</code>
+          <p>Nobody guesses these numbers. They are measured from the drawing, which is the whole trick. Most of the size sits in the slow waves; the fast ones only add detail.</p>
+        </div>
+        <figure><canvas id="step3" width="600" height="400"></canvas><figcaption>The size of each frequency in your shape (the radius of its circles), k = 1 to 40.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">4</span>Add the waves back up, one at a time</h3>
+          <p>With only k = 1, every shape becomes an ellipse: the crudest possible version. Each extra frequency adds a smaller, faster wiggle on top, and the shape sharpens.</p>
+          <p>Smooth curves need only a few terms. Sharp corners, like a star's points or a bird's beak, need many: smooth waves can only ever approximate a corner.</p>
+        </div>
+        <figure><canvas id="step4" width="600" height="400"></canvas><figcaption>Your shape with 1, 2, 3, 5, 10 and 40 terms. Grey is what you drew.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">5</span>Turn each wave into a spinning circle</h3>
+          <p>A cosine and a sine of the same speed together are just a point going round a circle. So each frequency is a circle turning k times per lap, some clockwise and some anticlockwise.</p>
+          <p>Put each circle's centre on the rim of the one before, biggest first, and the tip of the last one traces your shape. That chain is exactly the animation at the top of the page, and the two equations are the same thing written down.</p>
+        </div>
+        <figure><canvas id="step5" width="600" height="400"></canvas><figcaption>The first 8 circles at one moment. The red dot is the pen.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="explain reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>It started with heat</h4><p>Joseph Fourier came up with these series around 1807 while working out how heat spreads through a metal bar. Leading mathematicians of the day, Lagrange among them, doubted that any function could be built from waves.</p></article>
+        <article><h4>The ancient Greeks were close</h4><p>Ptolemy's astronomy, around 150 AD, explained the planets' looping paths with circles riding on circles: epicycles. That is the same idea as the animation above, about 1,650 years before Fourier.</p></article>
+        <article><h4>The 9% overshoot</h4><p>Near a sharp jump, the sum of waves always overshoots by about 9% of the jump, however many terms you add. It's called the Gibbs phenomenon. Henry Wilbraham spotted it in 1848, fifty years before Gibbs.</p></article>
+        <article><h4>Your photos use a cousin</h4><p>JPEG images store small blocks of pixels as a sum of cosine waves and throw away the fast, faint ones you'd hardly see. MP3 and AAC audio do the same with sound.</p></article>
+        <article><h4>Gauss got there first</h4><p>The Fast Fourier Transform, published by Cooley and Tukey in 1965, is one of the most used algorithms ever. Gauss had worked out the same trick around 1805, in notes that went unpublished for decades.</p></article>
+        <article><h4>Your ears do this too</h4><p>Inside your ear, the cochlea responds to different pitches at different places along its length. In effect it splits sound into its frequencies before your brain ever hears it.</p></article>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../reveal.js"></script>
+</body>
+</html>

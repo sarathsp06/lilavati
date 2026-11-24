@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Distance, speed, acceleration · Math Toys</title>
+  <meta name="description" content="Draw how far something goes, how fast it moves or how hard it speeds up, and see the other two graphs. Slopes and areas, live.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <main class="container-fluid">
+    <nav class="top"><a href="../">← Math Toys</a></nav>
+    <header>
+      <h1>Distance, speed, acceleration</h1>
+      <p>Three graphs of one motion over 10 seconds. Pick a graph to draw on and the other two follow: going down a graph is taking the slope, going up is adding up the area. Press play to watch it move. Scroll down for how it works.</p>
+    </header>
+    <div class="grid layout">
+      <section>
+        <div class="stage"><canvas id="track" width="900" height="110"></canvas></div>
+        <p id="readout" class="readout"></p>
+        <div class="stage"><canvas id="g-s" width="900" height="200"></canvas></div>
+        <div class="stage" style="margin-top:.5rem"><canvas id="g-v" width="900" height="200"></canvas></div>
+        <div class="stage" style="margin-top:.5rem"><canvas id="g-a" width="900" height="200"></canvas></div>
+      </section>
+      <aside>
+        <div class="row">
+          <button id="play">Pause</button>
+          <label style="flex:1">Time <input type="range" id="time" min="0" max="10" step="0.01" value="0"></label>
+        </div>
+        <label>Draw on
+          <select id="source">
+            <option value="s">distance</option>
+            <option value="v">velocity</option>
+            <option value="a">acceleration</option>
+          </select>
+        </label>
+        <p class="muted"><small>Drag across the highlighted graph to redraw part of it. The other two are worked out from it.</small></p>
+        <label id="v0wrap">Starting velocity (m/s) <strong id="v0val">0</strong>
+          <input type="range" id="v0" min="-30" max="30" step="0.5" value="0">
+        </label>
+        <label>Smoothing for drawn curves <strong id="sigval">8</strong>
+          <input type="range" id="sigma" min="0" max="25" step="1" value="8">
+        </label>
+        <fieldset class="row">
+          <label><input type="checkbox" id="extras" checked> slopes and areas</label>
+        </fieldset>
+        <div class="row">
+          <button id="flat" class="secondary outline">Flatten</button>
+        </div>
+        <h3>Try a motion</h3>
+        <div class="row" id="presets"></div>
+      </aside>
+    </div>
+
+    <section class="explain">
+      <h2>How the three graphs are linked</h2>
+      <p class="prose">The pictures below use the motion above. Pick another preset or draw something and they change with it.</p>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">1</span>Distance: where is it?</h3>
+          <p>The top graph says where the object is at each moment, in metres from the start. Read it like a diary: flat means standing still, going up means moving forward, going down means coming back.</p>
+          <p>Steep means fast. That one word, <em>steep</em>, is where velocity comes from.</p>
+        </div>
+        <figure><canvas id="ex1" width="600" height="320"></canvas><figcaption>Distance over time. The dots are one second apart: far apart means fast.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">2</span>Velocity is the slope of distance</h3>
+          <p>Take two moments, a gap h apart. Distance gained divided by time taken is the average speed over that gap: the slope of the red line.</p>
+          <code class="formula">average speed = (s(t + h) − s(t)) / h</code>
+          <p>Now shrink the gap. The red line swings round until it just touches the curve: the tangent. Its slope is the velocity at that one instant. That limit is the derivative, written v = ds/dt.</p>
+        </div>
+        <figure><canvas id="ex2" width="600" height="320"></canvas><figcaption id="ex2cap">The gap h shrinks; the average speed settles on the velocity.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">3</span>Acceleration is the slope of velocity</h3>
+          <p>Do the same trick again, this time on the velocity graph. How fast the velocity changes is the acceleration, a = dv/dt, in metres per second, per second.</p>
+          <p>Positive acceleration means the velocity is going up. Braking while driving forward is negative acceleration. Going round in circles at a steady speed? In two dimensions that's acceleration too, because the direction changes.</p>
+          <p>And you can keep going: the slope of acceleration is called <em>jerk</em>. It's what you feel when a bus pulls away suddenly.</p>
+        </div>
+        <figure><canvas id="ex3" width="600" height="320"></canvas><figcaption>The velocity graph with its tangent sliding along; its slope is the acceleration below.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">4</span>Going back up: the area under the curve</h3>
+          <p>If you know the velocity, how far did you go? Over a short moment, distance = velocity × time: a thin rectangle under the velocity graph. Add up all the thin rectangles.</p>
+          <p>The thinner they get, the closer the sum comes to the exact area: the integral. Area under velocity is distance travelled; area under acceleration is the change in velocity. Area below the axis counts as negative: going backwards.</p>
+        </div>
+        <figure><canvas id="ex4" width="600" height="320"></canvas><figcaption id="ex4cap">Rectangles under the velocity graph, getting thinner.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">5</span>Why your drawing needs smoothing</h3>
+          <p>Any hand-drawn line wobbles a little. A wobble is a tiny, steep up-and-down, and the slope only cares about steepness. So velocity turns a small wobble into a big one, and acceleration turns that into chaos.</p>
+          <p>Area does the opposite: adding things up averages wobbles away. That's why drawing on the acceleration graph gives silky distance curves, while drawing distance needs the smoothing slider. Try it with smoothing at 0.</p>
+        </div>
+        <figure><canvas id="ex5" width="600" height="320"></canvas><figcaption>The same slightly wobbly line (top), its slope (middle) and the slope of that (bottom), without smoothing.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="explain reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>Galileo's ramps</h4><p>Galileo rolled balls down gentle ramps and found the distance grows with the square of the time: 1, 4, 9, 16. He published it in 1638, long before anyone had calculus to explain why.</p></article>
+        <article><h4>Two inventors, one big row</h4><p>Newton and Leibniz each invented calculus in the late 1600s, independently. They argued for years over who was first. We still write dy/dx, which is Leibniz's notation.</p></article>
+        <article><h4>Snap, crackle, pop</h4><p>After velocity, acceleration and jerk, the next slopes are nicknamed snap, crackle and pop. Engineers really do limit jerk in lifts, trains and roller coasters so rides feel smooth.</p></article>
+        <article><h4>The fastest human</h4><p>Usain Bolt reached about 12.4 m/s (44.7 km/h) during his 2009 world-record 100 m. Above, that would be a distance line rising 12.4 metres every second.</p></article>
+        <article><h4>What a fast car feels like</h4><p>A car that goes from 0 to 100 km/h in 5 seconds accelerates at about 5.6 m/s² on average, a bit more than half of what gravity does to a falling stone (9.81 m/s²).</p></article>
+        <article><h4>Pilots and g</h4><p>Fighter pilots can take about 9 g, nine times the pull of gravity, for a few seconds, with special suits and breathing. Most people pass out somewhere around 4 to 6 g.</p></article>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../reveal.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Math Toys</title>
+  <meta name="description" content="Play with maths: draw a shape and get its equation, draw a motion and see its velocity and acceleration.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Math Toys</h1>
+      <p>Small pieces of maths you can play with. Draw something, poke at it, and watch the ideas move. Each toy explains itself step by step as you scroll down, with a few fun facts along the way.</p>
+    </header>
+    <section class="cards">
+      <article>
+        <h3>Circles</h3>
+        <p>Draw any closed shape and get its equation. A chain of spinning circles draws it back, and more circles make it sharper. This is the Fourier series.</p>
+        <a href="fourier/" role="button">Draw a shape</a>
+      </article>
+      <article>
+        <h3>Distance, speed, acceleration</h3>
+        <p>Draw how far something has gone, how fast it moves, or how hard it speeds up, and see the other two. Slopes go one way, areas go the other.</p>
+        <a href="motion/" role="button">Draw a motion</a>
+      </article>
+      <article class="soon">
+        <h3>More coming</h3>
+        <p>Next ideas: a function and its derivatives side by side, waves adding up into sound, and the area under a curve filled in with rectangles.</p>
+      </article>
+    </section>
+    <footer class="muted" style="margin-top:3rem"><small>The maths runs in Rust, compiled to WebAssembly, right in your browser.</small></footer>
+  </main>
+</body>
+</html>
