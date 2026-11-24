@@ -3,34 +3,51 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Math Toys</title>
-  <meta name="description" content="Play with maths: draw a shape and get its equation, draw a motion and see its velocity and acceleration.">
+  <title>Math Toys: maths you can play with</title>
+  <meta name="description" content="Play with maths in your browser. Draw a shape and get its Fourier series; draw a motion and see its derivatives. Every concept explained step by step, with fun facts.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="container">
-    <header>
-      <h1>Math Toys</h1>
-      <p>Small pieces of maths you can play with. Draw something, poke at it, and watch the ideas move. Each toy explains itself step by step as you scroll down, with a few fun facts along the way.</p>
-    </header>
-    <section class="cards">
-      <article>
-        <h3>Circles</h3>
-        <p>Draw any closed shape and get its equation. A chain of spinning circles draws it back, and more circles make it sharper. This is the Fourier series.</p>
-        <a href="fourier/" role="button">Draw a shape</a>
-      </article>
-      <article>
-        <h3>Distance, speed, acceleration</h3>
-        <p>Draw how far something has gone, how fast it moves, or how hard it speeds up, and see the other two. Slopes go one way, areas go the other.</p>
-        <a href="motion/" role="button">Draw a motion</a>
-      </article>
-      <article class="soon">
-        <h3>More coming</h3>
-        <p>Next ideas: a function and its derivatives side by side, waves adding up into sound, and the area under a curve filled in with rectangles.</p>
-      </article>
+    <nav class="home-nav"><a class="brand" href="./"><span class="logo" aria-hidden="true"></span>Math Toys</a><a href="#concepts" class="muted">All concepts ↓</a></nav>
+
+    <section class="home-hero">
+      <div>
+        <p class="chips"><span class="chip">Free · in your browser</span></p>
+        <h1>Maths you can <em>touch</em>.</h1>
+        <p class="sub">Each toy is one big idea in maths you can draw on, drag and play with. Scroll down any page and it explains itself, step by step, with a few fun facts along the way.</p>
+        <div class="row"><a href="fourier-series/" role="button">Start drawing</a><a href="#concepts" role="button" class="outline secondary">See the concepts</a></div>
+      </div>
+      <div>
+        <div class="stage"><canvas id="hero" width="900" height="900" aria-label="Spinning circles drawing a shape"></canvas></div>
+        <p class="caption" id="heroCap">Circles riding on circles, drawing a heart. That's a Fourier series.</p>
+      </div>
     </section>
-    <footer class="muted" style="margin-top:3rem"><small>The maths runs in Rust, compiled to WebAssembly, right in your browser.</small></footer>
+
+    <section id="concepts">
+      <h2>Concepts</h2>
+      <p class="lead">Open one, play with it, then scroll.</p>
+      <div class="cards" id="cards"></div>
+      <div class="soonlist"><h3>Coming next</h3><div class="cards" id="soon"></div></div>
+    </section>
+
+    <section class="block">
+      <h2>How every page works</h2>
+      <p class="lead">Every concept follows the same path, so you always know where you are.</p>
+      <ol class="recipe">
+        <li><strong>Play</strong><span>A toy that is already moving. Poke it.</span></li>
+        <li><strong>Try this</strong><span>Small experiments, each showing one thing.</span></li>
+        <li><strong>Step by step</strong><span>From what you drew to the idea, in pictures made from your drawing.</span></li>
+        <li><strong>In symbols</strong><span>The formulas, each read out in plain words.</span></li>
+        <li><strong>Where you meet it</strong><span>Real places it's at work.</span></li>
+        <li><strong>Fun facts</strong><span>History, records and surprises.</span></li>
+        <li><strong>Common mix-ups</strong><span>What people often get wrong.</span></li>
+      </ol>
+    </section>
+
+    <footer class="site"><span>The maths runs in Rust, compiled to WebAssembly, right in your browser.</span><span>Made for curious people of any age.</span></footer>
   </main>
+  <script type="module" src="home.js"></script>
 </body>
 </html>

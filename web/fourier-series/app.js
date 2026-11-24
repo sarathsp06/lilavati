@@ -1,4 +1,4 @@
-// The Circles page: a canvas you draw on, the Rust/WebAssembly series (pkg/circles.js), the spinning circles
+// The Fourier series page: a canvas you draw on, the Rust/WebAssembly series (pkg/circles.js), the spinning circles
 // that redraw the shape, and the equations with copy buttons. No framework; Pico CSS for the look.
 import init, { Fourier } from '../pkg/mathtoys.js';
 
@@ -158,3 +158,12 @@ stroke = PRESETS.heart(400); fit();
 
 // for tests: draw a shape programmatically
 window.__circles = { setStroke(pts) { stroke = pts; $('hint').classList.add('hidden'); fit(); }, get fourier() { return fourier; }, terms };
+
+// "Try this" buttons: set the toy up, then scroll back to it
+const setTerms = n => { $('terms').value = n; $('terms').dispatchEvent(new Event('input')); explain(); };
+const TRY = {
+  terms1: () => setTerms(1),
+  star10: () => { stroke = PRESETS.star(400); $('hint').classList.add('hidden'); fit(); setTerms(10); },
+  square: () => { stroke = PRESETS.square(400); $('hint').classList.add('hidden'); fit(); setTerms(1); let n = 1; const id = setInterval(() => { n = Math.min(100, n + 3); setTerms(n); if (n >= 100) clearInterval(id); }, 120); },
+};
+for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('click', () => { TRY[b.dataset.try]?.(); document.getElementById('play').scrollIntoView({ behavior: 'smooth' }); });

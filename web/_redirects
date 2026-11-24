@@ -1,0 +1,4 @@
+/fourier /fourier-series/ 301
+/fourier/* /fourier-series/:splat 301
+/motion /derivatives/ 301
+/motion/* /derivatives/:splat 301

@@ -7,8 +7,14 @@ The maths is in Rust, compiled to WebAssembly; the pages are plain HTML and Java
 
 | Toy | Page | Maths |
 |---|---|---|
-| **Circles**: draw a closed shape, get its Fourier series and the spinning circles that draw it | `web/fourier/` | `src/fourier.rs` |
-| **Distance, speed, acceleration**: draw one graph, get the other two by slopes and areas | `web/motion/` | `src/motion.rs` |
+| **Fourier series**: draw a closed shape, get its equation and the spinning circles that draw it | `web/fourier-series/` | `src/fourier.rs` |
+| **Derivatives and integrals**: draw a motion, get its rates of change by slopes and areas | `web/derivatives/` | `src/motion.rs` |
+
+Pages are named after the concept, not the example. Every concept page has the same sections (Play, Try this,
+Step by step, In symbols, Where you meet it, Fun facts, Common mix-ups, Next): see
+[docs/CONCEPT_PAGE.md](docs/CONCEPT_PAGE.md) and the blank [docs/concept-template.html](docs/concept-template.html).
+The list of concepts (live and coming soon) is `web/concepts.js`; the home page and each page's navigation
+are built from it.
 
 ## Run it
 
@@ -19,12 +25,9 @@ rustup target add wasm32-unknown-unknown
 python3 -m http.server 8080 -d dist/site
 ```
 
-## Add a toy
+## Add a concept
 
-1. Maths in a new `src/<toy>.rs` with `#[wasm_bindgen]` exports and `cargo test` tests; add `pub mod <toy>;` to `src/lib.rs`.
-2. A page in `web/<toy>/` (`index.html` + `app.js` importing `../pkg/mathtoys.js`), using `../style.css`
-   and the `.step` / `.facts` / `.reveal` sections for the walk-through.
-3. A card on `web/index.html`.
+See [docs/CONCEPT_PAGE.md](docs/CONCEPT_PAGE.md#adding-a-concept).
 
 ## Deploy (Cloudflare Pages project `mathtoys`, direct upload)
 
@@ -38,4 +41,5 @@ CF_PAGES_JWT_FILE=/path/to/jwt node tools/pages_upload.mjs   # uploads dist/site
 ```
 
 and create the deployment: `POST /accounts/{id}/pages/projects/mathtoys/deployments` with form fields
-`manifest` (that JSON) and `branch=main`.
+`manifest` (that JSON), `branch=main` and `_redirects` (the contents of `web/_redirects`, which sends the old
+`/fourier/` and `/motion/` addresses to the new ones).

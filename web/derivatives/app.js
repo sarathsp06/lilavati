@@ -1,4 +1,4 @@
-// The motion page: one motion as three linked graphs (distance, velocity, acceleration) over 10 s.
+// The derivatives and integrals page, shown with motion: one motion as three linked graphs (position, velocity, acceleration) over 10 s.
 // You draw on one; Rust (pkg/mathtoys.js, motion module) works out the other two by slopes and areas.
 import init, { Motion, smooth } from '../pkg/mathtoys.js';
 
@@ -6,7 +6,7 @@ await init();
 const $ = id => document.getElementById(id);
 const T = 10, N = 501, DT = T / (N - 1);
 const KEYS = ['s', 'v', 'a'];
-const INFO = { s: { name: 'distance', unit: 'm', col: '#1d4ed8' }, v: { name: 'velocity', unit: 'm/s', col: '#16a34a' }, a: { name: 'acceleration', unit: 'm/s²', col: '#dc2626' } };
+const INFO = { s: { name: 'position', unit: 'm', col: '#1d4ed8' }, v: { name: 'velocity', unit: 'm/s', col: '#16a34a' }, a: { name: 'acceleration', unit: 'm/s²', col: '#dc2626' } };
 let src = 's';                       // which graph is drawn on
 let data = new Float64Array(N);      // its samples
 let v0 = 0;                          // starting velocity when drawing acceleration
@@ -42,7 +42,7 @@ const PRESETS = [
 ];
 for (const [name, k, f, vv] of PRESETS) {
   const b = Object.assign(document.createElement('button'), { className: 'outline', textContent: name });
-  b.addEventListener('click', () => { setSource(k, false); data = Float64Array.from({ length: N }, (_, i) => f(i * DT)); v0 = vv; syncV0(); fixed = null; compute(); t = 0; playing = true; $('play').textContent = 'Pause'; });
+  b.addEventListener('click', () => { setSource(k, false); data = Float64Array.from({ length: N }, (_, i) => f(i * DT)); v0 = vv; syncV0(); fixed = null; compute(); t = 0; playing = true; $('playBtn').textContent = 'Pause'; });
   $('presets').append(b);
 }
 
@@ -59,8 +59,8 @@ $('v0').addEventListener('input', e => { v0 = +e.target.value; $('v0val').textCo
 $('sigma').addEventListener('input', e => { $('sigval').textContent = e.target.value; compute(); });
 $('extras').addEventListener('change', drawAll);
 $('flat').addEventListener('click', () => { data = new Float64Array(N); v0 = 0; syncV0(); fixed = null; compute(); });
-$('play').addEventListener('click', () => { playing = !playing; $('play').textContent = playing ? 'Pause' : 'Play'; });
-$('time').addEventListener('input', e => { t = +e.target.value; playing = false; $('play').textContent = 'Play'; drawAll(); });
+$('playBtn').addEventListener('click', () => { playing = !playing; $('playBtn').textContent = playing ? 'Pause' : 'Play'; });
+$('time').addEventListener('input', e => { t = +e.target.value; playing = false; $('playBtn').textContent = 'Play'; drawAll(); });
 
 // ---------- drawing on a graph ----------
 const PAD = { l: 56, r: 14, t: 14, b: 26 };
@@ -140,7 +140,7 @@ function track() {
   };
   arrow(v * scale * 0.5, '#16a34a', y - 26, 'velocity');
   arrow(a * scale * 0.25, '#dc2626', y - 42, 'push');
-  $('readout').textContent = `t = ${t.toFixed(2)} s   distance = ${s.toFixed(2)} m   velocity = ${v.toFixed(2)} m/s   acceleration = ${a.toFixed(2)} m/s²`;
+  $('readout').textContent = `t = ${t.toFixed(2)} s   position = ${s.toFixed(2)} m   velocity = ${v.toFixed(2)} m/s   acceleration = ${a.toFixed(2)} m/s²`;
 }
 function drawAll() { if (!motion) return; for (const k of KEYS) graph(k); track(); $('time').value = t; }
 
@@ -161,7 +161,7 @@ function axes(c, w, h, arr, col, pad = 34) {
 }
 let ex4Rects = 4;
 function explainAll() {
-  // 1: distance with one-second dots
+  // 1: position with one-second dots
   { const [c, w, h] = fig('ex1'), { X, Y } = axes(c, w, h, cur.s, INFO.s.col);
     c.fillStyle = INFO.s.col; for (let s = 0; s <= T; s++) { c.beginPath(); c.arc(X(s), Y(valAt(cur.s, s)), 4, 0, 7); c.fill(); } }
   // 5: wobble demo (fixed, does not depend on the motion)
@@ -200,4 +200,13 @@ function explainAnim(sec) {
 setSource('s', false);
 PRESETS[1] && $('presets').children[1].click();   // start with the car speeding up
 requestAnimationFrame(frame);
+// "Try this" buttons: set the toy up, then scroll back to it
+const pause = at => { t = at; playing = false; $('playBtn').textContent = 'Play'; drawAll(); };
+const TRY = {
+  car: () => $('presets').children[1].click(),
+  ball: () => { $('presets').children[3].click(); pause(5); },
+  drawv: () => { setSource('v'); compute(); },
+  nosmooth: () => { $('sigma').value = 0; $('sigval').textContent = '0'; setSource('s'); compute(); },
+};
+for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('click', () => { TRY[b.dataset.try]?.(); document.getElementById('play').scrollIntoView({ behavior: 'smooth' }); });
 window.__motion = { get cur() { return cur; }, setSource, compute };

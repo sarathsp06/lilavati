@@ -8,5 +8,5 @@ wasm-pack build --target web --out-dir web/pkg --release
 echo "built web/pkg; run: python3 -m http.server 8080 -d web"
 # the publishable site: web/ without wasm-pack's packaging files
 rm -rf dist && mkdir -p dist && cp -R web dist/site
-rm -f dist/site/pkg/.gitignore dist/site/pkg/package.json dist/site/pkg/README.md dist/site/pkg/LICENSE dist/site/pkg/*.d.ts
-echo "site ready in dist/site"
+rm -f dist/site/pkg/.gitignore dist/site/_redirects dist/site/pkg/package.json dist/site/pkg/README.md dist/site/pkg/LICENSE dist/site/pkg/*.d.ts
+echo "site ready in dist/site (web/_redirects is sent with the deployment, not as a file)"
