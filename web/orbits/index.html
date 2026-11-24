@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orbits and escape velocity · Math Toys</title>
+  <meta name="description" content="A satellite is always falling, but moving sideways so fast it keeps missing the Earth. Launch one, speed it up, slow it down, escape, and build a tower into space.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    #space { background: radial-gradient(circle at 50% 45%, #13203f, #060a17 70%); width: min(100%, 76vh); margin: 0 auto; }
+    .stage.dark { background: #060a17; border-color: #1e293b; }
+    .readout-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .5rem .9rem; margin: .8rem 0 0; }
+    .readout-grid div { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: .45rem .7rem; }
+    .readout-grid small { display: block; color: var(--ink-2); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; }
+    .readout-grid b { font-family: var(--pico-font-family-monospace); font-size: .95rem; font-weight: 600; }
+    #verdict { margin: .8rem 0 0; padding: .6rem .9rem; border-radius: 10px; background: color-mix(in srgb, var(--accent) 10%, white); color: color-mix(in srgb, var(--accent) 70%, black); font-weight: 600; }
+    #verdict.bad { background: #fee2e2; color: #991b1b; }
+    #verdict.away { background: #fef3c7; color: #92400e; }
+    aside h4 { font-size: 1rem; margin: 1.1rem 0 .4rem; }
+    aside label { font-size: .9rem; }
+    aside .row button { padding: .35rem .75rem; font-size: .85rem; }
+    .presets button { padding: .3rem .65rem; font-size: .8rem; }
+    .tower-box { margin-top: .5rem; padding: .7rem .8rem; border-radius: 10px; background: #fff7ed; border: 1px solid #fed7aa; font-size: .88rem; }
+    .tower-box b { font-family: var(--pico-font-family-monospace); }
+    .hint-s { font-size: .8rem; color: var(--ink-2); margin: -.4rem 0 .6rem; }
+  </style>
+</head>
+<body data-concept="orbits">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Orbits and escape velocity</h1>
+      <p class="idea">A satellite is always falling, but it moves sideways so fast that it keeps missing the Earth.</p>
+      <p>Launch a satellite at any height and speed, then fire its engine to speed up or slow down and watch the orbit change shape. Push it past escape velocity and it never comes back. Build a tower as tall as you like, see how much lighter you'd feel at the top, and drop a ball off it. <strong>Back to normal</strong> puts everything back.</p>
+    </header>
+
+    <section id="play" data-label="Play">
+      <div class="layout">
+        <section>
+          <div class="stage dark"><canvas id="space" width="900" height="900" aria-label="The Earth seen from above the North Pole, with a satellite going round it"></canvas></div>
+          <p id="verdict">…</p>
+          <div class="readout-grid">
+            <div><small>Height</small><b id="rAlt">–</b></div>
+            <div><small>Speed</small><b id="rSpeed">–</b></div>
+            <div><small>Circle speed here</small><b id="rCirc">–</b></div>
+            <div><small>Escape speed here</small><b id="rEsc">–</b></div>
+            <div><small>Gravity here</small><b id="rG">–</b></div>
+            <div><small>Time in orbit</small><b id="rT">–</b></div>
+          </div>
+        </section>
+        <aside>
+          <div class="row">
+            <button id="playBtn">Pause</button>
+            <button id="reset" class="secondary">Back to normal</button>
+          </div>
+          <label>Time speed <strong id="warpVal"></strong>
+            <input type="range" id="warp" min="1" max="4.7" step="0.01" value="2.66">
+          </label>
+
+          <h4>Fire the engine</h4>
+          <div class="row">
+            <button id="slower" class="outline">◀ Slow down</button>
+            <button id="faster" class="outline">Speed up ▶</button>
+          </div>
+          <p class="hint-s">Each press changes the speed by <span id="dvVal">100 m/s</span>, along the direction it is moving.</p>
+
+          <h4>Launch a new one</h4>
+          <div class="row presets" id="presets"></div>
+          <label>Height <strong id="hVal"></strong>
+            <input type="range" id="height" min="0" max="100" step="0.1" value="0">
+          </label>
+          <label>Speed <strong id="sVal"></strong>
+            <input type="range" id="speed" min="0" max="160" step="1" value="100">
+          </label>
+          <p class="hint-s">100% makes a circle. 141.4% (√2 × circle speed) is escape velocity. Try 141% and 142%.</p>
+          <label>Aim above level <strong id="aVal"></strong>
+            <input type="range" id="aim" min="-45" max="60" step="1" value="0">
+          </label>
+          <button id="launch">Launch</button>
+
+          <h4>Build a tower</h4>
+          <div class="row presets" id="towers"></div>
+          <label>Tower height <strong id="tVal"></strong>
+            <input type="range" id="tower" min="0" max="100" step="0.1" value="0">
+          </label>
+          <div class="tower-box" id="towerBox">No tower yet. Pick a height to build one at the equator.</div>
+          <button id="drop" class="outline" style="margin-top:.6rem" disabled>Let go of a ball from the top</button>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Press "Speed up" three times on the space station.</strong> <span>The orbit stretches into an ellipse, but the high point appears on the <em>opposite</em> side of the Earth, half a lap later. Where you burn stays the low point.</span><button class="outline" data-try="speedup">Show me</button></li>
+        <li><strong>Launch at 142% speed.</strong> <span>That's escape velocity. The path never closes: it slows down as it climbs, but never quite stops, and never comes back.</span><button class="outline" data-try="escape">Show me</button></li>
+        <li><strong>Launch at 80% speed.</strong> <span>Not enough sideways speed to miss the Earth. It falls in an ellipse that cuts into the ground.</span><button class="outline" data-try="crash">Show me</button></li>
+        <li><strong>Build a 35,786 km tower and let go of a ball.</strong> <span>It doesn't fall. The top of the tower already moves at exactly orbital speed: that's a geostationary orbit.</span><button class="outline" data-try="geo">Show me</button></li>
+        <li><strong>Now a 2,000 km tower.</strong> <span>Gravity at the top is only about 58% of normal, yet the ball still falls straight back. Height alone doesn't get you into orbit; sideways speed does.</span><button class="outline" data-try="low">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>Why things orbit, step by step</h2>
+      <p class="lead">These pictures follow the satellite and tower in the toy above.</p>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">1</span>Throw it hard enough and it misses the ground</h3>
+          <p>Newton imagined a cannon on a very tall mountain. Fire the ball slowly and it lands nearby. Fire it faster and it lands further away, and because the Earth is round, the ground curves away beneath it as it falls.</p>
+          <p>Fire it fast enough and the ground curves away exactly as fast as the ball falls. It never lands: it's in orbit. Faster still and the path stretches into a long ellipse, and finally it doesn't come back at all.</p>
+        </div>
+        <figure><canvas id="ex1" width="600" height="440"></canvas><figcaption>Newton's cannon, 600 km up, at 50%, 70%, 85%, 95%, 100% and 130% of circle speed.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">2</span>Gravity gets weaker with distance, but slowly</h3>
+          <p>Gravity pulls with a strength that falls with the square of the distance from the Earth's <em>centre</em>. Double the distance and the pull is a quarter.</p>
+          <p>The centre is about 6,400 km below you, so going up 400 km to the space station barely changes anything: gravity there is still about 89% of what you feel now. Astronauts float because they are falling, not because gravity is gone.</p>
+        </div>
+        <figure><canvas id="ex2" width="600" height="380"></canvas><figcaption id="ex2cap">Gravity against height. Blue dot: the satellite now. Orange: the top of your tower.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">3</span>The speed for a circle: gravity does the turning</h3>
+          <p>Anything moving in a circle needs a pull towards the middle of v²/r. For a satellite, gravity <em>is</em> that pull. Set them equal and you get the one speed that makes a circle at each height.</p>
+          <p>Higher up, gravity is weaker, so a circle needs less speed. The space station goes 7.7 km/s; the Moon only about 1 km/s. If your satellite is below the green line it dips inwards; above it, it swings out; above the red line, it escapes.</p>
+        </div>
+        <figure><canvas id="ex3" width="600" height="380"></canvas><figcaption>Green: circle speed. Red: escape speed. Blue dot: your satellite right now.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">4</span>Change the speed and you change the far side</h3>
+          <p>Speed up and you're moving a bit too fast for a circle, so you swing outwards, climb, slow down as you climb, and fall back round to where you started. The point where you fired becomes your lowest point, and the highest point is exactly opposite.</p>
+          <p>Slow down and the opposite side dips. Slow down enough and the dip goes into the ground. That's how spacecraft come home: a short braking burn, half an orbit before the place they want to land.</p>
+        </div>
+        <figure><canvas id="ex4" width="600" height="440"></canvas><figcaption id="ex4cap">From the launch height you chose: 80%, 90%, 100%, 110%, 125% and 141% of circle speed.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">5</span>Escape velocity: enough energy to climb out</h3>
+          <p>Think of gravity as a deep well. Climbing out takes energy, and the satellite carries its energy as speed: ½v² for each kilogram. The well's depth at distance r is GM/r for each kilogram.</p>
+          <p>If the speed energy is less than the depth, the total is negative and the satellite is trapped: it orbits. If it's exactly equal, the total is zero and it just makes it out: that speed is escape velocity, √2 ≈ 1.41 times circle speed. The direction doesn't matter, as long as it doesn't hit the Earth on the way.</p>
+        </div>
+        <figure><canvas id="ex5" width="600" height="340"></canvas><figcaption>Your satellite's energy per kilogram right now: speed energy up, well depth down, total in the middle.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">6</span>A tower into space</h3>
+          <p>Stand on a tower at the equator and the Earth's spin carries you round once a day. The higher the tower, the faster its top moves, while gravity gets weaker. Some of gravity is used up just turning you round in a circle, so a scale reads less than gravity alone.</p>
+          <p>At 35,786 km the two match exactly. You'd weigh nothing, and a ball let go there stays put: it's in geostationary orbit. Above that, the spin wins: you'd have to hang on to the tower or be flung outwards. This is the idea behind a <em>space elevator</em>.</p>
+        </div>
+        <figure><canvas id="ex6" width="600" height="380"></canvas><figcaption>What a 70 kg person weighs on a scale at each height of the tower. Orange: your tower's top.</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <div class="symbols">
+        <div><code class="formula">F = G M m / r²</code><p>In words: the pull between the Earth (mass M) and a satellite (mass m) falls with the square of the distance r between their centres.</p></div>
+        <div><code class="formula">v_circle = √(GM / r)</code><p>In words: the speed for a circular orbit. The satellite's own mass cancels out, so a pebble and a space station at the same height go equally fast.</p></div>
+        <div><code class="formula">v_escape = √(2GM / r) = √2 · v_circle</code><p>In words: escape speed is about 41% more than circle speed at the same height. From the ground it is 11.2 km/s.</p></div>
+        <div><code class="formula">E = ½v² − GM / r</code><p>In words: energy per kilogram. Negative means trapped in an orbit; zero or more means it escapes.</p></div>
+        <div><code class="formula">T = 2π √(a³ / GM)</code><p>In words: Kepler's third law. The time for one lap depends only on the size of the orbit (a, half its longest width): higher orbits take longer.</p></div>
+        <div><code class="formula">v² = GM (2/r − 1/a)</code><p>In words: the vis-viva equation. Your speed at any point of an orbit, from how far out you are and how big the orbit is.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Satellite TV and weather pictures.</strong> Geostationary satellites, 35,786 km up, go round once a day, so they hang over the same spot and a dish can point at them without moving.</li>
+        <li><strong>The map on your phone.</strong> GPS satellites orbit about 20,200 km up, twice a day. Your phone times their signals to work out where you are.</li>
+        <li><strong>The bright dot crossing the night sky.</strong> That's often the space station, about 400 km up, lapping the Earth every 92 minutes.</li>
+        <li><strong>Why rockets launch eastwards.</strong> The Earth's spin already gives them up to 465 m/s at the equator for free, so they launch the way it turns.</li>
+        <li><strong>Space probes.</strong> Every mission to the Moon, Mars or beyond first has to reach escape velocity, or use a planet's gravity to swing past it.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>16 sunrises a day</h4><p>The space station goes round the Earth about every 92 minutes at around 7.7 km/s, so the crew sees about 16 sunrises and 16 sunsets every day.</p></article>
+        <article><h4>Newton's cannon</h4><p>The cannon on a mountain comes from Isaac Newton's "A Treatise of the System of the World", published in 1728, the year after his death. It is the same idea as step 1.</p></article>
+        <article><h4>A sci-fi writer's idea</h4><p>Arthur C. Clarke described using satellites in geostationary orbit to relay radio and TV around the world in a 1945 magazine article, "Extra-Terrestrial Relays". It's sometimes called the Clarke orbit.</p></article>
+        <article><h4>A tower to the sky, in 1895</h4><p>Konstantin Tsiolkovsky, inspired by the Eiffel Tower, imagined a tower reaching up to geostationary height in 1895. Today's space elevator ideas use a cable instead, because no material is strong enough for a tower.</p></article>
+        <article><h4>Lighter at the top of the Burj Khalifa</h4><p>At the top of the 828 m Burj Khalifa, gravity is about 0.026% weaker than at its foot. A 70 kg person would weigh about 18 grams less. The building's own pull on you is far smaller still.</p></article>
+        <article><h4>GPS has to correct for time</h4><p>The clocks on GPS satellites run about 38 microseconds a day fast compared with clocks on the ground, because of Einstein's relativity. Without correcting for it, GPS would drift by kilometres a day.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "There's no gravity in space." <strong>But:</strong> at the space station gravity is still about 89% of what it is on the ground. Astronauts float because they and the station are falling together.</li>
+        <li><strong>Not:</strong> "To catch up with a satellite ahead of you, speed up." <strong>But:</strong> speeding up lifts you into a bigger, slower orbit and you fall behind. You slow down, drop lower, and go round faster.</li>
+        <li><strong>Not:</strong> "Escape velocity means going straight up." <strong>But:</strong> it's about energy, not direction. Any direction works, as long as the path doesn't hit the Earth first.</li>
+        <li><strong>Not:</strong> "Heavier satellites have to go faster." <strong>But:</strong> the mass cancels out. A feather and a space station at the same height orbit at the same speed.</li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>

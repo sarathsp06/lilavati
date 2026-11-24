@@ -2,6 +2,8 @@
 //! wasm-bindgen and tested natively (`cargo test`). One module per toy.
 //!
 //! - `fourier`: draw a closed shape, get its Fourier series and the spinning circles that draw it.
-//! - `motion`: distance, velocity and acceleration over time; draw one, get the others.
+//! - `motion`: position, velocity and acceleration over time; draw one, get the others (derivatives).
+//! - `orbit`: a satellite around the Earth under gravity; orbits, escape speed, towers into space.
 pub mod fourier;
 pub mod motion;
+pub mod orbit;

@@ -1,6 +1,6 @@
 // The home page: the concept cards (from concepts.js) with small live previews, and the hero,
 // where spinning circles (the Rust Fourier series) draw one shape after another.
-import init, { Fourier } from './pkg/mathtoys.js';
+import init, { Fourier, Craft, circular_speed } from './pkg/mathtoys.js';
 import { CONCEPTS, card } from './concepts.js';
 
 document.getElementById('cards').innerHTML = CONCEPTS.filter(c => c.status === 'live').map(card).join('');
@@ -68,6 +68,19 @@ const previews = {
       c.fillStyle = col; c.beginPath(); c.arc(X(now), Y(f(now)), 5, 0, 7); c.fill();
     });
   },
+};
+// a small satellite on an ellipse, its path drawn behind it
+const RE = 6.371e6, orbiter = new Craft(0, RE + 1.2e6, -circular_speed(RE + 1.2e6) * 1.18, 0);
+let orbTrail = [], orbLast = 0;
+previews.orbits = (c, w, h, sec) => {
+  const s = h * 0.33 / RE, cx = w / 2 - 60, cy = h / 2 + 50, V = (x, y) => [cx + x * s, cy - y * s];
+  orbiter.advance(Math.max(0, sec - orbLast) * 900); orbLast = sec;
+  const [x, y] = orbiter.state(); orbTrail.push(x, y); if (orbTrail.length > 700) orbTrail.splice(0, 2);
+  c.fillStyle = '#0b1324'; c.fillRect(0, 0, w, h);
+  const g = c.createRadialGradient(cx - 20, cy - 20, 5, cx, cy, RE * s); g.addColorStop(0, '#3b82f6'); g.addColorStop(1, '#1e3a8a');
+  c.fillStyle = g; c.beginPath(); c.arc(cx, cy, RE * s, 0, 7); c.fill();
+  c.strokeStyle = '#22d3ee'; c.lineWidth = 2; c.beginPath(); for (let i = 0; i < orbTrail.length; i += 2) { const [px, py] = V(orbTrail[i], orbTrail[i + 1]); i ? c.lineTo(px, py) : c.moveTo(px, py); } c.stroke();
+  const [px, py] = V(x, y); c.fillStyle = '#fff'; c.beginPath(); c.arc(px, py, 5, 0, 7); c.fill();
 };
 const cards = [...document.querySelectorAll('canvas[data-preview]')];
 
