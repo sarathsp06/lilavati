@@ -80,11 +80,12 @@ function reset() {
 const dv = () => { const s = craft.state(); return Math.max(50, Math.min(100, 0.03 * Math.hypot(s[2], s[3]))); };
 $('faster').addEventListener('click', () => { if (gone) return; craft.burn(dv()); foresee(); explain(); });
 $('slower').addEventListener('click', () => { if (gone) return; craft.burn(-dv()); foresee(); explain(); });
-$('launch').addEventListener('click', () => launch());
 $('reset').addEventListener('click', reset);
 $('drop').addEventListener('click', dropBall);
 $('playBtn').addEventListener('click', () => { playing = !playing; $('playBtn').textContent = playing ? 'Pause' : 'Play'; });
-for (const id of ['height', 'speed', 'aim', 'warp']) $(id).addEventListener('input', labels);
+$('warp').addEventListener('input', labels);
+// the launch sliders act straight away: every change is a new launch, so the picture follows your finger
+for (const id of ['height', 'speed', 'aim']) $(id).addEventListener('input', () => { labels(); launch(); playing = true; $('playBtn').textContent = 'Pause'; });
 $('tower').addEventListener('input', () => { tower = towerOf(+$('tower').value); updateTower(); explain(); });
 
 const PRESETS = [
@@ -172,10 +173,10 @@ function draw() {
     const r = Math.hypot(x, y), gl = 14 + 26 * Math.min(1, gravity(r) / G0);
     c.strokeStyle = '#f472b6'; c.lineWidth = 2; c.beginPath(); c.moveTo(sx, sy); c.lineTo(sx - x / r * gl, sy + y / r * gl); c.stroke();
   }
-  c.font = '13px system-ui'; c.fillStyle = 'rgba(255,255,255,.7)';
-  c.fillText('Seen from above the North Pole', 16, 24);
-  c.fillStyle = '#4ade80'; c.fillText('▬ velocity', 16, W - 44); c.fillStyle = '#f472b6'; c.fillText('▬ gravity', 100, W - 44);
-  c.fillStyle = 'rgba(255,255,255,.6)'; c.fillText('- - path ahead', 180, W - 44); c.fillStyle = '#22d3ee'; c.fillText('▬ path so far', 290, W - 44);
+  c.font = '20px system-ui'; c.fillStyle = 'rgba(255,255,255,.7)';
+  c.fillText('Seen from above the North Pole', 16, 28);
+  c.font = '20px system-ui'; c.fillStyle = '#4ade80'; c.fillText('▬ velocity', 16, 54); c.fillStyle = '#f472b6'; c.fillText('▬ gravity', 130, 54);
+  c.fillStyle = 'rgba(255,255,255,.6)'; c.fillText('- - path ahead', 240, 54); c.fillStyle = '#22d3ee'; c.fillText('▬ path so far', 390, 54);
 }
 
 // ---------- the numbers under the picture ----------
@@ -186,7 +187,7 @@ function readouts() {
   $('rG').textContent = `${gravity(r).toFixed(2)} m/s² (${Math.round(100 * gravity(r) / G0)}%)`;
   $('rT').textContent = dur(t);
   const vd = $('verdict'); vd.className = '';
-  if (craft.crashed()) { vd.textContent = 'It hit the Earth. Too little sideways speed to keep missing the ground. Launch again, or press "Back to normal".'; vd.className = 'bad'; }
+  if (craft.crashed()) { vd.textContent = 'It hit the Earth. Too little sideways speed to keep missing the ground. Move a slider to launch again, or press Reset.'; vd.className = 'bad'; }
   else if (gone) { vd.textContent = 'Gone for good: it escaped the Earth\'s gravity and is heading off into space.'; vd.className = 'away'; }
   else if (el[0] >= 0) { vd.textContent = `Escaping: its speed is above escape speed (${Math.round(100 * v / escape_speed(r))}% of it), so it will never come back.`; vd.className = 'away'; }
   else if (ghostOut === 1) { vd.textContent = `Falling: its orbit dips ${km(R - el[3])} into the ground, so it will crash.`; vd.className = 'bad'; }

@@ -9,6 +9,22 @@
   <link rel="stylesheet" href="../style.css">
   <style>
     #space { background: radial-gradient(circle at 50% 45%, #13203f, #060a17 70%); width: min(100%, 76vh); margin: 0 auto; }
+    .orbit-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(280px, 1.3fr); grid-template-areas: "view ctl" "read ctl"; gap: 1rem 1.5rem; align-items: start; }
+    .viewer { grid-area: view; } .controls { grid-area: ctl; } .orbit-layout .readout-grid { grid-area: read; margin: 0; }
+    .controls { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1.1rem 1.2rem; }
+    .hud { position: absolute; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; gap: .5rem; flex-wrap: wrap; padding: 0 10px; }
+    .hb { margin: 0; width: auto; padding: .45rem .9rem; font-size: .9rem; border-radius: 99px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); color: #fff; backdrop-filter: blur(6px); }
+    .hb:hover { background: rgba(255,255,255,.26); }
+    #faster { background: rgba(34,197,94,.35); border-color: rgba(74,222,128,.7); }
+    #slower { background: rgba(239,68,68,.32); border-color: rgba(248,113,113,.7); }
+    /* phones: the picture stays at the top of the screen while you scroll through the controls */
+    @media (max-width: 900px) {
+      .orbit-layout { grid-template-columns: 1fr; grid-template-areas: "view" "ctl" "read"; }
+      .viewer { position: sticky; top: 50px; z-index: 5; background: var(--paper); padding-bottom: .4rem; }
+      #space { width: min(100%, 44vh); }
+      #verdict { margin-top: .4rem; padding: .4rem .7rem; font-size: .85rem; }
+      .hb { padding: .35rem .7rem; font-size: .8rem; }
+    }
     .stage.dark { background: #060a17; border-color: #1e293b; }
     .readout-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .5rem .9rem; margin: .8rem 0 0; }
     .readout-grid div { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: .45rem .7rem; }
@@ -31,40 +47,25 @@
     <header id="hero" class="hero">
       <h1>Orbits and escape velocity</h1>
       <p class="idea">A satellite is always falling, but it moves sideways so fast that it keeps missing the Earth.</p>
-      <p>Launch a satellite at any height and speed, then fire its engine to speed up or slow down and watch the orbit change shape. Push it past escape velocity and it never comes back. Build a tower as tall as you like, see how much lighter you'd feel at the top, and drop a ball off it. <strong>Back to normal</strong> puts everything back.</p>
+      <p>Launch a satellite at any height and speed, then fire its engine to speed up or slow down and watch the orbit change shape. Push it past escape velocity and it never comes back. Build a tower as tall as you like, see how much lighter you'd feel at the top, and drop a ball off it. <strong>Reset</strong> puts everything back to normal.</p>
     </header>
 
     <section id="play" data-label="Play">
-      <div class="layout">
-        <section>
-          <div class="stage dark"><canvas id="space" width="900" height="900" aria-label="The Earth seen from above the North Pole, with a satellite going round it"></canvas></div>
+      <div class="orbit-layout">
+        <div class="viewer">
+          <div class="stage dark">
+            <canvas id="space" width="900" height="900" aria-label="The Earth seen from above the North Pole, with a satellite going round it"></canvas>
+            <div class="hud">
+              <button id="slower" class="hb" title="Fire the engine backwards">◀ Slower</button>
+              <button id="playBtn" class="hb">Pause</button>
+              <button id="reset" class="hb">Reset</button>
+              <button id="faster" class="hb" title="Fire the engine forwards">Faster ▶</button>
+            </div>
+          </div>
           <p id="verdict">…</p>
-          <div class="readout-grid">
-            <div><small>Height</small><b id="rAlt">–</b></div>
-            <div><small>Speed</small><b id="rSpeed">–</b></div>
-            <div><small>Circle speed here</small><b id="rCirc">–</b></div>
-            <div><small>Escape speed here</small><b id="rEsc">–</b></div>
-            <div><small>Gravity here</small><b id="rG">–</b></div>
-            <div><small>Time in orbit</small><b id="rT">–</b></div>
-          </div>
-        </section>
-        <aside>
-          <div class="row">
-            <button id="playBtn">Pause</button>
-            <button id="reset" class="secondary">Back to normal</button>
-          </div>
-          <label>Time speed <strong id="warpVal"></strong>
-            <input type="range" id="warp" min="1" max="4.7" step="0.01" value="2.66">
-          </label>
-
-          <h4>Fire the engine</h4>
-          <div class="row">
-            <button id="slower" class="outline">◀ Slow down</button>
-            <button id="faster" class="outline">Speed up ▶</button>
-          </div>
-          <p class="hint-s">Each press changes the speed by <span id="dvVal">100 m/s</span>, along the direction it is moving.</p>
-
-          <h4>Launch a new one</h4>
+        </div>
+        <aside class="controls">
+          <h4 style="margin-top:0">Launch a satellite <small class="muted">(changes as you drag)</small></h4>
           <div class="row presets" id="presets"></div>
           <label>Height <strong id="hVal"></strong>
             <input type="range" id="height" min="0" max="100" step="0.1" value="0">
@@ -76,7 +77,10 @@
           <label>Aim above level <strong id="aVal"></strong>
             <input type="range" id="aim" min="-45" max="60" step="1" value="0">
           </label>
-          <button id="launch">Launch</button>
+          <p class="hint-s">◀ Slower and Faster ▶ on the picture fire the engine: <span id="dvVal">100 m/s</span> per press, along the direction it is moving.</p>
+          <label>Time speed <strong id="warpVal"></strong>
+            <input type="range" id="warp" min="1" max="4.7" step="0.01" value="2.66">
+          </label>
 
           <h4>Build a tower</h4>
           <div class="row presets" id="towers"></div>
@@ -86,13 +90,21 @@
           <div class="tower-box" id="towerBox">No tower yet. Pick a height to build one at the equator.</div>
           <button id="drop" class="outline" style="margin-top:.6rem" disabled>Let go of a ball from the top</button>
         </aside>
+        <div class="readout-grid">
+          <div><small>Height</small><b id="rAlt">–</b></div>
+          <div><small>Speed</small><b id="rSpeed">–</b></div>
+          <div><small>Circle speed here</small><b id="rCirc">–</b></div>
+          <div><small>Escape speed here</small><b id="rEsc">–</b></div>
+          <div><small>Gravity here</small><b id="rG">–</b></div>
+          <div><small>Time in orbit</small><b id="rT">–</b></div>
+        </div>
       </div>
     </section>
 
     <section id="try" data-label="Try this" class="block reveal">
       <h2>Try this</h2>
       <ol class="try">
-        <li><strong>Press "Speed up" three times on the space station.</strong> <span>The orbit stretches into an ellipse, but the high point appears on the <em>opposite</em> side of the Earth, half a lap later. Where you burn stays the low point.</span><button class="outline" data-try="speedup">Show me</button></li>
+        <li><strong>Press "Faster" three times on the space station.</strong> <span>The orbit stretches into an ellipse, but the high point appears on the <em>opposite</em> side of the Earth, half a lap later. Where you burn stays the low point.</span><button class="outline" data-try="speedup">Show me</button></li>
         <li><strong>Launch at 142% speed.</strong> <span>That's escape velocity. The path never closes: it slows down as it climbs, but never quite stops, and never comes back.</span><button class="outline" data-try="escape">Show me</button></li>
         <li><strong>Launch at 80% speed.</strong> <span>Not enough sideways speed to miss the Earth. It falls in an ellipse that cuts into the ground.</span><button class="outline" data-try="crash">Show me</button></li>
         <li><strong>Build a 35,786 km tower and let go of a ball.</strong> <span>It doesn't fall. The top of the tower already moves at exactly orbital speed: that's a geostationary orbit.</span><button class="outline" data-try="geo">Show me</button></li>
