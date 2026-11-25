@@ -16,6 +16,11 @@
       <p>Most arrows get knocked off their line by a matrix. A few special directions don't: they only get longer, shorter or flipped. Drag the orange arrow <b>v</b> round until <b>Av</b> lies on the same line, or press <b>Apply again</b> and watch any arrow swing towards the strongest eigenvector by itself, the trick behind Google's first search ranking.</p>
     </header>
 
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What eigenvectors and eigenvalues are</h2>
+      <p>An <strong>eigenvector</strong> of a matrix is a direction the matrix does not turn: an arrow pointing that way comes out longer, shorter or flipped, but on the same line. The <strong>eigenvalue</strong> is the factor it was stretched by. Most matrices have a few such directions, and they are the matrix's natural axes: applying the move again and again, everything swings towards the direction with the biggest stretch.</p><p>On this page you hunt for those directions by dragging an arrow, and see why repeating a move finds the strongest one by itself, the idea behind Google's first ranking of web pages.</p>
+    </section>
+
     <section id="play" data-label="Play">
       <div class="toy">
         <div class="viewer">
@@ -80,10 +85,11 @@
 
     <section id="symbols" data-label="In symbols" class="block reveal">
       <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>A</strong> is the matrix, <strong>v</strong> an arrow, <strong>λ</strong> (lambda) a plain number, so <strong>A v = λ v</strong> reads "A applied to v gives λ times v". <strong>λ₁, λ₂</strong> are the two eigenvalues; <strong>λ₁·λ₂</strong> is their product. <strong>I</strong> is the do-nothing matrix. <strong>Aⁿ</strong> is A applied n times.</p>
       <div class="symbols">
         <div><code class="formula">A v = λ v</code><p>In words: v is only stretched by λ, not turned.</p></div>
         <div><code class="formula">det(A − λI) = 0</code><p>In words: the equation the eigenvalues solve.</p></div>
-        <div><code class="formula">λ₁ + λ₂ = a + d,   λ₁ λ₂ = ad − bc</code><p>In words: they add up to the trace and multiply to the determinant.</p></div>
+        <div><code class="formula">λ₁ + λ₂ = a + d,   λ₁·λ₂ = a·d − b·c</code><p>In words: they add up to the trace and multiply to the determinant.</p></div>
         <div><code class="formula">A = P D P⁻¹</code><p>In words: eigendecomposition: change to eigen-directions, stretch, change back.</p></div>
         <div><code class="formula">Aⁿ = P Dⁿ P⁻¹</code><p>In words: repeating the move just raises each stretch to a power.</p></div>
         <div><code class="formula">A = Q Λ Qᵀ (A symmetric)</code><p>In words: for symmetric matrices the directions are at right angles, so Q is a turn.</p></div>

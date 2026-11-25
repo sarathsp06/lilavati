@@ -21,6 +21,11 @@
       <p>Here the example is something moving along a line for 10 seconds: where it is, how fast it goes, and how hard it speeds up. Draw on any of the three graphs and the other two follow. Going down a graph is the derivative, going up is the integral.</p>
     </header>
 
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What derivatives and integrals are</h2>
+      <p>A <strong>derivative</strong> is a rate of change: how fast one quantity changes as another one moves. On a graph it is the slope at a single point. An <strong>integral</strong> is the opposite: it adds up a rate over a stretch to get the total, and on a graph it is the area under the curve. The two undo each other, which is the fundamental theorem of calculus.</p><p>On this page the quantity is position along a line over time. Its derivative is speed, the derivative of speed is acceleration, and integrating speed gives the distance covered. Everything you can read off a speedometer and an odometer is this pair of operations.</p>
+    </section>
+
     <section id="play" data-label="Play">
       <div class="layout">
       <section>
@@ -125,6 +130,7 @@
 
     <section id="symbols" data-label="In symbols" class="block reveal">
       <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>s(t)</strong> is the position at time t, <strong>v</strong> speed, <strong>a</strong> acceleration. <strong>h</strong> is a short stretch of time. <strong>ds/dt</strong> is read "the rate of change of s with t" (not s divided by d·t); <strong>d²s/dt²</strong> is the rate of change of that rate. <strong>∫₀ᵀ … dt</strong> means "add up, from time 0 to time T".</p>
       <div class="symbols">
         <div><code class="formula">f′(t) = lim (f(t + h) − f(t)) / h   as h → 0</code><p>In words: the derivative is the rise over the run, for a run so short it's a single instant.</p></div>
         <div><code class="formula">v = ds/dt      a = dv/dt = d²s/dt²</code><p>In words: speed is the derivative of position, and acceleration is the derivative of speed, so the second derivative of position.</p></div>

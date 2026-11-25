@@ -16,6 +16,11 @@
       <p>Drag the green arrow <b>î</b> and the red arrow <b>ĵ</b>, and the whole grid follows. The four numbers of the matrix are just where those two arrows end up. Every layer of a neural network does this to its data, in many more dimensions, millions of times a second.</p>
     </header>
 
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What a linear transformation and a matrix are</h2>
+      <p>A <strong>linear transformation</strong> is a move of the whole plane (or space) that keeps grid lines straight, evenly spaced and through the origin: stretching, turning, shearing, squashing, or flipping, but never bending. A <strong>matrix</strong> is the recipe for such a move written as a grid of numbers: its columns say where the basic arrows land, and from those two arrows every other point follows.</p><p>On this page you drag the two basic arrows and the matrix fills itself in. A layer of a neural network applies exactly such a move to its data, in many more dimensions.</p>
+    </section>
+
     <section id="play" data-label="Play">
       <div class="toy">
         <div class="viewer">
@@ -80,12 +85,13 @@
 
     <section id="symbols" data-label="In symbols" class="block reveal">
       <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>A</strong> is a matrix, <strong>v</strong> a vector, and <strong>A v</strong> means "apply A to v". <strong>[[a, b], [c, d]]</strong> is the matrix with top row a, b and bottom row c, d. <strong>a·x + b·y</strong> means a times x plus b times y. <strong>A⁻¹</strong> is the move that undoes A.</p>
       <div class="symbols">
         <div><code class="formula">A v = x (first column) + y (second column)</code><p>In words: a matrix times a vector mixes the columns in the amounts the vector says.</p></div>
-        <div><code class="formula">[[a, b], [c, d]] (x, y) = (ax + by, cx + dy)</code><p>In words: the same, row by row: each row dotted with the vector.</p></div>
+        <div><code class="formula">[[a, b], [c, d]] (x, y) = (a·x + b·y, c·x + d·y)</code><p>In words: the same, row by row: each row dotted with the vector.</p></div>
         <div><code class="formula">(AB) v = A (B v)</code><p>In words: multiplying matrices means doing one move after the other, right to left.</p></div>
         <div><code class="formula">AB ≠ BA</code><p>In words: usually; the order of the moves matters.</p></div>
-        <div><code class="formula">A⁻¹ = 1/(ad − bc) · [[d, −b], [−c, a]]</code><p>In words: the inverse of a 2×2 matrix; it doesn't exist when ad − bc = 0.</p></div>
+        <div><code class="formula">A⁻¹ = 1/(a·d − b·c) · [[d, −b], [−c, a]]</code><p>In words: the inverse of a 2×2 matrix; it doesn't exist when a·d − b·c = 0.</p></div>
         <div><code class="formula">y = ReLU(W x + b)</code><p>In words: one neural network layer: move, shift, then fold negatives to zero.</p></div>
       </div>
     </section>

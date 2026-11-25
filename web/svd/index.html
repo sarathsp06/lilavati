@@ -16,6 +16,11 @@
       <p>Any matrix at all, however messy, sends a circle to an ellipse. The SVD finds the three simple moves that do it: turn, stretch along the axes, turn again. Slide through the three moves below, then scroll to see the same idea compress a picture and find the main direction in a cloud of data (PCA), and why modern AI fine-tuning keeps only the biggest stretches.</p>
     </header>
 
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What the singular value decomposition is</h2>
+      <p>The <strong>singular value decomposition</strong> (SVD) says that every matrix, whatever its shape, is three simple moves in a row: a turn, a stretch along a few axes, and another turn. The stretch factors are the <strong>singular values</strong>, and they rank the matrix's directions by how much it magnifies them. Keeping only the biggest ones gives the best simple approximation of the matrix.</p><p>On this page you slide through the three moves, then use the same idea to compress a picture and to find the main direction in a cloud of data.</p>
+    </section>
+
     <section id="play" data-label="Play">
       <div class="toy">
         <div class="viewer">
@@ -75,11 +80,12 @@
 
     <section id="symbols" data-label="In symbols" class="block reveal">
       <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>A</strong> is any matrix. <strong>U</strong> and <strong>V</strong> are turns, <strong>Σ</strong> (capital sigma, here a matrix, not a sum) is the stretch, and <strong>Vᵀ</strong> is V run backwards. <strong>σ₁, σ₂, …</strong> ("sigma sub 1") are the stretch factors, biggest first. <strong>uᵢ</strong> and <strong>vᵢ</strong> are the i-th arrows of U and V, and <strong>σ₁·u₁·v₁ᵀ</strong> is one layer: a number times an outer product of two arrows.</p>
       <div class="symbols">
         <div><code class="formula">A = U Σ Vᵀ</code><p>In words: turn, stretch, turn: works for every matrix, any shape.</p></div>
         <div><code class="formula">σ₁ ≥ σ₂ ≥ … ≥ 0</code><p>In words: the stretches, biggest first; never negative.</p></div>
         <div><code class="formula">A vᵢ = σᵢ uᵢ</code><p>In words: each right singular vector lands on a left one, stretched by σᵢ.</p></div>
-        <div><code class="formula">Aₖ = σ₁u₁v₁ᵀ + … + σₖuₖvₖᵀ</code><p>In words: the best approximation using k layers; the error is the dropped σ²s.</p></div>
+        <div><code class="formula">Aₖ = σ₁·u₁·v₁ᵀ + … + σₖ·uₖ·vₖᵀ</code><p>In words: the best approximation using k layers; the error is the dropped σ²s.</p></div>
         <div><code class="formula">σᵢ² = eigenvalues of AᵀA</code><p>In words: how to compute them: the SVD is eigenvectors of AᵀA and AAᵀ.</p></div>
         <div><code class="formula">A⁺ = V Σ⁺ Uᵀ</code><p>In words: the Moore-Penrose pseudoinverse: flip each non-zero σ to 1/σ. It gives the best possible "undo", even for squashing matrices.</p></div>
       </div>

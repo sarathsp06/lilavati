@@ -29,6 +29,11 @@
       <p>Mix up to three waves and watch, and listen to, what their sum does. Two equal waves can double each other or cancel to silence. Two notes slightly out of tune throb in loudness. A few waves at whole-number frequencies make a chord, or even the corners of a square wave.</p>
     </header>
 
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What superposition is</h2>
+      <p><strong>Superposition</strong> is the rule that when two waves meet, they simply add: at every moment and every place, the height of the combined wave is the sum of the heights of the separate ones. The waves pass through each other unchanged. Adding a wave to its own mirror image gives nothing at all; adding two nearly equal waves gives a throbbing beat; adding many waves at whole-number frequencies gives a chord, or any shape you like.</p><p>On this page you mix up to three sound waves, see their sum, and hear it.</p>
+    </section>
+
     <section id="play" data-label="Play">
       <div class="toy">
         <div class="viewer">
@@ -104,13 +109,14 @@
 
     <section id="symbols" data-label="In symbols" class="block reveal">
       <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>y(t)</strong> is the height of the wave at time t, <strong>a</strong> its size, <strong>f</strong> its frequency in cycles per second, <strong>φ</strong> (phi) its starting phase. <strong>2π·f·t</strong> means 2π times f times t. <strong>sin(3·x)</strong> is the sine of three times x, a wave three times as fast. <strong>k</strong> and <strong>ω</strong> (omega) are how fast a wave repeats in space and in time.</p>
       <div class="symbols">
-        <div><code class="formula">y(t) = a · sin(2π f t + φ)</code><p>In words: one wave of size a, f cycles a second, started φ of the way round its cycle.</p></div>
+        <div><code class="formula">y(t) = a · sin(2π·f·t + φ)</code><p>In words: one wave of size a, f cycles a second, started φ of the way round its cycle.</p></div>
         <div><code class="formula">y_total(t) = y₁(t) + y₂(t) + y₃(t)</code><p>In words: superposition: at every moment, the heights add.</p></div>
-        <div><code class="formula">A = √(a² + b² + 2ab cos φ)</code><p>In words: two waves of the same frequency add to one wave; its size is the third side of the arrow triangle (the law of cosines).</p></div>
+        <div><code class="formula">A = √(a² + b² + 2·a·b·cos φ)</code><p>In words: two waves of the same frequency add to one wave; its size is the third side of the arrow triangle (the law of cosines).</p></div>
         <div><code class="formula">f_beat = |f₁ − f₂|</code><p>In words: two nearly equal notes throb as many times a second as their frequencies differ.</p></div>
-        <div><code class="formula">sin x + ⅓ sin 3x + ⅕ sin 5x + … = π/4 · square(x)</code><p>In words: odd harmonics, smaller and smaller, add up to a square wave.</p></div>
-        <div><code class="formula">sin(kx − ωt) + sin(kx + ωt) = 2 sin(kx) cos(ωt)</code><p>In words: two waves going opposite ways make a standing wave: a fixed shape, sin(kx), whose size swings with time.</p></div>
+        <div><code class="formula">sin x + ⅓ sin(3·x) + ⅕ sin(5·x) + … = π/4 · square(x)</code><p>In words: odd harmonics, smaller and smaller, add up to a square wave.</p></div>
+        <div><code class="formula">sin(k·x − ω·t) + sin(k·x + ω·t) = 2 · sin(k·x) · cos(ω·t)</code><p>In words: two waves going opposite ways make a standing wave: a fixed shape, sin(k·x), whose size swings with time.</p></div>
       </div>
     </section>
 

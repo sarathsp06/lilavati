@@ -16,6 +16,11 @@
       <p>Every piece of data an AI touches is a vector: a picture, a word, a song, you. Drag the two arrows below and watch the one number that compares them. Then switch to <em>A neuron</em> and see that the most basic building block of a neural network is nothing but a dot product.</p>
     </header>
 
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What a vector and the dot product are</h2>
+      <p>A <strong>vector</strong> is a list of numbers, drawn as an arrow: two numbers make an arrow on a page, three an arrow in space, and a thousand an arrow in a space you can't picture but can still calculate with. The <strong>dot product</strong> takes two vectors and gives back one number that says how much they point the same way: large when they agree, zero when they are at right angles, negative when they oppose.</p><p>On this page you drag two arrows and watch that number. A neuron in a neural network is a dot product between its inputs and its weights, followed by a yes-or-no decision, which is why this is the first page of the AI chapter.</p>
+    </section>
+
     <section id="play" data-label="Play">
       <div class="toy">
         <div class="viewer">
@@ -87,11 +92,12 @@
 
     <section id="symbols" data-label="In symbols" class="block reveal">
       <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>a</strong> and <strong>b</strong> are vectors; <strong>a₁, a₂, …</strong> ("a sub 1") are their numbers, so <strong>a₁·b₁</strong> is a's first number times b's first number. <strong>|a|</strong> or <strong>‖a‖</strong> is the length of a. <strong>θ</strong> (theta) is the angle between the arrows.</p>
       <div class="symbols">
-        <div><code class="formula">a·b = a₁b₁ + a₂b₂ + … + aₙbₙ</code><p>In words: multiply the matching numbers and add them up.</p></div>
-        <div><code class="formula">a·b = |a| |b| cos θ</code><p>In words: the same number, from the lengths and the angle between the arrows.</p></div>
+        <div><code class="formula">a·b = a₁·b₁ + a₂·b₂ + … + aₙ·bₙ</code><p>In words: multiply the matching numbers and add them up.</p></div>
+        <div><code class="formula">a·b = |a| · |b| · cos θ</code><p>In words: the same number, from the lengths and the angle between the arrows.</p></div>
         <div><code class="formula">‖a‖₂ = √(a·a),  ‖a‖₁ = Σ|aᵢ|,  ‖a‖∞ = max|aᵢ|</code><p>In words: three ways to measure length: straight line, city blocks, biggest part.</p></div>
-        <div><code class="formula">cos θ = a·b / (‖a‖ ‖b‖)</code><p>In words: cosine similarity: only the direction counts, not the length.</p></div>
+        <div><code class="formula">cos θ = a·b / (‖a‖ · ‖b‖)</code><p>In words: cosine similarity: only the direction counts, not the length.</p></div>
         <div><code class="formula">proj = (a·b / a·a) a</code><p>In words: the shadow of b on the line of a.</p></div>
         <div><code class="formula">y = step(w·x + b)</code><p>In words: a neuron: weigh the inputs, add the bias, say yes above zero.</p></div>
       </div>

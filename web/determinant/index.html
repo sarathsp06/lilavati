@@ -16,6 +16,11 @@
       <p>The shaded square starts with area 1. Drag <b>î</b> and <b>ĵ</b> and watch it become a parallelogram: its area is the determinant. Every other shape grows or shrinks by the same factor. If the colour turns red, space has been flipped over like a mirror image; if the area hits zero, space has been squashed flat.</p>
     </header>
 
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What the determinant is</h2>
+      <p>The <strong>determinant</strong> of a matrix is one number that says how much the matrix's move changes areas (or volumes): 2 means every area doubles, ½ means it halves, 0 means everything is squashed flat, and a negative sign means space has been flipped over like a mirror image.</p><p>On this page you watch a unit square turn into a parallelogram as you drag the arrows; the parallelogram's area, with its sign, is the determinant.</p>
+    </section>
+
     <section id="play" data-label="Play">
       <div class="toy">
         <div class="viewer">
@@ -79,8 +84,9 @@
 
     <section id="symbols" data-label="In symbols" class="block reveal">
       <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>det</strong> is short for determinant; <strong>a·d − b·c</strong> means a times d minus b times c, where a, b, c, d are the four numbers of the matrix. <strong>AB</strong> is the move B followed by the move A. <strong>λ</strong> (lambda) and <strong>σ</strong> (sigma) are stretch factors met in the next two chapters.</p>
       <div class="symbols">
-        <div><code class="formula">det [[a, b], [c, d]] = ad − bc</code><p>In words: the area factor of a 2×2 matrix, with a sign for flipping.</p></div>
+        <div><code class="formula">det [[a, b], [c, d]] = a·d − b·c</code><p>In words: the area factor of a 2×2 matrix, with a sign for flipping.</p></div>
         <div><code class="formula">det(AB) = det(A) · det(B)</code><p>In words: doing two moves multiplies their area factors.</p></div>
         <div><code class="formula">det(A⁻¹) = 1 / det(A)</code><p>In words: undoing a move undoes its area change.</p></div>
         <div><code class="formula">det(A) = 0  ⇔  no inverse</code><p>In words: squashed flat means the move can't be undone, and the columns lie on one line.</p></div>

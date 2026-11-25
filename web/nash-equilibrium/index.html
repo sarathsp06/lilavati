@@ -16,6 +16,11 @@
       <p>Pick your number and lock it in. Computer players pick theirs at the same moment, or press <strong>Invite</strong> at the top and play with friends: nobody sees anyone's number until everyone has locked in. Then play again, and watch where the whole group goes.</p>
     </header>
 
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What a Nash equilibrium is</h2>
+      <p>A <strong>Nash equilibrium</strong> is a situation in a game where nobody can do better by changing their own choice alone, given what everyone else is doing. It is not necessarily the best outcome for the group; it is simply the point where every player's choice is the best reply to everyone else's, so nobody has a reason to move.</p><p>On this page the game is guess two-thirds of the average. The equilibrium is 0, because 0 is the only guess that is its own best reply, and you watch real players, and computer players, walk towards it round by round.</p>
+    </section>
+
     <section id="play" data-label="Play">
       <div class="toy game">
         <div class="viewer">
@@ -92,6 +97,7 @@
 
     <section id="symbols" data-label="In symbols" class="block reveal">
       <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>g₁, g₂, … gₙ</strong> ("g sub 1") are the n players' guesses, <strong>T</strong> the target, <strong>⅔·x</strong> two-thirds times x. <strong>(⅔)ᵏ</strong> is two-thirds multiplied by itself k times. <strong>g*</strong> is the equilibrium guess and <strong>⇒</strong> reads "therefore".</p>
       <div class="symbols">
         <div><code class="formula">T = ⅔ · (g₁ + g₂ + … + gₙ) / n</code><p>The target is two-thirds of the average of all n guesses, yours included.</p></div>
         <div><code class="formula">gₖ = 50 · (⅔)ᵏ</code><p>A level-k thinker replies to level k − 1: 50, 33.3, 22.2, 14.8, … each two-thirds of the one before.</p></div>

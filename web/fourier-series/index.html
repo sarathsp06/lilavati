@@ -17,6 +17,11 @@
       <p>Draw a shape below. Its outline becomes two equations, x(t) and y(t), each a sum of sines and cosines, and a chain of spinning circles draws it back. Slide the number of terms to watch the shape sharpen.</p>
     </header>
 
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What a Fourier series is</h2>
+      <p>A <strong>Fourier series</strong> writes any repeating curve as a sum of simple waves: sines and cosines that repeat 1, 2, 3, … times per cycle, each in its own amount. The list of amounts is the recipe of the curve, and working them out is called Fourier analysis. The <strong>Fourier transform</strong> is the same idea for curves that don't repeat: it tells you how much of every frequency is inside a signal.</p><p>On this page the repeating curve is the outline you draw (you go round it once and start again). Its left-right and up-down positions are each written as such a sum, and every sine-and-cosine pair becomes one spinning circle: the amount is the circle's size, the frequency is how fast it turns. Keep more waves, and the circles follow your drawing more closely.</p>
+    </section>
+
     <section id="play" data-label="Play">
       <div class="layout">
       <section>
@@ -90,9 +95,9 @@
       <div class="step reveal">
         <div>
           <h3><span class="num">3</span>Hold a test wave against it</h3>
-          <p>How much of the wave that repeats k times per lap is hiding in x(t)? Lay that test wave, cos(kt), over x(t) (top row) and multiply the two at every moment (middle row). Where both are up, or both are down, the product is positive: green. Where one is up and the other down, it is negative: red.</p>
-          <p>Now add up the green and subtract the red as the scan moves along (bottom row). If x(t) really contains this wave, they keep agreeing and the total grows. Twice the average at the end is the number in the equation: <b>aₖ</b>. Use sin(kt) instead and you get <b>bₖ</b>; do the same with y(t) for cₖ and dₖ.</p>
-          <code class="formula">aₖ = 2 · average of x(t)·cos(kt)</code>
+          <p>How much of the wave that repeats k times per lap is hiding in x(t)? Lay that test wave, cos(k·t), over x(t) (top row) and multiply the two at every moment (middle row). Where both are up, or both are down, the product is positive: green. Where one is up and the other down, it is negative: red.</p>
+          <p>Now add up the green and subtract the red as the scan moves along (bottom row). If x(t) really contains this wave, they keep agreeing and the total grows. Twice the average at the end is the number in the equation: <b>aₖ</b>. Use sin(k·t) instead and you get <b>bₖ</b>; do the same with y(t) for cₖ and dₖ.</p>
+          <code class="formula">aₖ = 2 · average of x(t)·cos(k·t)</code>
           <div class="row kpick" role="group" aria-label="Choose the test wave">
             <span class="muted">Test wave:</span>
             <button class="outline" data-k="1">k = 1</button><button class="outline" data-k="2">2</button><button class="outline" data-k="3">3</button><button class="outline" data-k="5">5</button><button class="outline" data-k="8">8</button>
@@ -107,7 +112,7 @@
         <div>
           <h3><span class="num">4</span>Why the other waves don't get in the way</h3>
           <p>x(t) is a mix of many waves at once, so why does the test wave pick out only its own? Because two different waves that repeat a whole number of times per lap always cancel when multiplied: they agree exactly as often as they disagree, so the green and red areas are equal and the total is 0.</p>
-          <p>Only a wave times itself never cancels: the product is never below zero and its average is exactly ½. That is where the 2 in the formula comes from. So multiplying by cos(kt) and averaging silences every other wave and leaves half of the cos(kt) part: twice that is aₖ.</p>
+          <p>Only a wave times itself never cancels: the product is never below zero and its average is exactly ½. That is where the 2 in the formula comes from. So multiplying by cos(k·t) and averaging silences every other wave and leaves half of the cos(k·t) part: twice that is aₖ.</p>
         </div>
         <figure><canvas id="step4" width="600" height="420"></canvas><figcaption>Left: a 3-per-lap wave times a 2-per-lap wave cancels out. Right: a wave times itself averages to ½.</figcaption></figure>
       </div>
@@ -142,11 +147,12 @@
 
     <section id="symbols" data-label="In symbols" class="block reveal">
       <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>t</strong> is how far round the outline you are, from 0 at the start to 2π (one full lap). <strong>k</strong> is the wave number: 1, 2, 3, … <strong>k·t</strong> means k times t, so wave k repeats k times per lap. <strong>aₖ</strong> ("a sub k") is the amount of cosine wave number k; <strong>Σ</strong> means "add these up for every k".</p>
       <div class="symbols">
-        <div><code class="formula">x(t) = a₀ + Σ aₖ cos(kt) + bₖ sin(kt)</code><p>In words: the left-right position is its average, plus a little of each wave that repeats k times per lap.</p></div>
-        <div><code class="formula">y(t) = c₀ + Σ cₖ cos(kt) + dₖ sin(kt)</code><p>In words: the same for the up-down position, with its own amounts.</p></div>
-        <div><code class="formula">aₖ = (1/π) ∫ x(t) cos(kt) dt   (t from 0 to 2π)</code><p>In words: how much of wave k is in x is twice the average of x times that wave. The page uses the same sum over its few hundred points.</p></div>
-        <div><code class="formula">z(t) = Σ Cₖ e^{ikt},  k = −N … N</code><p>In words: written with complex numbers, each term is one arm of length |Cₖ| turning k times per lap. That's the chain of circles.</p></div>
+        <div><code class="formula">x(t) = a₀ + Σ aₖ cos(k·t) + bₖ sin(k·t)</code><p>In words: the left-right position is its average, plus a little of each wave that repeats k times per lap.</p></div>
+        <div><code class="formula">y(t) = c₀ + Σ cₖ cos(k·t) + dₖ sin(k·t)</code><p>In words: the same for the up-down position, with its own amounts.</p></div>
+        <div><code class="formula">aₖ = (1/π) ∫ x(t) cos(k·t) dt   (t from 0 to 2π)</code><p>In words: how much of wave k is in x is twice the average of x times that wave. The page uses the same sum over its few hundred points.</p></div>
+        <div><code class="formula">z(t) = Σ Cₖ e^{i·k·t},  k = −N … N</code><p>In words: written with complex numbers, each term is one arm of length |Cₖ| turning k times per lap. That's the chain of circles.</p></div>
       </div>
     </section>
 
