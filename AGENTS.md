@@ -28,5 +28,12 @@ Notes for anyone (person or AI agent) adding to or changing this site.
   controls stay at the top of the screen while the rest scrolls.
 - **Registering a page:** add it to `web/concepts.js` (single concepts or a chapter `series`); the home
   page cards, top bar and previous/next links are built from that list.
-- **Checks:** `cargo test` for the maths; open every changed page in a browser at desktop and phone
+- **Together (shared sessions, 2026-11-25):** people can invite others with a link and explore a page together
+  (chat, and one person's changes show for everyone). Every page must work with it; see
+  [docs/TOGETHER.md](docs/TOGETHER.md). Controls in `<main>` and its buttons are shared automatically. State
+  that lives only in JavaScript (dragged points, drawings, simulations) must be handed over with
+  `share(get, set)` from `web/together/share.js` at the end of `app.js`; a page with nothing beyond its
+  controls still calls `share()`. Validate what `set` receives (it comes from other browsers; `nums()` helps).
+  Mark controls that must stay personal (copy buttons, sound, a playback clock) with `data-local`.
+- **Checks:** `./build.sh` runs `cargo test` for the maths and `node --test tests/` for Together; open every changed page in a browser at desktop and phone
   width before deploying. Deploy steps are in [docs/DEPLOY.md](docs/DEPLOY.md).

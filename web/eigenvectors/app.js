@@ -2,6 +2,7 @@
 // iteration). Maths: pkg/lilavati.js (linalg); drawing: ../la.js.
 import init, { eig2, det2 } from '../pkg/lilavati.js';
 import { Plane, COL, I2, MATRICES, apply, fmt, vec, matrixToy, basis, figPlane, clearFig, panels } from '../la.js';
+import { share, nums } from '../together/share.js';
 
 await init();
 const $ = id => document.getElementById(id);
@@ -80,3 +81,11 @@ const TRY = [() => { st.set([2, 0, 0, 0.5], 4); v = [2.5, 0]; trail = []; draw(s
   () => { st.set([1, 1, 1, 0], PRESETS.length - 1); v = [0.4, 2]; trail = []; let k = 0; const id = setInterval(() => { $('again').click(); if (++k >= 8) clearInterval(id); }, 450); }];
 for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('click', () => { TRY[+b.dataset.try](); $('play').scrollIntoView({ behavior: 'smooth' }); });
 st.update();
+
+// Together (together/share.js): the matrix, the arrow v and its trail
+const m4 = v => (nums(v, 4)?.length === 4 ? [...v] : null), t01 = t => (Number.isFinite(t) ? Math.max(0, Math.min(1, t)) : 1);
+share(() => ({ m: st.m, t: st.t, v, trail }), s => {
+  const m = m4(s?.m), V = nums(s?.v, 2); if (!m || V?.length !== 2 || !Array.isArray(s.trail) || s.trail.length > 12) return;
+  const T = s.trail.map(p => nums(p, 2)).filter(p => p?.length === 2); if (T.length !== s.trail.length) return;
+  st.m = m; st.t = t01(s.t); v = [...V]; trail = T; st.update();
+});

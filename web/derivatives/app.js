@@ -1,6 +1,7 @@
 // The derivatives and integrals page, shown with motion: one motion as three linked graphs (position, velocity, acceleration) over 10 s.
 // You draw on one; Rust (pkg/lilavati.js, motion module) works out the other two by slopes and areas.
 import init, { Motion, smooth } from '../pkg/lilavati.js';
+import { share, nums } from '../together/share.js';
 
 await init();
 const $ = id => document.getElementById(id);
@@ -199,3 +200,9 @@ const TRY = {
 };
 for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('click', () => { TRY[b.dataset.try]?.(); document.getElementById('play').scrollIntoView({ behavior: 'smooth' }); });
 window.__motion = { get cur() { return cur; }, setSource, compute };
+
+// Together (together/share.js): which graph is drawn on and what is drawn there
+share(() => ({ src, data: Array.from(data), v0 }), s => {
+  const d = nums(s?.data, N); if (!d || d.length !== N || !KEYS.includes(s.src)) return;
+  setSource(s.src, false); data = Float64Array.from(d); v0 = Number.isFinite(s.v0) ? s.v0 : 0; syncV0(); fixed = null; compute();
+});

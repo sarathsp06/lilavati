@@ -4,6 +4,7 @@
 set -e
 cd "$(dirname "$0")"
 cargo test
+node --test tests/*.test.mjs
 wasm-pack build --target web --out-dir web/pkg --release
 echo "built web/pkg; run: python3 -m http.server 8080 -d web"
 # the publishable site: web/ without wasm-pack's packaging files

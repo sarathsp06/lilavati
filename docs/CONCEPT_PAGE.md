@@ -49,7 +49,9 @@ algebra pages share `web/la.js`: a coordinate plane, draggable arrows, a matrix 
    `status: 'soon'` it shows on the home page as coming next.
 2. Maths in `src/<module>.rs` with tests; pages import `../pkg/lilavati.js`.
 3. Copy `docs/concept-template.html` to `web/<slug>/index.html` and fill in every section.
-4. Set `status: 'live'`, and add a small `preview(canvas, t)` drawing for the home page card.
+4. End `app.js` with `share(...)` from `web/together/share.js`, so people exploring together see the same
+   picture ([TOGETHER.md](TOGETHER.md)); mark personal controls `data-local`.
+5. Set `status: 'live'`, and add a small `preview(canvas, t)` drawing for the home page card.
 
 ## Voice
 

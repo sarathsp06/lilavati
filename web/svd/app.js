@@ -3,6 +3,7 @@
 // Maths: pkg/lilavati.js (linalg); drawing: ../la.js.
 import init, { svd2, pca2, Svd } from '../pkg/lilavati.js';
 import { Plane, COL, I2, apply, rot, mul, fmt, matrixToy, basis, figPlane, clearFig, panels } from '../la.js';
+import { share, nums } from '../together/share.js';
 
 await init();
 const $ = id => document.getElementById(id);
@@ -88,3 +89,10 @@ const TRY = [() => { stage = 0; $('stage').value = 0; draw(st); let s = 0; const
   () => st.set([0.866, -0.5, 0.5, 0.866], 2), () => { st.set([1, 1, 0, 1], 5); $('rank1').checked = true; draw(st); }, () => { $('rank1').checked = false; st.set([-1, 0, 0, 1], 6); $('playMove').click(); }];
 for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('click', () => { if (+b.dataset.try !== 2) $('rank1').checked = false; TRY[+b.dataset.try](); $('play').scrollIntoView({ behavior: 'smooth' }); });
 st.update();
+
+// Together (together/share.js): the matrix and which stage of the move is shown
+const m4 = v => (nums(v, 4)?.length === 4 ? [...v] : null), t01 = t => (Number.isFinite(t) ? Math.max(0, Math.min(1, t)) : 1);
+share(() => ({ m: st.m, t: st.t, stage }), s => {
+  const m = m4(s?.m); if (!m || !Number.isFinite(s.stage)) return;
+  st.m = m; st.t = t01(s.t); st.update(); stage = Math.max(0, Math.min(3, s.stage)); $('stage').value = stage; draw(st);
+});

@@ -2,6 +2,7 @@
 // Maths: pkg/lilavati.js (linalg); drawing: ../la.js.
 import init, { det2, inv2, mul2 } from '../pkg/lilavati.js';
 import { Plane, COL, FLAG, I2, apply, rot, fmt, vec, matrixToy, basis, figPlane, clearFig, panels } from '../la.js';
+import { share, nums } from '../together/share.js';
 
 await init();
 const $ = id => document.getElementById(id);
@@ -66,3 +67,10 @@ function explain(m) {
 const TRY = [() => st.set([0, -1, 1, 0], 1), () => { st.set([1, 1, 0, 1], 5); st.play(); }, () => { st.set([1, 2, 0.5, 1], 8); setTimeout(() => $('undo').click(), 900); }, () => { v = [2, 1]; draw(st); }];
 for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('click', () => { TRY[+b.dataset.try](); $('play').scrollIntoView({ behavior: 'smooth' }); });
 st.update();
+
+// Together (together/share.js): the matrix, how far the move has gone, and the arrow v
+const m4 = v => (nums(v, 4)?.length === 4 ? [...v] : null), t01 = t => (Number.isFinite(t) ? Math.max(0, Math.min(1, t)) : 1);
+share(() => ({ m: st.m, t: st.t, v }), s => {
+  const m = m4(s?.m), V = nums(s?.v, 2); if (!m || V?.length !== 2) return;
+  st.m = m; st.t = t01(s.t); v = [...V]; st.update();
+});

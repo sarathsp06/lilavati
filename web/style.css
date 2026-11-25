@@ -186,3 +186,41 @@ a.gh:hover { color: var(--accent); }
 /* concept name shown under the real-world heading */
 .chip.concept { background: var(--ink-1); color: #fff; }
 .ccard .cname { font-size: .78rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); margin: -.1rem 0 .4rem; }
+
+/* Together: the invite button, the panel with people and chat (together/index.js) */
+.together-btn { margin: 0 0 0 auto; padding: .3rem .8rem; font-size: .85rem; width: auto; border-radius: 99px; flex-shrink: 0; position: relative;
+  background: transparent; color: var(--ink-1); border: 1px solid var(--line); }
+.together-btn:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
+.together-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.together-btn .badge { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--hot); color: #fff; font-size: .7rem; line-height: 18px; }
+.topbar .together-btn + a.gh { margin-left: 0; }
+.home-nav .together-btn { margin: 0 .8rem 0 0; }
+.together { position: fixed; right: 1rem; bottom: 1rem; z-index: 40; width: min(360px, calc(100vw - 2rem)); max-height: min(560px, calc(100vh - 6rem));
+  display: flex; flex-direction: column; gap: .5rem; padding: .9rem 1rem 1rem; background: #fff; border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.14); font-size: .9rem; }
+.together[hidden] { display: none; }
+.together header { display: flex; align-items: center; justify-content: space-between; }
+.together p { margin: 0; }
+.together input, .together button { margin: 0; padding: .4rem .6rem; font-size: .9rem; height: auto; }
+.together .tg-x { background: none; border: 0; color: var(--ink-2); font-size: 1.4rem; line-height: 1; padding: 0 .2rem; width: auto; }
+.together .tg-row { display: flex; gap: .4rem; }
+.together .tg-row input { flex: 1; min-width: 0; }
+.together .tg-row button { width: auto; flex-shrink: 0; }
+.together .tg-hint { color: var(--ink-2); font-size: .8rem; }
+.together .tg-people { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .25rem; }
+.together .tg-people li { list-style: none; display: flex; align-items: center; gap: .4rem; margin: 0; }
+.together .tg-people input { flex: 1; min-width: 0; padding: .2rem .4rem; }
+.together .dot { width: 9px; height: 9px; border-radius: 50%; background: #16a34a; flex-shrink: 0; }
+.together .dot.me { background: var(--accent); }
+.together .tg-log { flex: 1; min-height: 80px; overflow-y: auto; border-top: 1px solid var(--line); padding-top: .5rem; display: flex; flex-direction: column; gap: .3rem; }
+.together .tg-log p { overflow-wrap: anywhere; }
+.together .tg-log p.mine b { color: var(--accent); }
+.together .tg-leave { align-self: flex-start; width: auto; font-size: .8rem; padding: .25rem .7rem; }
+.tg-toast { position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%); z-index: 45; max-width: min(420px, 90vw); padding: .5rem 1rem;
+  background: var(--ink-1); color: #fff; border-radius: 99px; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 640px) {
+  .together { right: .5rem; left: .5rem; bottom: .5rem; width: auto; max-height: 70vh; }
+  .together-btn { font-size: .8rem; padding: .25rem .6rem; }
+  .home-nav a.gh span { display: none; }
+  .home-nav .together-btn { margin-right: .5rem; }
+}

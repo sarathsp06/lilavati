@@ -2,6 +2,7 @@
 // orbit module). Launch it and fire its engine.
 // top. Positions are metres from the Earth's centre, y up; the Earth spins anticlockwise once a day.
 import init, { Craft, predict, elements, gravity, felt_gravity, circular_speed, escape_speed, synchronous_radius, earth_radius, earth_spin } from '../pkg/lilavati.js';
+import { share, nums } from '../together/share.js';
 
 await init();
 const $ = id => document.getElementById(id);
@@ -269,3 +270,9 @@ for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('cli
 reset();
 requestAnimationFrame(frame);
 window.__orbits = { readouts, get craft() { return craft; }, get ghostOut() { return ghostOut; }, get tower() { return tower; }, reset, launch };
+
+// Together (together/share.js): where the satellite is and how it moves, and the clock
+share(() => ({ c: Array.from(craft.state()), t: simT }), s => {
+  const c = nums(s?.c, 4); if (!c || c.length !== 4 || !Number.isFinite(s.t)) return;
+  simT = s.t; setCraft(...c);
+});

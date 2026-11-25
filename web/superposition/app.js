@@ -1,6 +1,7 @@
 // Superposition of waves: up to three waves, their sum, and the sound of it. Maths: pkg/lilavati.js
 // (waves module); the step figures derive each result on screen (stacked heights, spinning arrows).
 import init, { wave, superpose, combined_amplitude, beat_frequency } from '../pkg/lilavati.js';
+import { share } from '../together/share.js';
 
 await init();
 const $ = id => document.getElementById(id);
@@ -200,3 +201,6 @@ for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('cli
 
 usePreset(1);
 requestAnimationFrame(frame);
+
+// Together (together/share.js): everything here is in the controls
+share();

@@ -2,6 +2,7 @@
 // (three norms), and a one-neuron classifier you can train. Maths: pkg/lilavati.js (linalg).
 import init, { dot, cosine } from '../pkg/lilavati.js';
 import { Plane, COL, fmt, vec } from '../la.js';
+import { share, nums } from '../together/share.js';
 
 await init();
 const $ = id => document.getElementById(id);
@@ -144,3 +145,12 @@ const TRY = [
 for (const btn of document.querySelectorAll('[data-try]')) btn.addEventListener('click', () => { TRY[+btn.dataset.try](); $('play').scrollIntoView({ behavior: 'smooth' }); });
 $('pairs').value = 0;
 draw();
+
+// Together (together/share.js): the arrows, the neuron and its points
+const pair = v => (nums(v, 2)?.length === 2 ? [...v] : null);
+share(() => ({ a, b, w, bias, pts }), s => {
+  const A = pair(s?.a), B = pair(s?.b), W = pair(s?.w);
+  if (!A || !B || !W || !Number.isFinite(s.bias) || !Array.isArray(s.pts) || s.pts.length > 100) return;
+  const P = s.pts.map(p => nums(p, 3)).filter(p => p?.length === 3); if (P.length !== s.pts.length) return;
+  a = A; b = B; w = W; bias = s.bias; pts = P; $('bias').value = bias; draw();
+});

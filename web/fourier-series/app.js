@@ -1,6 +1,7 @@
 // The Fourier series page: a canvas you draw on, the Rust/WebAssembly series (pkg/circles.js), the spinning circles
 // that redraw the shape, and the equations with copy buttons. No framework; Pico CSS for the look.
 import init, { Fourier } from '../pkg/lilavati.js';
+import { share, nums } from '../together/share.js';
 
 const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
 const $ = id => document.getElementById(id);
@@ -243,3 +244,11 @@ const TRY = {
   square: () => { stroke = PRESETS.square(400); $('hint').classList.add('hidden'); fit(); setTerms(1); let n = 1; const id = setInterval(() => { n = Math.min(100, n + 3); setTerms(n); if (n >= 100) clearInterval(id); }, 120); },
 };
 for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('click', () => { TRY[b.dataset.try]?.(); document.getElementById('play').scrollIntoView({ behavior: 'smooth' }); });
+
+// Together (together/share.js): the drawing is shared; it is fitted again only when it changed
+const same = (p, q) => p.length === q.length && p.every((v, i) => Math.abs(v - q[i]) < 1e-3);
+share(() => ({ stroke, drawing }), s => {
+  const pts = nums(s?.stroke, 40000); if (!pts || pts.length % 2 || same(pts, stroke)) return;
+  stroke = [...pts]; $('hint').classList.toggle('hidden', stroke.length > 0);
+  if (!s.drawing && stroke.length >= 6) fit(); else { fourier = null; trail = []; }
+});

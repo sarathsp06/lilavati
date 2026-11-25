@@ -95,3 +95,6 @@ export function card(c) {
     <div class="body">${c.series ? `<span class="num">Part ${c.series.slugs.indexOf(c.slug) + 1}</span>` : ''}<p class="chips"><span class="chip">${c.topic}</span>${live ? '' : '<span class="chip">Coming soon</span>'}</p>
     <h3>${c.hook || c.name}</h3>${c.hook ? `<p class="cname">${c.name}</p>` : ''}<p>${c.tagline || c.idea}</p>${live && c.blurb ? `<p class="muted">${c.blurb}</p>` : ''}${live ? '<span class="go">Open →</span>' : ''}</div></${live ? 'a' : 'div'}>`;
 }
+
+// Together: invite people to explore a page with you (together/index.js)
+import('./together/index.js').catch(e => console.warn('[together] not available', e));
