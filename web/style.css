@@ -276,3 +276,12 @@ label.inline select { width: auto; margin: 0; }
 @media (max-width: 640px) {
   .together.big { left: 0; right: 0; bottom: 0; width: auto; height: 50vh; border-radius: 16px 16px 0 0; }
 }
+/* Together: host controls and the join code */
+.together .tg-code { font-size: .8rem; color: var(--ink-2); line-height: 1.7; }
+.together .tg-code b { font-family: var(--pico-font-family-monospace); font-size: 1.05rem; color: var(--ink-1); letter-spacing: .08em; }
+.together button.tg-mini { display: inline; width: auto; padding: .05rem .45rem; margin: 0 .1rem; font-size: .72rem; border-radius: 99px;
+  background: transparent; color: var(--accent); border: 1px solid currentColor; }
+.together button.tg-mini.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.together button.tg-mini.danger { color: var(--hot); }
+.together .tg-tools { display: flex; gap: .2rem; margin-top: .15rem; }
+.together .tg-farewell { background: #fef2f2; color: #991b1b; padding: .5rem .7rem; border-radius: 10px; }

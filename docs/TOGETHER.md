@@ -12,6 +12,20 @@ Press **Invite** in the top bar, then **Start and copy the invite link**. Everyo
 
 The token is 10 random letters and digits; anyone with the link can join, nobody else can find the session.
 
+## The host and the join code
+
+Whoever presses **Start a session** is the host (👑). They get a link and a six-digit join code to give
+people, ideally separately (or "copy link with code" for both at once). Someone who opens the link
+without the code is asked for it. Without the right code a browser can't connect at all: the code is part
+of the key that encrypts the connection set-up.
+
+The host can **mute** someone who is on voice (they can unmute themselves), **remove** someone, and **lock**
+the session so nobody new gets in. These are commands signed with a key only the host's browser tab holds;
+the fingerprint of that key is the end of the invite token, so everyone checks a command came from the
+host. Everyone keeps the newest signed rules (who is removed, whether it's locked) and passes them on, so
+they hold while the host is away. Someone who edits the site's code in their own browser could ignore a
+command aimed at them; the code is the real lock. Code: `web/together/host.js`, `tests/host.test.mjs`.
+
 ## Voice
 
 In a session the panel takes the lower half of the window: everyone as a face with their initials, where
@@ -23,6 +37,13 @@ microphone. If the browser holds sound back until you click, a **Tap to hear the
 Voice goes over the same WebRTC connections as the chat (`web/together/voice.js`), each person to each
 other person, so it suits about 6 to 8 people; a bigger group would need a voice server (an SFU). Echo
 cancellation and noise suppression are the browser's own.
+
+## Reconnecting
+
+Phones pause pages in the background and networks change. Trystero reconnected its relay sockets but
+stopped listening on them, so someone whose connection had dropped saw only themselves and was never
+found by newcomers. The local copy is patched to listen again after every reconnect (2026-11-25). If no
+relay can be reached at all, the panel says so after 10 seconds.
 
 ## How it works (no server of our own)
 

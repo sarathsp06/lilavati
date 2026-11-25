@@ -20,6 +20,8 @@
 //   app   { slug, d }              the page's own message (share.js room.send)
 //   mic   { on, muted }            my microphone is on (voice.js) or off, and whether I muted it
 //   typing {}                      I am writing a chat message
+//   host  { d }                    a signed command from the host (host.js): rules or mute
+//   refused { why }                you may not be in this session ('removed' or 'locked')
 //
 // receive() returns { type, ... }: 'join' (a hello, with answerState/answerChat when I should send
 // the newcomer the picture/the chat), 'name', 'chat', 'hist', 'state', 'click', 'app', 'leave', or null.
@@ -37,8 +39,8 @@ export function newToken(rand = n => crypto.getRandomValues(new Uint8Array(n))) 
 }
 export const validToken = t => typeof t === 'string' && /^[a-z0-9]{6,32}$/.test(t);
 
-export function createSession({ self, name = '', slug = '', since = 0, send = () => {} }) {
-  const members = new Map(), chat = [], seen = new Set();
+export function createSession({ self, name = '', slug = '', since = 0, send = () => {}, extra = () => ({}) }) {
+  const members = new Map(), chat = [], seen = new Set(), blocked = new Set();
   let me = { id: self, name: cleanName(name), slug, since, mic: false, muted: false };
 
   // the browser that has been on a page longest answers for it (ties: the smaller id)
@@ -63,7 +65,8 @@ export function createSession({ self, name = '', slug = '', since = 0, send = ()
     const at = Number.isFinite(raw.at) ? raw.at : Date.now();
     return { id: raw.id.slice(0, 40), from, name: cleanName(raw.name) || 'Someone', text, at };
   }
-  const hello = () => ({ t: 'hi', name: me.name, slug: me.slug, since: me.since, mic: me.mic, muted: me.muted });
+  // extra(): what index.js adds to my hello (pid, the host key, the newest signed rules)
+  const hello = () => ({ t: 'hi', name: me.name, slug: me.slug, since: me.since, mic: me.mic, muted: me.muted, ...extra() });
 
   return {
     members, chat,
@@ -79,14 +82,15 @@ export function createSession({ self, name = '', slug = '', since = 0, send = ()
       return m;
     },
     receive(msg, from) {
-      if (!msg || typeof msg !== 'object' || !isId(from) || from === self) return null;
+      if (!msg || typeof msg !== 'object' || !isId(from) || from === self || blocked.has(from)) return null;
       switch (msg.t) {
         case 'hi': {
-          const m = { id: from, name: cleanName(msg.name) || 'Someone', slug: cleanSlug(msg.slug), since: Number.isFinite(msg.since) ? msg.since : Date.now(), mic: msg.mic === true, muted: msg.muted === true };
+          const m = { id: from, name: cleanName(msg.name) || 'Someone', slug: cleanSlug(msg.slug), since: Number.isFinite(msg.since) ? msg.since : Date.now(), mic: msg.mic === true, muted: msg.muted === true,
+            pid: typeof msg.pid === 'string' ? msg.pid.slice(0, 40) : from, hk: typeof msg.hk === 'string' && msg.hk.length < 200 ? msg.hk : '' };
           const isNew = !members.has(from); members.set(from, m);
           // answer only someone who arrived after me: they get my picture (same page) and the chat
           const page = longest(from, m.slug), all = longest(from);
-          return { type: 'join', member: m, isNew,
+          return { type: 'join', member: m, isNew, rules: msg.rules && typeof msg.rules === 'object' ? msg.rules : null,
             answerState: !!m.slug && m.slug === me.slug && page?.id === self && older(me, m),
             answerChat: all?.id === self && older(me, m) && chat.length > 0 };
         }
@@ -101,12 +105,17 @@ export function createSession({ self, name = '', slug = '', since = 0, send = ()
         case 'click': return msg.slug === me.slug && Number.isInteger(msg.i) && msg.i >= 0 && msg.i < 10000 ? { type: 'click', index: msg.i, from } : null;
         case 'typing': { const m = members.get(from); return m ? { type: 'typing', member: m } : null; }
         case 'mic': { const m = members.get(from); if (!m) return null; const was = m.mic; m.mic = msg.on === true; m.muted = m.mic && msg.muted === true; return { type: 'mic', member: m, changed: was !== m.mic }; }
+        case 'host': return msg.d && typeof msg.d === 'object' ? { type: 'host', data: msg.d, from } : null;
+        case 'refused': return { type: 'refused', why: msg.why === 'locked' ? 'locked' : 'removed', from };
         case 'app': return msg.slug === me.slug && msg.d !== undefined && members.has(from) ? { type: 'app', data: msg.d, from } : null;
         default: return null;
       }
     },
     history: () => chat.slice(-50),
     member: id => members.get(id),
+    // stop listening to someone (removed by the host, or not let in)
+    block(id) { blocked.add(id); const m = members.get(id); members.delete(id); return m; },
+    blocked: id => blocked.has(id),
     // the others on a page, oldest first
     on: page => [...members.values()].filter(m => m.slug === page).sort((a, b) => (older(a, b) ? -1 : 1)),
   };

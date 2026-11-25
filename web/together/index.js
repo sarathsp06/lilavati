@@ -11,6 +11,7 @@
 // personal with data-local (copy buttons, sound). Loaded by concepts.js on every page.
 import { createSession, newToken, validToken, cleanName } from './session.js';
 import { createVoice } from './voice.js';
+import { hasHost, tagOfToken, makeHost, signer, verify, newCode, validCode, cleanRules, refusal } from './host.js';
 import { hooks, room as pageRoom } from './share.js';
 import { bySlug } from '../concepts.js';
 
@@ -29,8 +30,19 @@ const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.crea
 
 let token = new URLSearchParams(location.search).get('join');
 token = validToken(token) ? token : validToken(sessionStorage.getItem(KEY)) ? sessionStorage.getItem(KEY) : null;
+if (token && sessionStorage.getItem(KEY + '.out') === token) token = null;   // removed from it in this tab
 let myName = cleanName(localStorage.getItem(NAME)) || 'Guest ' + (100 + Math.floor(Math.random() * 900));
-let session = null, room = null, sendRaw = null, unread = 0, status = '';
+let session = null, room = null, sendRaw = null, unread = 0, status = '', farewell = '';
+// the join code: in the link (?code=, only if the host shared it that way), else typed in, kept for this tab
+let code = new URLSearchParams(location.search).get('code') || sessionStorage.getItem(KEY + '.code') || '';
+if (!validCode(code)) code = '';
+// me, for this browser tab: survives moving between pages (the connection id does not)
+const pid = sessionStorage.getItem(KEY + '.pid') || Math.random().toString(36).slice(2, 12);
+sessionStorage.setItem(KEY + '.pid', pid);
+// the host: who started the session; only their tab holds the private key (host.js)
+let host = null, sign = null, rules = null, rulesSigned = null, lastMute = 0;
+try { const h = JSON.parse(sessionStorage.getItem(KEY + '.host') || 'null'); if (h && token && h.tag === tagOfToken(token)) host = h; } catch {}
+const amHost = () => !!host && !!token && host.tag === tagOfToken(token);
 
 // ---------- the button and the panel ----------
 const button = el('button', { type: 'button', className: 'together-btn', title: 'Explore this page with other people' });
@@ -73,27 +85,54 @@ function build() {
   const n = session ? session.members.size + 1 : 0;
   panel.append(el('header', {}, el('strong', { textContent: session ? `Together · ${n} ${n === 1 ? 'person' : 'people'}` : 'Together' }), close));
   if (!session) {
+    if (farewell) panel.append(el('p', { className: 'tg-farewell', textContent: farewell }));
+    if (token && hasHost(token) && !code) {
+      // the link has no code: ask for it
+      const inp = el('input', { inputMode: 'numeric', maxLength: 6, placeholder: '6 digits', autocomplete: 'off' }), go = el('button', { type: 'submit', textContent: 'Join' });
+      inp.setAttribute('aria-label', 'Join code');
+      const f = el('form', { className: 'tg-row' }, inp, go);
+      f.onsubmit = e => { e.preventDefault(); const c = inp.value.replace(/\D/g, ''); if (!validCode(c)) { inp.setCustomValidity('Six digits'); inp.reportValidity(); return; } code = c; connect(); };
+      panel.append(el('p', { textContent: "You've been invited to explore together. Enter the join code the host gave you:" }), f);
+      requestAnimationFrame(() => inp.focus());
+      return;
+    }
     if (token) { panel.append(el('p', { textContent: 'Joining…' })); return; }
-    const start = el('button', { type: 'button', textContent: 'Start and copy the invite link' });
-    start.onclick = async () => { token = newToken(); await connect(); copy(inviteLink(), start); };
-    panel.append(el('p', { textContent: 'Explore with friends. Everyone who opens your link can chat and talk, and sees the same picture: when one of you moves something, it moves for all of you.' }), start);
+    const start = el('button', { type: 'button', textContent: 'Start a session' });
+    start.onclick = async () => { farewell = ''; host = await makeHost(); token = newToken() + host.tag; code = newCode(); sessionStorage.setItem(KEY + '.host', JSON.stringify(host)); await connect(); };
+    panel.append(el('p', { textContent: "Explore with friends. You'll be the host: you get a link and a join code to give people, and you can mute people, remove them, or lock the session. Everyone in it can chat and talk, and sees the same picture." }), start);
     return;
   }
   // the link
-  const link = el('input', { readOnly: true, value: inviteLink() }), cp = el('button', { type: 'button', className: 'outline', textContent: 'Copy invite link' });
+  const link = el('input', { readOnly: true, value: inviteLink() }), cp = el('button', { type: 'button', className: 'outline', textContent: 'Copy link' });
   link.setAttribute('aria-label', 'Invite link'); link.onfocus = () => link.select(); cp.onclick = () => copy(inviteLink(), cp);
   panel.append(el('div', { className: 'tg-row tg-link' }, link, cp));
+  if (hasHost(token)) {
+    const both = el('button', { type: 'button', className: 'tg-mini', textContent: 'copy link with code' }); both.onclick = () => copy(inviteLink() + '&code=' + code, both);
+    const row = el('p', { className: 'tg-code' }, 'Join code ', el('b', { textContent: code.slice(0, 3) + ' ' + code.slice(3) }), ' · give it with the link, or ', both);
+    if (amHost()) {
+      const lock = el('button', { type: 'button', className: 'tg-mini' + (rules?.locked ? ' on' : ''), textContent: rules?.locked ? '🔒 locked: nobody new can join' : '🔓 lock the session' });
+      lock.onclick = () => setRules({ locked: !rules?.locked, allow: rules?.locked ? [] : [pid, ...[...session.members.values()].map(m => m.pid)] });
+      row.append(el('br'), el('span', { textContent: '👑 You are the host. ' }), lock);
+    } else if (rules?.locked) row.append(el('br'), '🔒 The host has locked this session.');
+    panel.append(row);
+  }
   // people, as faces: a ring while they talk, a microphone when their voice is on
   const name = el('input', { value: myName, maxLength: 24 });
   name.setAttribute('aria-label', 'Your name');
   name.onchange = () => { myName = cleanName(name.value) || myName; name.value = myName; localStorage.setItem(NAME, myName); session.rename(myName); pageRoom.emit({ type: 'people' }); render(); };
-  const mine = el('li', { className: 'me' }, badge(session.me.id, myName, 'me'), el('div', {}, name, el('small', { textContent: voice?.on ? (voice.muted ? 'you · 🔇 muted' : 'you · 🎤 voice on') : 'you' })));
+  const mine = el('li', { className: 'me' }, badge(session.me.id, myName, 'me'), el('div', {}, name, el('small', { textContent: (amHost() ? '👑 ' : '') + (voice?.on ? (voice.muted ? 'you · 🔇 muted' : 'you · 🎤 voice on') : 'you') })));
   const people = el('ul', { className: 'tg-people' }, mine);
   for (const m of session.members.values()) {
     const where = m.slug === slug ? el('small', { textContent: 'on this page' })
       : el('a', { href: linkFor(m.slug), textContent: m.slug ? `on ${bySlug[m.slug]?.name || m.slug} →` : 'on the home page →' });
     const status = (typing.get(m.id) || 0) > Date.now() ? el('small', { className: 'tg-typing', textContent: 'typing…' }) : m.mic ? el('small', { textContent: m.muted ? '🔇 muted' : voice?.hears(m.id) ? '🎤 voice on' : '🎤 connecting…' }) : null;
-    people.append(el('li', {}, badge(m.id, m.name), el('div', {}, el('span', { textContent: m.name }), where, ...(status ? [status] : []))));
+    const crown = rules?.host && m.pid === rules.host ? ' 👑' : '';
+    const tools = [];
+    if (amHost()) {
+      if (m.mic && !m.muted) { const b = el('button', { type: 'button', className: 'tg-mini', textContent: 'mute' }); b.onclick = () => hostMute(m); tools.push(b); }
+      const k = el('button', { type: 'button', className: 'tg-mini danger', textContent: 'remove' }); k.onclick = () => { if (confirm(`Remove ${m.name} from this session?`)) setRules({ banned: [...(rules?.banned || []), m.pid], allow: (rules?.allow || []).filter(x => x !== m.pid) }); }; tools.push(k);
+    }
+    people.append(el('li', {}, badge(m.id, m.name), el('div', {}, el('span', { textContent: m.name + crown }), where, ...(status ? [status] : []), ...(tools.length ? [el('span', { className: 'tg-tools' }, ...tools)] : []))));
   }
   panel.append(people);
   // voice
@@ -174,20 +213,25 @@ async function iceServers() {
 }
 
 async function connect() {
-  sessionStorage.setItem(KEY, token);
-  const u = new URL(location.href); u.searchParams.set('join', token); history.replaceState(history.state, '', u);
+  sessionStorage.setItem(KEY, token); if (code) sessionStorage.setItem(KEY + '.code', code);
+  // the address bar keeps the link without the code
+  const u = new URL(location.href); u.searchParams.set('join', token); u.searchParams.delete('code'); history.replaceState(history.state, '', u);
+  if (amHost()) {
+    sign = await signer(token, host.jwk);
+    if (!rules) { rulesSigned = await sign({ k: 'rules', v: 1, host: pid, pub: host.pub, locked: false, allow: [], banned: [] }); rules = { ...cleanRules(rulesSigned), host: pid }; }
+  }
   status = 'Looking for the others…'; render();
   const [{ joinRoom, selfId }, ice] = await Promise.all([import('./trystero-nostr.js'), iceServers()]);
-  session = createSession({ self: selfId, name: myName, slug, since: Date.now(), send: (msg, to) => sendRaw?.(msg, to) });
+  session = createSession({ self: selfId, name: myName, slug, since: Date.now(), send: (msg, to) => sendRaw?.(msg, to), extra: () => ({ pid, ...(rulesSigned ? { rules: rulesSigned } : {}) }) });
   try { session.receive({ t: 'hist', msgs: JSON.parse(sessionStorage.getItem(KEY + '.chat') || '[]') }, '_saved'); } catch {}
-  room = joinRoom({ appId: CONFIG.appId, relayUrls: CONFIG.relays, relayRedundancy: CONFIG.relays.length, password: token, ...(ice ? { rtcConfig: { iceServers: ice } } : {}) }, token);
+  room = joinRoom({ appId: CONFIG.appId, relayUrls: CONFIG.relays, relayRedundancy: CONFIG.relays.length, password: hasHost(token) ? token + ':' + code : token, ...(ice ? { rtcConfig: { iceServers: ice } } : {}) }, token);
   const [send, receive] = room.makeAction('m');
   sendRaw = (msg, to) => { send(msg, to).catch(() => {}); };
   voice = createVoice(room, { onChange: () => render() });
   voice.unblock = () => dispatchEvent(new Event('pointerdown'));
-  room.onPeerJoin(id => { status = ''; session.joined(id); voice.joined(id); });
-  room.onPeerLeave(id => { voice?.left(id); const r = session.left(id); if (r) { toast(`${r.member.name} left`); render(); pageRoom.emit({ type: 'people' }); } });
-  receive((msg, from) => handle(session.receive(msg, from), from));
+  room.onPeerJoin(id => { if (!session) return; status = ''; session.joined(id); voice.joined(id); });
+  room.onPeerLeave(id => { if (!session) return; voice?.left(id); const r = session.left(id); if (r) { toast(`${r.member.name} left`); render(); pageRoom.emit({ type: 'people' }); } });
+  receive((msg, from) => { if (session) handle(session.receive(msg, from), from); });
   Object.assign(pageRoom, {
     active: true, self: selfId,
     people: () => session ? [{ id: selfId, name: myName, me: true }, ...session.on(slug).map(m => ({ id: m.id, name: m.name, me: false }))] : [],
@@ -195,20 +239,66 @@ async function connect() {
   });
   pageRoom.emit({ type: 'people' });
   render();
-  setTimeout(() => { if (session && !session.members.size && status) { status = 'Nobody else is here yet. Send them the link.'; render(); } }, 8000);
+  // while nobody else is here, say whether the meeting points (Nostr relays) can be reached at all
+  const relays = (await import('./trystero-nostr.js')).getRelaySockets;
+  setTimeout(() => {
+    if (!session || session.members.size || !status) return;
+    const open = Object.values(relays()).filter(s => s.readyState === 1).length;
+    status = open === 0 ? "Can't reach the meeting servers. Your network, a VPN or a blocker may be stopping them; try another network."
+      : hasHost(token) && !amHost() ? 'Nobody found yet. If the host is online, check the join code with them.' : 'Nobody else is here yet. Send them the link and the code.';
+    render();
+  }, 10000);
 }
+// ---------- the host ----------
+async function setRules(change) {
+  if (!amHost() || !sign) return;
+  const next = { k: 'rules', v: (rules?.v || 0) + 1, host: pid, pub: host.pub, locked: false, allow: [], banned: [], ...(rules ? { locked: rules.locked, allow: rules.allow, banned: rules.banned } : {}), ...change };
+  rulesSigned = await sign(next); rules = { ...cleanRules(rulesSigned), host: pid };
+  sendRaw?.({ t: 'host', d: rulesSigned }); enforce(); render();
+}
+async function hostMute(m) { if (!sign) return; sendRaw?.({ t: 'host', d: await sign({ k: 'mute', pid: m.pid, pub: host.pub, at: Date.now() }) }, m.id); toast(`You muted ${m.name}`); }
+// a signed command from the host, perhaps passed on by someone else
+async function fromHost(cmd) {
+  if (!cmd || !(await verify(token, cmd.pub, cmd))) return;
+  if (cmd.k === 'rules') {
+    const c = { ...cleanRules(cmd), host: typeof cmd.host === 'string' ? cmd.host : '' };
+    if (rules && c.v <= rules.v) return;
+    rules = c; rulesSigned = cmd; enforce(); render();
+  } else if (cmd.k === 'mute' && cmd.pid === pid && Number.isFinite(cmd.at) && cmd.at > lastMute) {
+    lastMute = cmd.at;
+    if (voice?.on && !voice.muted) { voice.mute(true); session?.setMic(true, true); toast('The host muted you. You can unmute yourself.'); render(); }
+  }
+}
+// apply the rules: leave if they exclude me; stop listening to anyone they exclude
+function enforce() {
+  if (!session || !rules) return;
+  const why = refusal(rules, pid);
+  if (why) {
+    const t = token;
+    disconnect();
+    farewell = why === 'removed' ? 'The host removed you from this session.' : 'This session is locked: the host is not letting anyone new in.';
+    sessionStorage.setItem(KEY + '.out', t); panel.hidden = false; render(); return;
+  }
+  for (const m of [...session.members.values()]) if (refusal(rules, m.pid)) { voice?.left(m.id); session.block(m.id); if (amHost()) toast(`${m.name} ${rules.banned.includes(m.pid) ? 'was removed' : 'can’t join: locked'}`); }
+  pageRoom.emit({ type: 'people' });
+}
+
 function disconnect() {
   voice?.close(); voice = null;
   room?.leave(); room = null; session = null; sendRaw = null; token = null; status = '';
   Object.assign(pageRoom, { active: false, self: '', people: () => [], send() {} }); pageRoom.emit({ type: 'people' });
-  sessionStorage.removeItem(KEY); sessionStorage.removeItem(KEY + '.chat');
+  for (const k of ['', '.chat', '.code', '.host']) sessionStorage.removeItem(KEY + k);
+  host = null; sign = null; rules = null; rulesSigned = null; code = '';
   const u = new URL(location.href); u.searchParams.delete('join'); history.replaceState(history.state, '', u);
   render();
 }
 
 function handle(r, from) {
   if (!r) return;
+  if (r.type === 'host') { fromHost(r.data); return; }
   if (r.type === 'join') {
+    if (r.rules) fromHost(r.rules);
+    if (rules && refusal(rules, r.member.pid)) { voice?.left(from); session.block(from); return; }
     if (r.isNew) toast(`${r.member.name} joined${r.member.slug && r.member.slug !== slug ? ' (on another page)' : ''}`);
     if (r.answerState) whenReady(() => sendRaw({ t: 'state', slug, s: snapshot() }, from));
     if (r.answerChat) sendRaw({ t: 'hist', msgs: session.history() }, from);
@@ -285,4 +375,5 @@ document.addEventListener('click', e => {
 
 window.__together = { get voice() { return voice; }, get session() { return session; } };   // for tests and debugging
 render();
-if (token) connect();
+if (token && (!hasHost(token) || code)) connect();
+else if (token) { panel.hidden = false; render(); }   // invited: ask for the code
