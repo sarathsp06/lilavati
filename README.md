@@ -18,6 +18,8 @@ Step by step, In symbols, Where you meet it, Fun facts, Common mix-ups, Next): s
 The list of concepts (live and coming soon) is `web/concepts.js`; the home page and each page's navigation
 are built from it.
 
+For how to write a new page, see [AGENTS.md](AGENTS.md).
+
 ## Run it
 
 ```sh
