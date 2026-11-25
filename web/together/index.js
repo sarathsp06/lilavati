@@ -415,7 +415,7 @@ document.addEventListener('click', e => {
   if (i >= 0) sendRaw({ t: 'click', slug, i });
 }, true);
 
-window.__together = { get voice() { return voice; }, get session() { return session; } };   // for tests and debugging
+window.__together = { get voice() { return voice; }, get session() { return session; }, get rules() { return rules; }, get following() { return following; }, get amHost() { return amHost(); }, pid };   // for tests and debugging
 render();
 if (token && (!hasHost(token) || code)) connect();
 else if (token) { panel.hidden = false; render(); }   // invited: ask for the code
