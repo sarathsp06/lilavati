@@ -1,5 +1,6 @@
 // The home page: the concept cards (from concepts.js) with small live previews, and the hero,
-// where spinning circles (the Rust Fourier series) draw one shape after another.
+// where spinning circles (the Rust Fourier series) draw one shape after another. Only what is on
+// screen is drawn, and the previews run at 25 fps, so the page stays light however many cards it has.
 import init, { Fourier, Craft, circular_speed, computer_guesses } from './pkg/lilavati.js';
 import { CONCEPTS, CHAPTERS, card } from './concepts.js';
 import { Plane, COL, I2, apply, rot, mul } from './la.js';
@@ -118,14 +119,22 @@ previews['nash-equilibrium'] = (c, w, h, sec) => {
   c.fillStyle = '#be123c'; c.font = '600 14px system-ui'; c.textAlign = 'left'; c.fillText(`round ${wrap ? k + 1 : k + 1 + (u > 0.5 ? 1 : 0)}: ⅔ of the average`, X(avg * 2 / 3) + 6, 40);
 };
 const cards = [...document.querySelectorAll('canvas[data-preview]')];
+const drawCard = (cv, sec) => { const c = cv.getContext('2d'); c.clearRect(0, 0, cv.width, cv.height); previews[cv.dataset.preview]?.(c, cv.width, cv.height, sec); };
+// only what is on screen is drawn: the hero and the card previews stop while scrolled out of view,
+// and the previews run at 25 frames a second (the hero keeps the screen's rate)
+const onScreen = new Set();
+const watch = new IntersectionObserver(es => { for (const e of es) e.isIntersecting ? onScreen.add(e.target) : onScreen.delete(e.target); }, { rootMargin: '60px' });
+watch.observe(hero); cards.forEach(cv => { drawCard(cv, 1); watch.observe(cv); });
+let lastCards = 0;
 
 function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
-  if (!document.hidden) {
-    if (!still) drawHero(dt);
-    for (const cv of cards) { const c = cv.getContext('2d'); c.clearRect(0, 0, cv.width, cv.height); previews[cv.dataset.preview]?.(c, cv.width, cv.height, still ? 1 : now / 1000); }
-  }
+  if (document.hidden) return;
+  if (!still && onScreen.has(hero)) drawHero(dt);
+  if (still || now - lastCards < 40) return;
+  lastCards = now;
+  for (const cv of cards) if (onScreen.has(cv)) drawCard(cv, now / 1000);
 }
 if (still) { t = 2 * Math.PI; for (let i = 0; i <= 400; i++) { t = 2 * Math.PI * i / 400; drawHero(0); } }
 requestAnimationFrame(frame);

@@ -48,7 +48,10 @@ const amHost = () => !!host && !!token && host.tag === tagOfToken(token);
 const button = el('button', { type: 'button', className: 'together-btn', title: 'Explore this page with other people' });
 const panel = el('aside', { className: 'together', hidden: true });
 panel.setAttribute('aria-label', 'Together');
-document.body.append(panel);
+// the rail: when the panel is folded away during a session, a strip stays (the faces, unread, your mic)
+const rail = el('aside', { className: 'tg-rail', hidden: true });
+rail.setAttribute('aria-label', 'Together, folded');
+document.body.append(panel, rail);
 const spot = $('.topbar a.gh') || $('.home-nav .navlinks a.gh');
 spot?.before(button);
 button.addEventListener('click', () => { panel.hidden = !panel.hidden; if (session) sessionStorage.setItem(KEY + '.collapsed', panel.hidden ? '1' : '0'); if (!panel.hidden) { unread = 0; render(); $('.tg-say input', panel)?.focus(); } else render(); });
@@ -69,9 +72,15 @@ function render() {
   } else button.textContent = 'Invite';
   if (unread && panel.hidden) button.append(el('span', { className: 'badge', textContent: unread }));
   button.classList.toggle('on', !!session);
-  // in a session the panel is a column on the right of the page (a sheet at the bottom on phones)
-  const docked = !!session && !panel.hidden;
-  if (document.body.classList.contains('tg-docked') !== docked) { document.body.classList.toggle('tg-docked', docked); requestAnimationFrame(() => dispatchEvent(new Event('resize'))); }
+  // in a session the panel is a column on the right of the page (a sheet at the bottom on phones);
+  // folded away, a rail stays in its place
+  const docked = !!session && !panel.hidden, mini = !!session && panel.hidden;
+  if (document.body.classList.contains('tg-docked') !== docked || document.body.classList.contains('tg-mini') !== mini) {
+    document.body.classList.toggle('tg-docked', docked); document.body.classList.toggle('tg-mini', mini);
+    requestAnimationFrame(() => dispatchEvent(new Event('resize')));
+  }
+  rail.hidden = !mini;
+  if (mini) buildRail();
   if (panel.hidden) return;
   // keep what is being typed (and where) across a redraw
   const typed = {}, focus = panel.contains(document.activeElement) ? document.activeElement.getAttribute('aria-label') : null;
@@ -87,6 +96,22 @@ const initials = n => (n.match(/\p{L}|\d/gu) || ['?']).slice(0, 1).concat((n.spl
 function badge(id, name, key = id) { const b = el('span', { className: 'tg-face', textContent: initials(name) }); b.style.background = colorOf(id); b.dataset.voice = key; return b; }
 const typing = new Map();   // id -> until (ms)
 let invOpen = null;          // the invite section, opened or closed by hand (null: open while alone)
+
+function buildRail() {
+  rail.replaceChildren();
+  const n = session.members.size + 1;
+  const open = el('button', { type: 'button', className: 'tg-open', textContent: '«', title: 'Show the chat and the people here' });
+  open.setAttribute('aria-label', 'Show the Together panel');
+  open.onclick = () => { panel.hidden = false; sessionStorage.setItem(KEY + '.collapsed', '0'); unread = 0; render(); $('.tg-say input', panel)?.focus(); };
+  if (unread) open.append(el('span', { className: 'badge', textContent: unread }));
+  const faces = el('div', { className: 'tg-faces' });
+  for (const [id, nm, key] of [[session.me.id, myName, 'me'], ...[...session.members.values()].map(m => [m.id, m.name, m.id])].slice(0, 6)) { const f = badge(id, nm, key); f.title = nm; faces.append(f); }
+  if (n > 6) faces.append(el('small', { textContent: `+${n - 6}` }));
+  const mic = el('button', { type: 'button', className: 'tg-mic' + (voice?.on && voice.muted ? ' tg-muted' : '') });
+  if (voice?.on) { mic.textContent = voice.muted ? '🔇' : '🎤'; mic.title = voice.muted ? 'You are muted. Unmute' : 'You are on voice. Mute'; mic.onclick = () => { voice.mute(!voice.muted); session.setMic(true, voice.muted); render(); }; }
+  else { mic.textContent = '🎤'; mic.title = 'Join voice'; mic.onclick = startVoice; }
+  rail.append(open, faces, el('small', { textContent: `${n} ${n === 1 ? 'person' : 'people'}` }), mic);
+}
 
 function build() {
   panel.replaceChildren();
@@ -119,7 +144,7 @@ function build() {
   if (status) panel.append(el('p', { className: 'tg-hint tg-status', textContent: status }));
 
   // voice: the first thing you see, so everyone knows they can talk
-  const vbox = el('div', { className: 'tg-voice' });
+  const vbox = el('div');
   if (!voice?.on) {
     const b = el('button', { type: 'button', className: 'tg-join', textContent: '🎤 Join voice' }); b.onclick = startVoice;
     const talking = [...session.members.values()].filter(m => m.mic).map(m => m.name);
@@ -133,10 +158,12 @@ function build() {
     voice.devices().then(ds => { for (const d of ds) if (d.deviceId && d.deviceId !== 'default') pick.append(new Option(d.label || 'Microphone', d.deviceId)); pick.value = voice.device; });
     pick.onchange = async () => { await voice.use(pick.value); render(); };
     vbox.append(el('div', { className: 'tg-row' }, mute, off), el('div', { className: 'tg-meter', title: 'How loud you are' }, el('i')), el('label', { className: 'tg-mic' }, 'Microphone', pick),
-      el('p', { className: 'tg-hint', textContent: voice.muted ? 'You are muted: the others can’t hear you.' : 'You’re on voice: everyone in the session hears you.' }));
+      el('p', { className: 'tg-hint', textContent: voice.muted ? 'You are muted: the others can’t hear you. Unmute, pick another microphone or leave voice here.' : 'You’re on voice: everyone in the session hears you. Mute, pick another microphone or leave voice here.' }));
   }
   if (voice?.blocked) { const s = el('button', { type: 'button', className: 'tg-sound', textContent: '🔈 Tap to hear the others' }); s.onclick = () => voice.unblock?.(); vbox.append(s); }
-  panel.append(section('', vbox));
+  const onVoice = [...session.members.values()].filter(m => m.mic).length + (voice?.on ? 1 : 0);
+  const vh = el('h5', { textContent: 'Voice' }); vh.append(el('span', { textContent: onVoice ? `${onVoice} on voice` : 'nobody on voice yet' }));
+  panel.append(el('section', { className: 'tg-sec tg-voice' }, vh, ...vbox.childNodes));
 
   // people: one row each, with what they are doing
   // your name: click it to change it
@@ -157,7 +184,7 @@ function build() {
     }
     people.append(el('li', {}, badge(m.id, m.name), el('div', { className: 'tg-who' }, el('span', { textContent: m.name }), info), ...(tools.length ? [el('span', { className: 'tg-tools' }, ...tools)] : [])));
   }
-  panel.append(section(`People · ${n}`, people));
+  const ps = section(`People · ${n}`, people); ps.classList.add('tg-people-sec'); panel.append(ps);
 
   // the chat, as speech bubbles
   const log = el('div', { className: 'tg-log' });
@@ -173,7 +200,10 @@ function build() {
   say.oninput = () => { if (Date.now() - lastTyped > 2500 && say.value) { lastTyped = Date.now(); sendRaw?.({ t: 'typing' }); } };
   const form = el('form', { className: 'tg-say tg-row' }, say, send);
   form.onsubmit = e => { e.preventDefault(); if (session.say(say.value)) { say.value = ''; saveChat(); render(); } };
-  panel.append(el('section', { className: 'tg-sec tg-chat' }, el('h5', { textContent: 'Chat' }), log, form));
+  const ch = el('h5', { textContent: 'Chat' });
+  const typers = [...session.members.values()].filter(m => (typing.get(m.id) || 0) > Date.now()).map(m => m.name);
+  if (typers.length) ch.append(el('span', { textContent: `${typers.join(', ')} ${typers.length === 1 ? 'is' : 'are'} typing…` }));
+  panel.append(el('section', { className: 'tg-sec tg-chat' }, ch, log, form));
 
   // inviting, the host's switches, following, leaving: at the bottom, folded once others are here
   const inv = el('details', { className: 'tg-sec tg-invite', open: invOpen ?? !session.members.size });

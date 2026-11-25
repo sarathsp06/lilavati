@@ -36,7 +36,7 @@ the host is. Changes made by anyone still reach everyone.
 
 ## Voice
 
-In a session the panel is a full-height column on the right of the page (the page moves over to make room; » hides it, the Together button brings it back), or a sheet over the lower part of the screen on phones. From the top: voice (join, mute, leave, choose a microphone), the people, the chat, then invite and settings. It shows everyone as a face with their initials, where
+In a session the panel is a full-height column on the right of the page (the page moves over to make room), or a sheet over the lower part of the screen on phones. » folds it away, but a rail stays in its place (a bar along the bottom on phones) with everyone's face, your mic, and a count of unread messages; « or the Together button opens it again. The chat takes whatever height is left, and its message box never leaves the screen: the people list and the invite section give way instead. From the top: voice (join, mute, leave, choose a microphone), the people, the chat, then invite and settings. It shows everyone as a face with their initials, where
 they are, and whether they are typing or on voice. **🎤 Join voice** asks for the microphone and sends it to
 everyone in the session; a green ring around a face shows who is talking, and the Together button glows
 when someone is. **Mute** keeps you in voice but silent (others see 🔇); **Leave voice** stops the
