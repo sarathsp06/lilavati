@@ -247,3 +247,32 @@ label.inline select { width: auto; margin: 0; }
   .guessrow label { font-size: .8rem; }
   .guessrow button { padding: .25rem .6rem; font-size: .8rem; }
 }
+
+/* Together in a session: half the window at the bottom, people as faces, chat as bubbles, voice */
+.together.big { height: 50vh; max-height: none; width: min(440px, calc(100vw - 2rem)); gap: .6rem; }
+.together .tg-link input { font-size: .8rem; }
+.together .tg-people { flex-direction: row; flex-wrap: wrap; gap: .5rem .9rem; }
+.together .tg-people li { gap: .45rem; }
+.together .tg-people li > div { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.together .tg-people li.me input { width: 8.5rem; height: auto; margin: 0 0 .15rem; padding: .1rem .35rem; font-size: .85rem; }
+.together .tg-people small, .together .tg-people a { font-size: .72rem; color: var(--ink-2); }
+.together .tg-typing { color: var(--accent) !important; font-style: italic; }
+.tg-face { --ring: 3px; flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; display: inline-grid; place-items: center; color: #fff;
+  font-size: .75rem; font-weight: 700; letter-spacing: .02em; transition: box-shadow .1s; }
+.tg-face.speaking { box-shadow: 0 0 0 var(--ring) rgba(22,163,74,.55); }
+.together .tg-voice { align-items: center; flex-wrap: wrap; }
+.together .tg-voice small { color: var(--ink-2); font-size: .78rem; flex: 1; min-width: 8rem; }
+.together .tg-sound { background: #f59e0b; border-color: #f59e0b; }
+.together .tg-log { gap: .45rem; padding: .5rem .1rem 0; }
+.together .tg-msg { display: flex; gap: .4rem; align-items: flex-end; max-width: 88%; }
+.together .tg-msg .tg-face { width: 24px; height: 24px; font-size: .6rem; }
+.together .tg-msg p { background: #f1efe9; border-radius: 14px 14px 14px 4px; padding: .35rem .65rem; display: flex; flex-direction: column; }
+.together .tg-msg p b { font-size: .72rem; color: var(--ink-2); }
+.together .tg-msg.mine { align-self: flex-end; }
+.together .tg-msg.mine p { background: var(--accent); color: #fff; border-radius: 14px 14px 4px 14px; }
+.together .tg-empty { margin: auto; text-align: center; }
+.together .tg-leave { align-self: flex-start; }
+.together-btn.speaking { box-shadow: 0 0 0 4px rgba(22,163,74,.45); }
+@media (max-width: 640px) {
+  .together.big { left: 0; right: 0; bottom: 0; width: auto; height: 50vh; border-radius: 16px 16px 0 0; }
+}

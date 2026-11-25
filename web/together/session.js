@@ -18,6 +18,8 @@
 //   state { slug, s }              the picture's state (index.js snapshot())
 //   click { slug, i }              a button press, by its position on the page
 //   app   { slug, d }              the page's own message (share.js room.send)
+//   mic   { on, muted }            my microphone is on (voice.js) or off, and whether I muted it
+//   typing {}                      I am writing a chat message
 //
 // receive() returns { type, ... }: 'join' (a hello, with answerState/answerChat when I should send
 // the newcomer the picture/the chat), 'name', 'chat', 'hist', 'state', 'click', 'app', 'leave', or null.
@@ -37,7 +39,7 @@ export const validToken = t => typeof t === 'string' && /^[a-z0-9]{6,32}$/.test(
 
 export function createSession({ self, name = '', slug = '', since = 0, send = () => {} }) {
   const members = new Map(), chat = [], seen = new Set();
-  let me = { id: self, name: cleanName(name), slug, since };
+  let me = { id: self, name: cleanName(name), slug, since, mic: false, muted: false };
 
   // the browser that has been on a page longest answers for it (ties: the smaller id)
   const older = (a, b) => a.since < b.since || (a.since === b.since && a.id < b.id);
@@ -61,7 +63,7 @@ export function createSession({ self, name = '', slug = '', since = 0, send = ()
     const at = Number.isFinite(raw.at) ? raw.at : Date.now();
     return { id: raw.id.slice(0, 40), from, name: cleanName(raw.name) || 'Someone', text, at };
   }
-  const hello = () => ({ t: 'hi', name: me.name, slug: me.slug, since: me.since });
+  const hello = () => ({ t: 'hi', name: me.name, slug: me.slug, since: me.since, mic: me.mic, muted: me.muted });
 
   return {
     members, chat,
@@ -69,6 +71,7 @@ export function createSession({ self, name = '', slug = '', since = 0, send = ()
     joined(id) { send(hello(), id); },
     left(id) { const m = members.get(id); members.delete(id); return m ? { type: 'leave', member: m } : null; },
     rename(n) { me.name = cleanName(n); send({ t: 'name', name: me.name }); },
+    setMic(on, muted = false) { me.mic = !!on; me.muted = me.mic && !!muted; send({ t: 'mic', on: me.mic, muted: me.muted }); },
     say(text) {
       const m = { id: self + '.' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), from: self, name: me.name, text: cleanText(text), at: Date.now() };
       if (!m.text) return null;
@@ -79,7 +82,7 @@ export function createSession({ self, name = '', slug = '', since = 0, send = ()
       if (!msg || typeof msg !== 'object' || !isId(from) || from === self) return null;
       switch (msg.t) {
         case 'hi': {
-          const m = { id: from, name: cleanName(msg.name) || 'Someone', slug: cleanSlug(msg.slug), since: Number.isFinite(msg.since) ? msg.since : Date.now() };
+          const m = { id: from, name: cleanName(msg.name) || 'Someone', slug: cleanSlug(msg.slug), since: Number.isFinite(msg.since) ? msg.since : Date.now(), mic: msg.mic === true, muted: msg.muted === true };
           const isNew = !members.has(from); members.set(from, m);
           // answer only someone who arrived after me: they get my picture (same page) and the chat
           const page = longest(from, m.slug), all = longest(from);
@@ -96,6 +99,8 @@ export function createSession({ self, name = '', slug = '', since = 0, send = ()
         }
         case 'state': return msg.slug === me.slug && msg.s && typeof msg.s === 'object' ? { type: 'state', state: msg.s, from } : null;
         case 'click': return msg.slug === me.slug && Number.isInteger(msg.i) && msg.i >= 0 && msg.i < 10000 ? { type: 'click', index: msg.i, from } : null;
+        case 'typing': { const m = members.get(from); return m ? { type: 'typing', member: m } : null; }
+        case 'mic': { const m = members.get(from); if (!m) return null; const was = m.mic; m.mic = msg.on === true; m.muted = m.mic && msg.muted === true; return { type: 'mic', member: m, changed: was !== m.mic }; }
         case 'app': return msg.slug === me.slug && msg.d !== undefined && members.has(from) ? { type: 'app', data: msg.d, from } : null;
         default: return null;
       }

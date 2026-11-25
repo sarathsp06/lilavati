@@ -79,3 +79,19 @@ test('bad messages are ignored', () => {
   const long = s.receive({ t: 'chat', m: { id: 'm1', name: 'N', text: 'y'.repeat(900), at: 5 } }, 'b');
   assert.equal(long.message.text.length, 500);
 });
+
+test('who has their microphone on is known to everyone, including newcomers', () => {
+  const n = net();
+  const a = n.add('a', { name: 'Ana', slug: 'svd', since: 1 }), b = n.add('b', { name: 'Ben', slug: 'svd', since: 2 });
+  n.connect('a', 'b'); n.flush();
+  assert.equal(b.s.member('a').mic, false);
+  a.s.setMic(true); n.flush();
+  assert.equal(b.s.member('a').mic, true); assert.equal(b.log.at(-1).type, 'mic');
+  const c = n.add('c', { slug: 'svd', since: 3 }); n.connect('a', 'c'); n.flush();
+  assert.equal(c.s.member('a').mic, true);
+  a.s.setMic(true, true); n.flush();
+  assert.equal(b.s.member('a').mic, true); assert.equal(b.s.member('a').muted, true); assert.equal(b.log.at(-1).changed, false);
+  a.s.setMic(false); n.flush();
+  assert.equal(b.s.member('a').mic, false);
+  assert.equal(b.s.receive({ t: 'mic', on: 'yes' }, 'a').member.mic, false);
+});

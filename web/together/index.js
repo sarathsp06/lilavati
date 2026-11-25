@@ -10,6 +10,7 @@
 // buttons and preset links, and what the page gives share() (share.js). Mark anything that must stay
 // personal with data-local (copy buttons, sound). Loaded by concepts.js on every page.
 import { createSession, newToken, validToken, cleanName } from './session.js';
+import { createVoice } from './voice.js';
 import { hooks, room as pageRoom } from './share.js';
 import { bySlug } from '../concepts.js';
 
@@ -46,7 +47,7 @@ const inviteLink = () => { const u = new URL(location.href); u.search = '?join='
 
 function render() {
   const n = session ? session.members.size + 1 : 0;
-  button.textContent = session ? `Together · ${n}` : 'Invite';
+  button.textContent = session ? `${voice?.on ? '🎤' : '💬'} Together · ${n}` : 'Invite';
   if (unread && panel.hidden) button.append(el('span', { className: 'badge', textContent: unread }));
   button.classList.toggle('on', !!session);
   if (panel.hidden) return;
@@ -57,48 +58,100 @@ function render() {
   for (const i of panel.querySelectorAll('input:not([readonly])')) if (i.getAttribute('aria-label') in typed) i.value = typed[i.getAttribute('aria-label')];
   if (focus) { const f = panel.querySelector(`[aria-label="${focus}"]`); f?.focus(); if (f?.setSelectionRange && f.type !== 'button') f.setSelectionRange(f.value.length, f.value.length); }
 }
+// a person as a round badge with their initials; it pulses while they talk
+const COLORS = ['#2563eb', '#16a34a', '#d97706', '#9333ea', '#db2777', '#0891b2', '#b91c1c', '#4f46e5'];
+const colorOf = id => COLORS[[...String(id)].reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
+const initials = n => (n.match(/\p{L}|\d/gu) || ['?']).slice(0, 1).concat((n.split(/\s+/)[1] || '').match(/\p{L}|\d/u) || []).join('').toUpperCase();
+function badge(id, name, key = id) { const b = el('span', { className: 'tg-face', textContent: initials(name) }); b.style.background = colorOf(id); b.dataset.voice = key; return b; }
+const typing = new Map();   // id -> until (ms)
+
 function build() {
   panel.replaceChildren();
+  panel.classList.toggle('big', !!session);
   const close = el('button', { type: 'button', className: 'tg-x', textContent: '×', title: 'Close' });
   close.setAttribute('aria-label', 'Close'); close.onclick = () => { panel.hidden = true; render(); };
-  panel.append(el('header', {}, el('strong', { textContent: 'Together' }), close));
+  const n = session ? session.members.size + 1 : 0;
+  panel.append(el('header', {}, el('strong', { textContent: session ? `Together · ${n} ${n === 1 ? 'person' : 'people'}` : 'Together' }), close));
   if (!session) {
     if (token) { panel.append(el('p', { textContent: 'Joining…' })); return; }
     const start = el('button', { type: 'button', textContent: 'Start and copy the invite link' });
     start.onclick = async () => { token = newToken(); await connect(); copy(inviteLink(), start); };
-    panel.append(el('p', { textContent: 'Explore with friends. Everyone who opens your link can chat, and sees the same picture: when one of you moves something, it moves for all of you.' }), start);
+    panel.append(el('p', { textContent: 'Explore with friends. Everyone who opens your link can chat and talk, and sees the same picture: when one of you moves something, it moves for all of you.' }), start);
     return;
   }
   // the link
-  const link = el('input', { readOnly: true, value: inviteLink() }), cp = el('button', { type: 'button', className: 'outline', textContent: 'Copy' });
+  const link = el('input', { readOnly: true, value: inviteLink() }), cp = el('button', { type: 'button', className: 'outline', textContent: 'Copy invite link' });
   link.setAttribute('aria-label', 'Invite link'); link.onfocus = () => link.select(); cp.onclick = () => copy(inviteLink(), cp);
-  panel.append(el('p', { className: 'tg-hint', textContent: 'Anyone with this link can join:' }), el('div', { className: 'tg-row' }, link, cp));
-  // people
+  panel.append(el('div', { className: 'tg-row tg-link' }, link, cp));
+  // people, as faces: a ring while they talk, a microphone when their voice is on
   const name = el('input', { value: myName, maxLength: 24 });
   name.setAttribute('aria-label', 'Your name');
-  name.onchange = () => { myName = cleanName(name.value) || myName; name.value = myName; localStorage.setItem(NAME, myName); session.rename(myName); pageRoom.emit({ type: 'people' }); };
-  const people = el('ul', { className: 'tg-people' }, el('li', {}, el('span', { className: 'dot me' }), name, el('span', { className: 'muted', textContent: ' (you)' })));
+  name.onchange = () => { myName = cleanName(name.value) || myName; name.value = myName; localStorage.setItem(NAME, myName); session.rename(myName); pageRoom.emit({ type: 'people' }); render(); };
+  const mine = el('li', { className: 'me' }, badge(session.me.id, myName, 'me'), el('div', {}, name, el('small', { textContent: voice?.on ? (voice.muted ? 'you · 🔇 muted' : 'you · 🎤 voice on') : 'you' })));
+  const people = el('ul', { className: 'tg-people' }, mine);
   for (const m of session.members.values()) {
-    const where = m.slug === slug ? el('span', { className: 'muted', textContent: ' here' })
-      : el('a', { href: linkFor(m.slug), textContent: m.slug ? ` on ${bySlug[m.slug]?.name || m.slug}` : ' on the home page' });
-    people.append(el('li', {}, el('span', { className: 'dot' }), el('span', { textContent: m.name }), where));
+    const where = m.slug === slug ? el('small', { textContent: 'on this page' })
+      : el('a', { href: linkFor(m.slug), textContent: m.slug ? `on ${bySlug[m.slug]?.name || m.slug} →` : 'on the home page →' });
+    const status = (typing.get(m.id) || 0) > Date.now() ? el('small', { className: 'tg-typing', textContent: 'typing…' }) : m.mic ? el('small', { textContent: m.muted ? '🔇 muted' : voice?.hears(m.id) ? '🎤 voice on' : '🎤 connecting…' }) : null;
+    people.append(el('li', {}, badge(m.id, m.name), el('div', {}, el('span', { textContent: m.name }), where, ...(status ? [status] : []))));
   }
   panel.append(people);
+  // voice
+  const vrow = el('div', { className: 'tg-row tg-voice' });
+  if (!voice?.on) {
+    const b = el('button', { type: 'button', textContent: '🎤 Join voice' }); b.onclick = startVoice; vrow.append(b);
+    const talking = [...session.members.values()].filter(m => m.mic).map(m => m.name);
+    vrow.append(el('small', { textContent: talking.length ? `${talking.join(', ')} ${talking.length === 1 ? 'is' : 'are'} on voice` : 'Talk instead of typing (asks for your microphone)' }));
+  } else {
+    const mute = el('button', { type: 'button', className: 'outline', textContent: voice.muted ? 'Unmute' : 'Mute' }); mute.onclick = () => { voice.mute(!voice.muted); session.setMic(true, voice.muted); render(); };
+    const off = el('button', { type: 'button', className: 'secondary outline', textContent: 'Leave voice' }); off.onclick = stopVoice;
+    vrow.append(mute, off);
+  }
+  if (voice?.blocked) { const s = el('button', { type: 'button', className: 'tg-sound', textContent: '🔈 Tap to hear the others' }); s.onclick = () => voice.unblock?.(); vrow.append(s); }
   if (status) panel.append(el('p', { className: 'tg-hint', textContent: status }));
-  // the chat
+  panel.append(vrow);
+  // the chat, as speech bubbles
   const log = el('div', { className: 'tg-log' });
   log.setAttribute('aria-live', 'polite');
-  for (const m of session.chat) log.append(el('p', { className: m.from === session.me.id ? 'mine' : '' }, el('b', { textContent: m.name + ' ' }), el('span', { textContent: m.text })));
-  if (!session.chat.length) log.append(el('p', { className: 'muted', textContent: 'No messages yet.' }));
-  const say = el('input', { placeholder: 'Say something…', maxLength: 500 }), send = el('button', { type: 'submit', textContent: 'Send' });
+  for (const m of session.chat) {
+    const me = m.from === session.me.id;
+    log.append(el('div', { className: 'tg-msg' + (me ? ' mine' : '') }, ...(me ? [] : [badge(m.from, m.name)]), el('p', {}, ...(me ? [] : [el('b', { textContent: m.name })]), el('span', { textContent: m.text }))));
+  }
+  if (!session.chat.length) log.append(el('p', { className: 'muted tg-empty', textContent: session.members.size ? 'Say hello 👋' : 'Nobody else is here yet. Send them the invite link.' }));
+  const say = el('input', { placeholder: 'Message everyone…', maxLength: 500 }), send = el('button', { type: 'submit', textContent: 'Send' });
   say.setAttribute('aria-label', 'Message');
+  let lastTyped = 0;
+  say.oninput = () => { if (Date.now() - lastTyped > 2500 && say.value) { lastTyped = Date.now(); sendRaw?.({ t: 'typing' }); } };
   const form = el('form', { className: 'tg-say tg-row' }, say, send);
   form.onsubmit = e => { e.preventDefault(); if (session.say(say.value)) { say.value = ''; saveChat(); render(); } };
-  const leave = el('button', { type: 'button', className: 'secondary outline tg-leave', textContent: 'Leave' });
+  const leave = el('button', { type: 'button', className: 'secondary outline tg-leave', textContent: 'Leave session' });
   leave.onclick = disconnect;
   panel.append(log, form, leave);
   requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
 }
+
+// ---------- voice ----------
+let voice = null;
+async function startVoice() {
+  if (!voice) return;
+  const ok = await voice.start();
+  if (!ok) { status = 'Could not use your microphone. Check that this site may use it.'; render(); return; }
+  session.setMic(true); render();
+}
+function stopVoice() { voice?.stop(); session?.setMic(false); render(); }
+// the rings: how loud each person is, measured 12 times a second; a ring fades over about half a
+// second, so even a short word shows
+const loud = new Map();
+setInterval(() => {
+  if (!voice || !session) return;
+  for (const id of ['me', ...session.members.keys()]) loud.set(id, Math.max(voice.level(id), (loud.get(id) || 0) * 0.8));
+  for (const f of document.querySelectorAll('.tg-face[data-voice]')) {
+    const l = loud.get(f.dataset.voice) || 0;
+    f.classList.toggle('speaking', l > 0.08); f.style.setProperty('--ring', `${Math.round(3 + l * 9)}px`);
+  }
+  button.classList.toggle('speaking', [...session.members.keys()].some(id => (loud.get(id) || 0) > 0.08));
+}, 80);
+
 async function copy(text, btn) {
   try { await navigator.clipboard.writeText(text); const was = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = was; }, 1400); }
   catch { prompt('Copy this link:', text); }
@@ -130,8 +183,10 @@ async function connect() {
   room = joinRoom({ appId: CONFIG.appId, relayUrls: CONFIG.relays, relayRedundancy: CONFIG.relays.length, password: token, ...(ice ? { rtcConfig: { iceServers: ice } } : {}) }, token);
   const [send, receive] = room.makeAction('m');
   sendRaw = (msg, to) => { send(msg, to).catch(() => {}); };
-  room.onPeerJoin(id => { status = ''; session.joined(id); });
-  room.onPeerLeave(id => { const r = session.left(id); if (r) { toast(`${r.member.name} left`); render(); pageRoom.emit({ type: 'people' }); } });
+  voice = createVoice(room, { onChange: () => render() });
+  voice.unblock = () => dispatchEvent(new Event('pointerdown'));
+  room.onPeerJoin(id => { status = ''; session.joined(id); voice.joined(id); });
+  room.onPeerLeave(id => { voice?.left(id); const r = session.left(id); if (r) { toast(`${r.member.name} left`); render(); pageRoom.emit({ type: 'people' }); } });
   receive((msg, from) => handle(session.receive(msg, from), from));
   Object.assign(pageRoom, {
     active: true, self: selfId,
@@ -143,6 +198,7 @@ async function connect() {
   setTimeout(() => { if (session && !session.members.size && status) { status = 'Nobody else is here yet. Send them the link.'; render(); } }, 8000);
 }
 function disconnect() {
+  voice?.close(); voice = null;
   room?.leave(); room = null; session = null; sendRaw = null; token = null; status = '';
   Object.assign(pageRoom, { active: false, self: '', people: () => [], send() {} }); pageRoom.emit({ type: 'people' });
   sessionStorage.removeItem(KEY); sessionStorage.removeItem(KEY + '.chat');
@@ -157,7 +213,9 @@ function handle(r, from) {
     if (r.answerState) whenReady(() => sendRaw({ t: 'state', slug, s: snapshot() }, from));
     if (r.answerChat) sendRaw({ t: 'hist', msgs: session.history() }, from);
   }
-  if (r.type === 'chat') { saveChat(); if (panel.hidden) { unread++; toast(`${r.message.name}: ${r.message.text}`); } }
+  if (r.type === 'chat') { typing.delete(from); saveChat(); if (panel.hidden) { unread++; toast(`${r.message.name}: ${r.message.text}`); } }
+  if (r.type === 'typing') { typing.set(from, Date.now() + 4000); setTimeout(render, 4100); }
+  if (r.type === 'mic') { if (!r.member.mic) voice?.silent(from); if (r.changed) toast(`${r.member.name} ${r.member.mic ? 'joined' : 'left'} voice`); }
   if (r.type === 'hist') saveChat();
   if (r.type === 'state') whenReady(() => applyState(r.state));
   if (r.type === 'click') whenReady(() => replayClick(r.index));
@@ -225,5 +283,6 @@ document.addEventListener('click', e => {
   if (i >= 0) sendRaw({ t: 'click', slug, i });
 }, true);
 
+window.__together = { get voice() { return voice; }, get session() { return session; } };   // for tests and debugging
 render();
 if (token) connect();

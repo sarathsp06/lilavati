@@ -12,6 +12,18 @@ Press **Invite** in the top bar, then **Start and copy the invite link**. Everyo
 
 The token is 10 random letters and digits; anyone with the link can join, nobody else can find the session.
 
+## Voice
+
+In a session the panel takes the lower half of the window: everyone as a face with their initials, where
+they are, and whether they are typing or on voice. **🎤 Join voice** asks for the microphone and sends it to
+everyone in the session; a green ring around a face shows who is talking, and the Together button glows
+when someone is. **Mute** keeps you in voice but silent (others see 🔇); **Leave voice** stops the
+microphone. If the browser holds sound back until you click, a **Tap to hear the others** button appears.
+
+Voice goes over the same WebRTC connections as the chat (`web/together/voice.js`), each person to each
+other person, so it suits about 6 to 8 people; a bigger group would need a voice server (an SFU). Echo
+cancellation and noise suppression are the browser's own.
+
 ## How it works (no server of our own)
 
 The same approach as Toy City (github.com/sarathsp06/toycity, `docs/multiplayer.md`):
@@ -31,6 +43,7 @@ The same approach as Toy City (github.com/sarathsp06/toycity, `docs/multiplayer.
 |---|---|
 | `web/together/session.js` | The session without network or page: members, chat, and who answers a newcomer (whoever has been on that page longest). Pure; tested by `tests/together.test.mjs`. |
 | `web/together/index.js` | The Invite button, the panel, the connection, and keeping the page in step. Loaded by `concepts.js` on every page. |
+| `web/together/voice.js` | The microphone to everyone and everyone's voice to me, with level meters for the talking rings. |
 | `web/together/share.js` | `share(get, set)`: how a page hands over state that lives only in JavaScript; `room`: the people on the page and messages of its own. |
 
 What is shared on a page:
