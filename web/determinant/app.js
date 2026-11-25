@@ -1,6 +1,6 @@
 // The determinant: the unit square becomes a parallelogram whose (signed) area is det A.
-// Maths: pkg/mathtoys.js (linalg); drawing: ../la.js.
-import init, { det2, mul2 } from '../pkg/mathtoys.js';
+// Maths: pkg/lilavati.js (linalg); drawing: ../la.js.
+import init, { det2, mul2 } from '../pkg/lilavati.js';
 import { Plane, COL, FLAG, I2, apply, fmt, matrixToy, basis, figPlane, clearFig, panels } from '../la.js';
 
 await init();

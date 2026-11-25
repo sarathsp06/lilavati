@@ -1,6 +1,6 @@
 // Linear transformations: drag î and ĵ and the grid, a flag and a vector v all follow.
-// Maths: pkg/mathtoys.js (linalg); drawing: ../la.js.
-import init, { det2, inv2, mul2 } from '../pkg/mathtoys.js';
+// Maths: pkg/lilavati.js (linalg); drawing: ../la.js.
+import init, { det2, inv2, mul2 } from '../pkg/lilavati.js';
 import { Plane, COL, FLAG, I2, apply, rot, fmt, vec, matrixToy, basis, figPlane, clearFig, panels } from '../la.js';
 
 await init();

@@ -1,6 +1,6 @@
 // The Fourier series page: a canvas you draw on, the Rust/WebAssembly series (pkg/circles.js), the spinning circles
 // that redraw the shape, and the equations with copy buttons. No framework; Pico CSS for the look.
-import init, { Fourier } from '../pkg/mathtoys.js';
+import init, { Fourier } from '../pkg/lilavati.js';
 
 const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
 const $ = id => document.getElementById(id);

@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Math Toys: maths you can play with</title>
+  <title>Lilavati: maths you can touch</title>
   <meta name="description" content="Play with maths in your browser. Draw a shape and get its Fourier series; draw a motion and see its derivatives. Every concept explained step by step, with fun facts.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="container">
-    <nav class="home-nav"><a class="brand" href="./"><span class="logo" aria-hidden="true"></span>Math Toys</a><a href="#concepts" class="muted">All concepts ↓</a></nav>
+    <nav class="home-nav"><a class="brand" href="./"><span class="logo" aria-hidden="true"></span>Lilavati</a><a href="#concepts" class="muted">All concepts ↓</a></nav>
 
     <section class="home-hero">
       <div>
@@ -38,7 +38,23 @@
     </section>
 
 
-    <footer class="site"><span>The maths runs in Rust, compiled to WebAssembly, right in your browser.</span><span>Made for curious people of any age.</span></footer>
+    <section class="block story" id="story">
+      <h2>Why “Lilavati”</h2>
+      <div class="story-grid">
+        <div class="prose">
+          <p>In 1150 the Indian mathematician Bhāskara II wrote a book of arithmetic and geometry and named it <em>Līlāvatī</em>, “the playful one”. Instead of dry rules it is full of puzzles about bees, peacocks, monkeys and bamboo, often addressed to a girl: “O lovely one with eyes like a fawn, tell me…”</p>
+          <p>A story first written down centuries later, in the Persian translation made for Emperor Akbar's court in 1587, says Līlāvatī was Bhāskara's daughter. The stars, he found, allowed her only one lucky moment to marry. He floated a cup with a tiny hole in a bowl of water, a water clock that would sink at the chosen hour. While Līlāvatī leaned over to watch, a pearl slipped from her bridal dress into the cup and blocked the hole. The cup never sank, the moment passed unnoticed, and the wedding never brought her happiness. To comfort her, Bhāskara promised: “I will write a book in your name, and it will be remembered for ever.”</p>
+          <p class="muted"><small>Historians treat the story as a legend; the book is real, and was used to teach mathematics in India for centuries. This site borrows its idea: maths as play.</small></p>
+        </div>
+        <article class="puzzle">
+          <h4>One of her puzzles</h4>
+          <p>“The square root of half a swarm of bees flew to a jasmine bush. Eight-ninths of the whole swarm stayed behind. One bee hummed around a lotus, where another was trapped inside. Tell me, lovely one, how many bees were there?”</p>
+          <details><summary>Show the answer</summary><p><strong>72 bees.</strong> Half of 72 is 36, whose square root is 6; eight-ninths of 72 is 64; and 6 + 64 + 2 = 72.</p></details>
+        </article>
+      </div>
+    </section>
+
+    <footer class="site"><span>Named after <em>Līlāvatī</em>, Bhāskara II's book of playful maths puzzles (1150). <a href="#story">The story</a></span><span>The maths runs in Rust, compiled to WebAssembly, right in your browser.</span></footer>
   </main>
   <script type="module" src="home.js"></script>
 </body>

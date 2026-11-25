@@ -1,6 +1,6 @@
 # The shape of a concept page
 
-Every concept on Math Toys is one page, named after the **concept** (Fourier series, Derivatives and
+Every concept on Lilavati is one page, named after the **concept** (Fourier series, Derivatives and
 integrals), never after the example used to show it (circles, distance and velocity). The example is
 how we teach it; the concept is what the reader learns and what they would search for.
 
@@ -47,7 +47,7 @@ algebra pages share `web/la.js`: a coordinate plane, draggable arrows, a matrix 
 
 1. Add it to `CONCEPTS` in `web/concepts.js` (slug, name, idea, topic, level, colour, related). With
    `status: 'soon'` it shows on the home page as coming next.
-2. Maths in `src/<module>.rs` with tests; pages import `../pkg/mathtoys.js`.
+2. Maths in `src/<module>.rs` with tests; pages import `../pkg/lilavati.js`.
 3. Copy `docs/concept-template.html` to `web/<slug>/index.html` and fill in every section.
 4. Set `status: 'live'`, and add a small `preview(canvas, t)` drawing for the home page card.
 

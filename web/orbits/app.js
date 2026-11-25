@@ -1,7 +1,7 @@
-// The orbits page: a satellite round the Earth, seen from above the North Pole (Rust: pkg/mathtoys.js,
+// The orbits page: a satellite round the Earth, seen from above the North Pole (Rust: pkg/lilavati.js,
 // orbit module). Launch it, fire its engine, build a tower at the equator and let go of a ball from the
 // top. Positions are metres from the Earth's centre, y up; the Earth spins anticlockwise once a day.
-import init, { Craft, predict, elements, gravity, felt_gravity, circular_speed, escape_speed, synchronous_radius, earth_radius, earth_spin } from '../pkg/mathtoys.js';
+import init, { Craft, predict, elements, gravity, felt_gravity, circular_speed, escape_speed, synchronous_radius, earth_radius, earth_spin } from '../pkg/lilavati.js';
 
 await init();
 const $ = id => document.getElementById(id);

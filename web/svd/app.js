@@ -1,7 +1,7 @@
 // The singular value decomposition: any matrix = turn (Vᵀ), stretch (Σ), turn (U). Slide through
 // the three moves; compress a picture with the SVD; find principal components of a data cloud.
-// Maths: pkg/mathtoys.js (linalg); drawing: ../la.js.
-import init, { svd2, pca2, Svd } from '../pkg/mathtoys.js';
+// Maths: pkg/lilavati.js (linalg); drawing: ../la.js.
+import init, { svd2, pca2, Svd } from '../pkg/lilavati.js';
 import { Plane, COL, I2, apply, rot, mul, fmt, matrixToy, basis, figPlane, clearFig, panels } from '../la.js';
 
 await init();

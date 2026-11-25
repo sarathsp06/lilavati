@@ -1,6 +1,6 @@
 // Eigenvectors: drag v until Av stays on v's line; apply the matrix again and again (power
-// iteration). Maths: pkg/mathtoys.js (linalg); drawing: ../la.js.
-import init, { eig2, det2 } from '../pkg/mathtoys.js';
+// iteration). Maths: pkg/lilavati.js (linalg); drawing: ../la.js.
+import init, { eig2, det2 } from '../pkg/lilavati.js';
 import { Plane, COL, I2, MATRICES, apply, fmt, vec, matrixToy, basis, figPlane, clearFig, panels } from '../la.js';
 
 await init();

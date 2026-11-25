@@ -1,6 +1,6 @@
 // The home page: the concept cards (from concepts.js) with small live previews, and the hero,
 // where spinning circles (the Rust Fourier series) draw one shape after another.
-import init, { Fourier, Craft, circular_speed } from './pkg/mathtoys.js';
+import init, { Fourier, Craft, circular_speed } from './pkg/lilavati.js';
 import { CONCEPTS, CHAPTERS, card } from './concepts.js';
 import { Plane, COL, I2, apply, rot, mul } from './la.js';
 

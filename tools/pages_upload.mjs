@@ -45,5 +45,5 @@ const flush = async () => {
 for (const a of todo) { if (size + a.b64.length > 40e6) await flush(); batch.push(a); size += a.b64.length; }
 await flush();
 await call('/upsert-hashes', { hashes: assets.map(a => a.key) });
-fs.writeFileSync(process.env.MANIFEST_OUT || '/tmp/mathtoys-manifest.json', JSON.stringify(Object.fromEntries(assets.map(a => [a.route, a.key]))));
+fs.writeFileSync(process.env.MANIFEST_OUT || '/tmp/lilavati-manifest.json', JSON.stringify(Object.fromEntries(assets.map(a => [a.route, a.key]))));
 console.log('manifest written');

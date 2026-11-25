@@ -167,3 +167,12 @@ ul.reading li span { display: block; font-size: .88rem; color: var(--ink-2); }
 .chapter { margin-top: 3rem; }
 .chapter > p.lead { margin-bottom: 1rem; }
 .ccard .num { font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+
+/* home: the story behind the name */
+.story-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 2rem; align-items: start; }
+@media (max-width: 860px) { .story-grid { grid-template-columns: 1fr; } }
+.story .prose p { color: #3f3a36; }
+.puzzle { margin: 0; border-radius: 14px; border: 1px solid #fde68a; background: #fffbeb; padding: 1.2rem 1.3rem; box-shadow: none; }
+.puzzle h4 { margin: 0 0 .5rem; }
+.puzzle p { font-family: var(--serif); font-size: 1.05rem; font-style: italic; }
+.puzzle details p { font-family: inherit; font-style: normal; font-size: .95rem; }

@@ -56,7 +56,7 @@ if (me) {
   // the top bar
   const bar = document.createElement('div');
   bar.className = 'topbar';
-  bar.innerHTML = `<a class="brand" href="../"><span class="logo" aria-hidden="true"></span>Math Toys</a><nav class="toc" aria-label="On this page"></nav>`;
+  bar.innerHTML = `<a class="brand" href="../"><span class="logo" aria-hidden="true"></span>Lilavati</a><nav class="toc" aria-label="On this page"></nav>`;
   document.body.prepend(bar);
   // chips under the name
   const h1 = document.querySelector('#hero h1');

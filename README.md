@@ -1,4 +1,4 @@
-# Math Toys
+# Lilavati
 
 **Maths you can touch.** Small interactive pages where you draw, drag and play with one big idea at a time,
 then scroll down and it explains itself step by step, with fun facts along the way.
@@ -6,23 +6,43 @@ then scroll down and it explains itself step by step, with fun facts along the w
 <p align="center"><img src="docs/media/circles.gif" width="360" alt="Spinning circles, each riding on the last, drawing a heart: a Fourier series"></p>
 <p align="center"><em>Circles riding on circles, drawing a heart. That's a Fourier series.</em></p>
 
-**Try it:** https://mathtoys.pages.dev, in any browser, on a phone too. Nothing to install.
+**Try it:** https://lilavati.pages.dev, in any browser, on a phone too. Nothing to install.
+
+## Why “Lilavati”
+
+In 1150 the Indian mathematician Bhāskara II wrote a book of arithmetic and geometry called *Līlāvatī*,
+“the playful one”. Instead of dry rules it is full of puzzles about bees, peacocks, monkeys and bamboo,
+often addressed to a girl: *“O lovely one with eyes like a fawn, tell me…”*
+
+A story first written down centuries later, in the Persian translation made for Emperor Akbar's court in
+1587, says Līlāvatī was Bhāskara's daughter. The stars allowed her only one lucky moment to marry, so he
+floated a cup with a tiny hole in a bowl of water, a water clock that would sink at the chosen hour. A
+pearl slipped from her bridal dress into the cup and blocked the hole; the cup never sank, the moment
+passed, and the marriage never brought her happiness. To comfort her, Bhāskara wrote a book in her name,
+promising it would be remembered for ever.
+
+Historians treat the story as a legend, but the book is real and taught mathematics in India for
+centuries. This project borrows its idea: **maths as play**.
+
+> *One of her puzzles:* the square root of half a swarm of bees flew to a jasmine bush; eight-ninths of
+> the swarm stayed behind; one bee hummed around a lotus where another was trapped. How many bees?
+> *(Answer: 72.)*
 
 ## What's inside
 
 | Concept | What you do |
 |---|---|
-| [Fourier series](https://mathtoys.pages.dev/fourier-series/) | Draw any closed shape and get its equation; a chain of spinning circles draws it back |
-| [Derivatives and integrals](https://mathtoys.pages.dev/derivatives/) | Draw how something moves and watch velocity and acceleration appear, as slopes and areas |
-| [Orbits and escape velocity](https://mathtoys.pages.dev/orbits/) | Launch a satellite, fire its engine, escape the Earth, build a tower into space |
+| [Fourier series](https://lilavati.pages.dev/fourier-series/) | Draw any closed shape and get its equation; a chain of spinning circles draws it back |
+| [Derivatives and integrals](https://lilavati.pages.dev/derivatives/) | Draw how something moves and watch velocity and acceleration appear, as slopes and areas |
+| [Orbits and escape velocity](https://lilavati.pages.dev/orbits/) | Launch a satellite, fire its engine, escape the Earth, build a tower into space |
 
 **Chapter: Linear algebra for AI**, the matrix maths every neural network is made of:
 
-1. [Vectors and the dot product](https://mathtoys.pages.dev/dot-product/), and a neuron you can train by hand
-2. [Linear transformations and matrices](https://mathtoys.pages.dev/linear-transformations/)
-3. [The determinant](https://mathtoys.pages.dev/determinant/)
-4. [Eigenvectors and eigenvalues](https://mathtoys.pages.dev/eigenvectors/)
-5. [Singular value decomposition](https://mathtoys.pages.dev/svd/), with picture compression and PCA
+1. [Vectors and the dot product](https://lilavati.pages.dev/dot-product/), and a neuron you can train by hand
+2. [Linear transformations and matrices](https://lilavati.pages.dev/linear-transformations/)
+3. [The determinant](https://lilavati.pages.dev/determinant/)
+4. [Eigenvectors and eigenvalues](https://lilavati.pages.dev/eigenvectors/)
+5. [Singular value decomposition](https://lilavati.pages.dev/svd/), with picture compression and PCA
 
 Every page has the same shape: a toy to play with, small experiments to try, a step-by-step walk-through
 drawn from whatever you made, the formulas read out in plain words, where you meet it in real life, fun
@@ -59,18 +79,18 @@ python3 -m http.server 8080 -d dist/site
 
 See [AGENTS.md](AGENTS.md) and [docs/CONCEPT_PAGE.md](docs/CONCEPT_PAGE.md#adding-a-concept).
 
-## Deploy (Cloudflare Pages project `mathtoys`, direct upload)
+## Deploy (Cloudflare Pages project `lilavati`, direct upload)
 
-Get the project's upload token (`GET /accounts/{id}/pages/projects/mathtoys/upload-token`, `result.jwt`)
+Get the project's upload token (`GET /accounts/{id}/pages/projects/lilavati/upload-token`, `result.jwt`)
 into a private file, then:
 
 ```sh
 (cd tools && npm i)
 ./build.sh
-CF_PAGES_JWT_FILE=/path/to/jwt node tools/pages_upload.mjs   # uploads dist/site, writes /tmp/mathtoys-manifest.json
+CF_PAGES_JWT_FILE=/path/to/jwt node tools/pages_upload.mjs   # uploads dist/site, writes /tmp/lilavati-manifest.json
 ```
 
-and create the deployment: `POST /accounts/{id}/pages/projects/mathtoys/deployments` with form fields
+and create the deployment: `POST /accounts/{id}/pages/projects/lilavati/deployments` with form fields
 `manifest` (that JSON), `branch=main` and `_redirects` (the contents of `web/_redirects`, which sends the old
 `/fourier/` and `/motion/` addresses to the new ones).
 

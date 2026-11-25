@@ -1,6 +1,6 @@
 // Vectors and the dot product: two arrows you drag, their dot product, angle, shadow and length
-// (three norms), and a one-neuron classifier you can train. Maths: pkg/mathtoys.js (linalg).
-import init, { dot, cosine } from '../pkg/mathtoys.js';
+// (three norms), and a one-neuron classifier you can train. Maths: pkg/lilavati.js (linalg).
+import init, { dot, cosine } from '../pkg/lilavati.js';
 import { Plane, COL, fmt, vec } from '../la.js';
 
 await init();

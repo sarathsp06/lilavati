@@ -1,6 +1,6 @@
 // The derivatives and integrals page, shown with motion: one motion as three linked graphs (position, velocity, acceleration) over 10 s.
-// You draw on one; Rust (pkg/mathtoys.js, motion module) works out the other two by slopes and areas.
-import init, { Motion, smooth } from '../pkg/mathtoys.js';
+// You draw on one; Rust (pkg/lilavati.js, motion module) works out the other two by slopes and areas.
+import init, { Motion, smooth } from '../pkg/lilavati.js';
 
 await init();
 const $ = id => document.getElementById(id);

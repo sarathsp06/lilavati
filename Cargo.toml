@@ -1,5 +1,5 @@
 [package]
-name = "mathtoys"
+name = "lilavati"
 version = "0.1.0"
 edition = "2021"
 description = "Maths toys for the browser: the maths in Rust, built to WebAssembly"
