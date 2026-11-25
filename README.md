@@ -30,38 +30,22 @@ centuries. This project borrows its idea: **maths as play**.
 
 ## What's inside
 
-| Concept | What you do |
-|---|---|
-| [How to draw anything with circles](https://lilavati.pages.dev/fourier-series/) (Fourier series) | Draw any closed shape and get its equation; a chain of spinning circles draws it back |
-| [What your speedometer actually measures](https://lilavati.pages.dev/derivatives/) (derivatives and integrals) | Draw how something moves and watch velocity and acceleration appear, as slopes and areas |
-| [How noise-cancelling headphones make silence](https://lilavati.pages.dev/superposition/) (superposition of waves) | Mix three waves, hear them, and see cancelling, beats, chords and square waves appear |
-| [Why the space station never falls down](https://lilavati.pages.dev/orbits/) (orbits and escape velocity) | Launch a satellite, fire its engine, and escape the Earth |
-
-**Chapter: Linear algebra for AI**, the matrix maths every neural network is made of:
-
-1. [Vectors and the dot product](https://lilavati.pages.dev/dot-product/), and a neuron you can train by hand
-2. [Linear transformations and matrices](https://lilavati.pages.dev/linear-transformations/)
-3. [The determinant](https://lilavati.pages.dev/determinant/)
-4. [Eigenvectors and eigenvalues](https://lilavati.pages.dev/eigenvectors/)
-5. [Singular value decomposition](https://lilavati.pages.dev/svd/), with picture compression and PCA
-
-Every page has the same shape: a toy to play with, small experiments to try, a step-by-step walk-through
-drawn from whatever you made, the formulas read out in plain words, where you meet it in real life, fun
-facts, common mix-ups and further reading.
+Each page takes one idea, from Fourier series and orbits to the matrix maths behind AI, and starts from
+something you've seen in real life. Every page has a picture to play with, small experiments to try, a
+step-by-step walk-through drawn from whatever you set up, the formulas read out in plain words, fun facts
+and further reading. New pages are added regularly: see them all at **https://lilavati.pages.dev**.
 
 ## How it's built
 
-- **The maths is in Rust** (`src/`), compiled to WebAssembly and run in your browser: Fourier series,
-  numerical derivatives and integrals, an orbit integrator, eigenvalues and the SVD. `cargo test` checks it
-  against known answers (a circle is one Fourier term, the space station goes round in about 92 minutes,
-  turn × stretch × turn rebuilds the matrix).
+- **The maths is in Rust** (`src/`), compiled to WebAssembly and run in your browser, and checked by
+  `cargo test` against known answers.
 - **The pages are plain HTML and JavaScript** (`web/`) with [Pico CSS](https://picocss.com). No framework,
   no build step for the pages themselves.
 - **Hosted on Cloudflare Pages.**
 
 | Where | What |
 |---|---|
-| `src/fourier.rs`, `motion.rs`, `orbit.rs`, `linalg.rs`, `waves.rs` | The maths, one module per topic, with tests |
+| `src/` | The maths, one Rust module per topic, with tests |
 | `web/<concept>/` | One folder per concept page |
 | `web/concepts.js` | The list of concepts and chapters; builds the home page and page navigation |
 | `web/la.js` | Shared drawing for the linear algebra pages |

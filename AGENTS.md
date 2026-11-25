@@ -21,6 +21,7 @@ Notes for anyone (person or AI agent) adding to or changing this site.
   question or claim from everyday life ("Why the space station never falls down"), with a one-line tagline under
   it. The concept name stays in the URL, the page title and a chip above the heading. Set `hook` and `tagline`
   in `web/concepts.js`.
+- **README:** don't list concepts in README.md; the site is the list. Registering a page in `web/concepts.js` is enough.
 - **Naming:** pages are named after the concept (Fourier series, Derivatives and integrals), not the
   example used to show it.
 - **Phones:** controls that change the picture sit right next to it; on phones the picture and its key
