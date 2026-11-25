@@ -113,7 +113,16 @@ function build() {
       const lock = el('button', { type: 'button', className: 'tg-mini' + (rules?.locked ? ' on' : ''), textContent: rules?.locked ? '🔒 locked: nobody new can join' : '🔓 lock the session' });
       lock.onclick = () => setRules({ locked: !rules?.locked, allow: rules?.locked ? [] : [pid, ...[...session.members.values()].map(m => m.pid)] });
       row.append(el('br'), el('span', { textContent: '👑 You are the host. ' }), lock);
-    } else if (rules?.locked) row.append(el('br'), '🔒 The host has locked this session.');
+      row.append(el('br'), el('span', { textContent: '👀 Everyone following you sees your page and scrolls with you.' }));
+    } else {
+      if (rules?.locked) row.append(el('br'), '🔒 The host has locked this session.');
+      if (rules?.host) {
+        const f = el('button', { type: 'button', className: 'tg-mini' + (following ? ' on' : ''), textContent: following ? '👀 following the host' : 'follow the host' });
+        f.title = 'Go to the page the host is on and scroll with them';
+        f.onclick = () => { following = !following; sessionStorage.setItem(KEY + '.follow', following ? '1' : '0'); if (following) sendRaw?.({ t: 'where' }); render(); };
+        row.append(el('br'), f);
+      }
+    }
     panel.append(row);
   }
   // people, as faces: a ring while they talk, a microphone when their voice is on
@@ -293,8 +302,40 @@ function disconnect() {
   render();
 }
 
+// ---------- follow the host: their page and where they are on it ----------
+// The host sends where they are (page, the section at the top of their screen and how far through it)
+// as they scroll; followers go there. Sections, not pixels, so a phone follows a wide screen.
+let following = sessionStorage.getItem(KEY + '.follow') !== '0';
+const TOPBAR = 70;
+const anchors = () => [...document.querySelectorAll('main > header, main > section, main .step, main nav.home-nav ~ *')];
+function where() {
+  const a = anchors(); let k = 0;
+  for (let i = 0; i < a.length; i++) if (a[i].getBoundingClientRect().top <= TOPBAR + 1) k = i;
+  const r = a[k]?.getBoundingClientRect();
+  return { k, f: r && r.height ? Math.max(0, Math.min(1, (TOPBAR - r.top) / r.height)) : 0 };
+}
+let leadT = null;
+function lead(to) {
+  if (!amHost() || !session) return;
+  clearTimeout(leadT);
+  leadT = setTimeout(() => { const w = where(); sendRaw?.({ t: 'lead', slug, k: w.k, f: Math.round(w.f * 1000) / 1000 }, to); }, to ? 0 : 120);
+}
+addEventListener('scroll', () => lead(), { passive: true });
+function follow(m, from) {
+  if (!following || amHost() || !rules?.host || session.member(from)?.pid !== rules.host) return;
+  if (m.slug !== slug) {   // the host went to another page: go there too
+    if (m.slug === '' || bySlug[m.slug]?.status === 'live') { toast('Following the host…'); location.href = linkFor(m.slug); }
+    return;
+  }
+  const a = anchors()[m.k]; if (!a) return;
+  const r = a.getBoundingClientRect();
+  scrollTo({ top: Math.max(0, r.top + scrollY + m.f * r.height - TOPBAR), behavior: Math.abs(r.top - TOPBAR) > innerHeight * 2 ? 'auto' : 'smooth' });
+}
+
 function handle(r, from) {
   if (!r) return;
+  if (r.type === 'lead') { follow(r, from); return; }
+  if (r.type === 'where') { if (amHost()) lead(from); return; }
   if (r.type === 'host') { fromHost(r.data); return; }
   if (r.type === 'join') {
     if (r.rules) fromHost(r.rules);
@@ -302,6 +343,7 @@ function handle(r, from) {
     if (r.isNew) toast(`${r.member.name} joined${r.member.slug && r.member.slug !== slug ? ' (on another page)' : ''}`);
     if (r.answerState) whenReady(() => sendRaw({ t: 'state', slug, s: snapshot() }, from));
     if (r.answerChat) sendRaw({ t: 'hist', msgs: session.history() }, from);
+    if (amHost()) lead(from);   // a newcomer (or someone arriving on a new page) learns where the host is
   }
   if (r.type === 'chat') { typing.delete(from); saveChat(); if (panel.hidden) { unread++; toast(`${r.message.name}: ${r.message.text}`); } }
   if (r.type === 'typing') { typing.set(from, Date.now() + 4000); setTimeout(render, 4100); }

@@ -248,7 +248,9 @@ for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('cli
 // Together (together/share.js): the drawing is shared; it is fitted again only when it changed
 const same = (p, q) => p.length === q.length && p.every((v, i) => Math.abs(v - q[i]) < 1e-3);
 share(() => ({ stroke, drawing }), s => {
-  const pts = nums(s?.stroke, 40000); if (!pts || pts.length % 2 || same(pts, stroke)) return;
+  const pts = nums(s?.stroke, 40000); if (!pts || pts.length % 2) return;
+  // the same points can arrive twice: while drawing, then finished; only skip when nothing would change
+  if (same(pts, stroke) && (s.drawing || fourier)) return;
   stroke = [...pts]; $('hint').classList.toggle('hidden', stroke.length > 0);
   if (!s.drawing && stroke.length >= 6) fit(); else { fourier = null; trail = []; }
 });

@@ -26,6 +26,14 @@ host. Everyone keeps the newest signed rules (who is removed, whether it's locke
 they hold while the host is away. Someone who edits the site's code in their own browser could ignore a
 command aimed at them; the code is the real lock. Code: `web/together/host.js`, `tests/host.test.mjs`.
 
+## Following the host
+
+By default everyone follows the host: when the host goes to another page, followers go there too, and as
+the host scrolls, followers scroll to the same place. Position is sent as a section (hero, each section,
+each step) and how far through it, not in pixels, so a phone follows a wide screen. A follower can switch
+it off with **follow the host** in the panel (remembered for the tab); switching it back on jumps to where
+the host is. Changes made by anyone still reach everyone.
+
 ## Voice
 
 In a session the panel takes the lower half of the window: everyone as a face with their initials, where
