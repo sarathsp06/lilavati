@@ -24,4 +24,4 @@ Notes for anyone (person or AI agent) adding to or changing this site.
 - **Registering a page:** add it to `web/concepts.js` (single concepts or a chapter `series`); the home
   page cards, top bar and previous/next links are built from that list.
 - **Checks:** `cargo test` for the maths; open every changed page in a browser at desktop and phone
-  width before deploying. Deploy steps are in [README.md](README.md#deploy-cloudflare-pages-project-lilavati-direct-upload).
+  width before deploying. Deploy steps are in [docs/DEPLOY.md](docs/DEPLOY.md).
