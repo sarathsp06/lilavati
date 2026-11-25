@@ -40,11 +40,15 @@ const PRESETS = [
   ['Bouncing spring', 's', t => 2 * Math.sin(2 * Math.PI * t / 2.5), 0],
   ['Stop-and-go traffic', 'v', t => 4 * (1 - Math.cos(2 * Math.PI * t / 5)), 0],
 ];
-for (const [name, k, f, vv] of PRESETS) {
-  const b = Object.assign(document.createElement('button'), { className: 'outline', textContent: name });
-  b.addEventListener('click', () => { setSource(k, false); data = Float64Array.from({ length: N }, (_, i) => f(i * DT)); v0 = vv; syncV0(); fixed = null; compute(); t = 0; playing = true; $('playBtn').textContent = 'Pause'; });
-  $('presets').append(b);
+// a dropdown right above the graphs; drawing on a graph switches it to "your own drawing"
+function usePreset(i) {
+  const [, k, f, vv] = PRESETS[i];
+  $('presets').value = i;
+  setSource(k, false); data = Float64Array.from({ length: N }, (_, j) => f(j * DT)); v0 = vv; syncV0(); fixed = null; compute(); t = 0; playing = true; $('playBtn').textContent = 'Pause';
 }
+PRESETS.forEach(([name], i) => $('presets').append(new Option(name, i)));
+$('presets').append(Object.assign(new Option('Your own drawing', 'own'), { disabled: true }));
+$('presets').addEventListener('change', e => { if (e.target.value !== 'own') usePreset(+e.target.value); });
 
 // ---------- controls ----------
 function setSource(k, keep = true) {
@@ -58,7 +62,7 @@ $('source').addEventListener('change', e => { setSource(e.target.value); compute
 $('v0').addEventListener('input', e => { v0 = +e.target.value; $('v0val').textContent = v0.toFixed(1); compute(); });
 $('sigma').addEventListener('input', e => { $('sigval').textContent = e.target.value; compute(); });
 $('extras').addEventListener('change', drawAll);
-$('flat').addEventListener('click', () => { data = new Float64Array(N); v0 = 0; syncV0(); fixed = null; compute(); });
+$('flat').addEventListener('click', () => { $('presets').value = 'own'; data = new Float64Array(N); v0 = 0; syncV0(); fixed = null; compute(); });
 $('playBtn').addEventListener('click', () => { playing = !playing; $('playBtn').textContent = playing ? 'Pause' : 'Play'; });
 $('time').addEventListener('input', e => { t = +e.target.value; playing = false; $('playBtn').textContent = 'Play'; drawAll(); });
 
@@ -73,7 +77,7 @@ function toData(cv, e) {
 let lastPt = null;
 for (const k of KEYS) {
   const cv = $('g-' + k);
-  cv.addEventListener('pointerdown', e => { if (k !== src) { setSource(k); } e.preventDefault(); cv.setPointerCapture(e.pointerId); fixed = k; lastPt = toData(cv, e); data[lastPt[0]] = lastPt[1]; compute(); });
+  cv.addEventListener('pointerdown', e => { if (k !== src) { setSource(k); } e.preventDefault(); cv.setPointerCapture(e.pointerId); fixed = k; $('presets').value = 'own'; lastPt = toData(cv, e); data[lastPt[0]] = lastPt[1]; compute(); });
   cv.addEventListener('pointermove', e => {
     if (!lastPt || k !== src) return;
     const p = toData(cv, e), [i0, y0] = lastPt, [i1, y1] = p;
@@ -198,13 +202,13 @@ function explainAnim(sec) {
 }
 
 setSource('s', false);
-PRESETS[1] && $('presets').children[1].click();   // start with the car speeding up
+usePreset(1);   // start with the car speeding up
 requestAnimationFrame(frame);
 // "Try this" buttons: set the toy up, then scroll back to it
 const pause = at => { t = at; playing = false; $('playBtn').textContent = 'Play'; drawAll(); };
 const TRY = {
-  car: () => $('presets').children[1].click(),
-  ball: () => { $('presets').children[3].click(); pause(5); },
+  car: () => usePreset(1),
+  ball: () => { usePreset(3); pause(5); },
   drawv: () => { setSource('v'); compute(); },
   nosmooth: () => { $('sigma').value = 0; $('sigval').textContent = '0'; setSource('s'); compute(); },
 };

@@ -7,6 +7,11 @@
   <meta name="description" content="The slope of a graph tells how fast it changes; the area under it adds the changes back up. Draw a motion and see its derivatives and integrals live.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="../style.css">
+  <style>
+    .pick { display: flex; align-items: center; gap: .7rem; margin: 0 0 .6rem; font-weight: 600; }
+    .pick select { margin: 0; flex: 1; max-width: 22rem; font-weight: 400; }
+    @media (max-width: 600px) { .pick { flex-direction: column; align-items: stretch; gap: .3rem; } .pick select { max-width: none; } }
+  </style>
 </head>
 <body data-concept="derivatives">
   <main class="container">
@@ -19,6 +24,9 @@
     <section id="play" data-label="Play">
       <div class="layout">
       <section>
+        <label class="pick">Pick a motion
+          <select id="presets"></select>
+        </label>
         <div class="stage"><canvas id="track" width="900" height="110"></canvas></div>
         <p id="readout" class="readout"></p>
         <div class="stage"><canvas id="g-s" width="900" height="200"></canvas></div>
@@ -50,8 +58,6 @@
         <div class="row">
           <button id="flat" class="secondary outline">Flatten</button>
         </div>
-        <h3>Try a motion</h3>
-        <div class="row" id="presets"></div>
       </aside>
     </div>
     </section>
