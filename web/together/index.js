@@ -51,7 +51,7 @@ panel.setAttribute('aria-label', 'Together');
 document.body.append(panel);
 const spot = $('.topbar a.gh') || $('.home-nav .navlinks a.gh');
 spot?.before(button);
-button.addEventListener('click', () => { panel.hidden = !panel.hidden; if (!panel.hidden) { unread = 0; render(); $('.tg-say input', panel)?.focus(); } else render(); });
+button.addEventListener('click', () => { panel.hidden = !panel.hidden; if (session) sessionStorage.setItem(KEY + '.collapsed', panel.hidden ? '1' : '0'); if (!panel.hidden) { unread = 0; render(); $('.tg-say input', panel)?.focus(); } else render(); });
 
 const root = new URL(slug ? '../' : './', location.href);
 const linkFor = s => { const u = new URL(s ? `${s}/` : '', root); u.search = '?join=' + token; return u.href; };
@@ -62,6 +62,9 @@ function render() {
   button.textContent = session ? `${voice?.on ? '🎤' : '💬'} Together · ${n}` : 'Invite';
   if (unread && panel.hidden) button.append(el('span', { className: 'badge', textContent: unread }));
   button.classList.toggle('on', !!session);
+  // in a session the panel is a column on the right of the page (a sheet at the bottom on phones)
+  const docked = !!session && !panel.hidden;
+  if (document.body.classList.contains('tg-docked') !== docked) { document.body.classList.toggle('tg-docked', docked); requestAnimationFrame(() => dispatchEvent(new Event('resize'))); }
   if (panel.hidden) return;
   // keep what is being typed (and where) across a redraw
   const typed = {}, focus = panel.contains(document.activeElement) ? document.activeElement.getAttribute('aria-label') : null;
@@ -76,12 +79,14 @@ const colorOf = id => COLORS[[...String(id)].reduce((a, c) => a + c.charCodeAt(0
 const initials = n => (n.match(/\p{L}|\d/gu) || ['?']).slice(0, 1).concat((n.split(/\s+/)[1] || '').match(/\p{L}|\d/u) || []).join('').toUpperCase();
 function badge(id, name, key = id) { const b = el('span', { className: 'tg-face', textContent: initials(name) }); b.style.background = colorOf(id); b.dataset.voice = key; return b; }
 const typing = new Map();   // id -> until (ms)
+let invOpen = null;          // the invite section, opened or closed by hand (null: open while alone)
 
 function build() {
   panel.replaceChildren();
   panel.classList.toggle('big', !!session);
   const close = el('button', { type: 'button', className: 'tg-x', textContent: '×', title: 'Close' });
-  close.setAttribute('aria-label', 'Close'); close.onclick = () => { panel.hidden = true; render(); };
+  close.setAttribute('aria-label', 'Close'); close.onclick = () => { panel.hidden = true; if (session) sessionStorage.setItem(KEY + '.collapsed', '1'); render(); };
+  if (session) { close.textContent = '»'; close.title = 'Hide the panel (the Together button brings it back)'; close.setAttribute('aria-label', 'Hide'); }
   const n = session ? session.members.size + 1 : 0;
   panel.append(el('header', {}, el('strong', { textContent: session ? `Together · ${n} ${n === 1 ? 'person' : 'people'}` : 'Together' }), close));
   if (!session) {
@@ -102,62 +107,50 @@ function build() {
     panel.append(el('p', { textContent: "Explore with friends. You'll be the host: you get a link and a join code to give people, and you can mute people, remove them, or lock the session. Everyone in it can chat and talk, and sees the same picture." }), start);
     return;
   }
-  // the link
-  const link = el('input', { readOnly: true, value: inviteLink() }), cp = el('button', { type: 'button', className: 'outline', textContent: 'Copy link' });
-  link.setAttribute('aria-label', 'Invite link'); link.onfocus = () => link.select(); cp.onclick = () => copy(inviteLink(), cp);
-  panel.append(el('div', { className: 'tg-row tg-link' }, link, cp));
-  if (hasHost(token)) {
-    const both = el('button', { type: 'button', className: 'tg-mini', textContent: 'copy link with code' }); both.onclick = () => copy(inviteLink() + '&code=' + code, both);
-    const row = el('p', { className: 'tg-code' }, 'Join code ', el('b', { textContent: code.slice(0, 3) + ' ' + code.slice(3) }), ' · give it with the link, or ', both);
-    if (amHost()) {
-      const lock = el('button', { type: 'button', className: 'tg-mini' + (rules?.locked ? ' on' : ''), textContent: rules?.locked ? '🔒 locked: nobody new can join' : '🔓 lock the session' });
-      lock.onclick = () => setRules({ locked: !rules?.locked, allow: rules?.locked ? [] : [pid, ...[...session.members.values()].map(m => m.pid)] });
-      row.append(el('br'), el('span', { textContent: '👑 You are the host. ' }), lock);
-      row.append(el('br'), el('span', { textContent: '👀 Everyone following you sees your page and scrolls with you.' }));
-    } else {
-      if (rules?.locked) row.append(el('br'), '🔒 The host has locked this session.');
-      if (rules?.host) {
-        const f = el('button', { type: 'button', className: 'tg-mini' + (following ? ' on' : ''), textContent: following ? '👀 following the host' : 'follow the host' });
-        f.title = 'Go to the page the host is on and scroll with them';
-        f.onclick = () => { following = !following; sessionStorage.setItem(KEY + '.follow', following ? '1' : '0'); if (following) sendRaw?.({ t: 'where' }); render(); };
-        row.append(el('br'), f);
-      }
-    }
-    panel.append(row);
+  const section = (title, ...kids) => el('section', { className: 'tg-sec' }, ...(title ? [el('h5', { textContent: title })] : []), ...kids);
+  if (status) panel.append(el('p', { className: 'tg-hint tg-status', textContent: status }));
+
+  // voice: the first thing you see, so everyone knows they can talk
+  const vbox = el('div', { className: 'tg-voice' });
+  if (!voice?.on) {
+    const b = el('button', { type: 'button', className: 'tg-join', textContent: '🎤 Join voice' }); b.onclick = startVoice;
+    const talking = [...session.members.values()].filter(m => m.mic).map(m => m.name);
+    vbox.append(b, el('p', { className: 'tg-hint', textContent: talking.length ? `${talking.join(', ')} ${talking.length === 1 ? 'is' : 'are'} talking. Join to hear and talk; your browser asks for the microphone.` : 'Talk instead of typing. Your browser will ask to use your microphone.' }));
+  } else {
+    const mute = el('button', { type: 'button', className: voice.muted ? 'tg-muted' : 'outline', textContent: voice.muted ? '🔇 Unmute' : '🎤 Mute' });
+    mute.onclick = () => { voice.mute(!voice.muted); session.setMic(true, voice.muted); render(); };
+    const off = el('button', { type: 'button', className: 'secondary outline', textContent: 'Leave voice' }); off.onclick = stopVoice;
+    const pick = el('select'); pick.setAttribute('aria-label', 'Microphone');
+    pick.append(new Option('Default microphone', ''));
+    voice.devices().then(ds => { for (const d of ds) if (d.deviceId && d.deviceId !== 'default') pick.append(new Option(d.label || 'Microphone', d.deviceId)); pick.value = voice.device; });
+    pick.onchange = async () => { await voice.use(pick.value); render(); };
+    vbox.append(el('div', { className: 'tg-row' }, mute, off), el('label', { className: 'tg-mic' }, 'Microphone', pick),
+      el('p', { className: 'tg-hint', textContent: voice.muted ? 'You are muted: the others can’t hear you.' : 'You’re on voice: everyone in the session hears you.' }));
   }
-  // people, as faces: a ring while they talk, a microphone when their voice is on
+  if (voice?.blocked) { const s = el('button', { type: 'button', className: 'tg-sound', textContent: '🔈 Tap to hear the others' }); s.onclick = () => voice.unblock?.(); vbox.append(s); }
+  panel.append(section('', vbox));
+
+  // people: one row each, with what they are doing
   const name = el('input', { value: myName, maxLength: 24 });
-  name.setAttribute('aria-label', 'Your name');
+  name.setAttribute('aria-label', 'Your name'); name.title = 'Your name: click to change it';
   name.onchange = () => { myName = cleanName(name.value) || myName; name.value = myName; localStorage.setItem(NAME, myName); session.rename(myName); pageRoom.emit({ type: 'people' }); render(); };
-  const mine = el('li', { className: 'me' }, badge(session.me.id, myName, 'me'), el('div', {}, name, el('small', { textContent: (amHost() ? '👑 ' : '') + (voice?.on ? (voice.muted ? 'you · 🔇 muted' : 'you · 🎤 voice on') : 'you') })));
-  const people = el('ul', { className: 'tg-people' }, mine);
+  const people = el('ul', { className: 'tg-people' },
+    el('li', { className: 'me' }, badge(session.me.id, myName, 'me'), el('div', { className: 'tg-who' }, name,
+      el('small', { textContent: [amHost() ? '👑 host' : '', 'you', voice?.on ? (voice.muted ? '🔇 muted' : '🎤 on voice') : ''].filter(Boolean).join(' · ') }))));
   for (const m of session.members.values()) {
-    const where = m.slug === slug ? el('small', { textContent: 'on this page' })
-      : el('a', { href: linkFor(m.slug), textContent: m.slug ? `on ${bySlug[m.slug]?.name || m.slug} →` : 'on the home page →' });
-    const status = (typing.get(m.id) || 0) > Date.now() ? el('small', { className: 'tg-typing', textContent: 'typing…' }) : m.mic ? el('small', { textContent: m.muted ? '🔇 muted' : voice?.hears(m.id) ? '🎤 voice on' : '🎤 connecting…' }) : null;
-    const crown = rules?.host && m.pid === rules.host ? ' 👑' : '';
+    const where = m.slug === slug ? 'here' : null;
+    const bits = [rules?.host && m.pid === rules.host ? '👑 host' : '', (typing.get(m.id) || 0) > Date.now() ? '✍️ typing…' : '', m.mic ? (m.muted ? '🔇 muted' : voice?.hears(m.id) ? '🎤 on voice' : '🎤 connecting…') : ''].filter(Boolean);
+    const info = el('small', { textContent: bits.join(' · ') });
+    if (!where) info.append(bits.length ? ' · ' : '', el('a', { href: linkFor(m.slug), textContent: m.slug ? `on ${bySlug[m.slug]?.name || m.slug}` : 'on the home page' }));
     const tools = [];
     if (amHost()) {
       if (m.mic && !m.muted) { const b = el('button', { type: 'button', className: 'tg-mini', textContent: 'mute' }); b.onclick = () => hostMute(m); tools.push(b); }
       const k = el('button', { type: 'button', className: 'tg-mini danger', textContent: 'remove' }); k.onclick = () => { if (confirm(`Remove ${m.name} from this session?`)) setRules({ banned: [...(rules?.banned || []), m.pid], allow: (rules?.allow || []).filter(x => x !== m.pid) }); }; tools.push(k);
     }
-    people.append(el('li', {}, badge(m.id, m.name), el('div', {}, el('span', { textContent: m.name + crown }), where, ...(status ? [status] : []), ...(tools.length ? [el('span', { className: 'tg-tools' }, ...tools)] : []))));
+    people.append(el('li', {}, badge(m.id, m.name), el('div', { className: 'tg-who' }, el('span', { textContent: m.name }), info), ...(tools.length ? [el('span', { className: 'tg-tools' }, ...tools)] : [])));
   }
-  panel.append(people);
-  // voice
-  const vrow = el('div', { className: 'tg-row tg-voice' });
-  if (!voice?.on) {
-    const b = el('button', { type: 'button', textContent: '🎤 Join voice' }); b.onclick = startVoice; vrow.append(b);
-    const talking = [...session.members.values()].filter(m => m.mic).map(m => m.name);
-    vrow.append(el('small', { textContent: talking.length ? `${talking.join(', ')} ${talking.length === 1 ? 'is' : 'are'} on voice` : 'Talk instead of typing (asks for your microphone)' }));
-  } else {
-    const mute = el('button', { type: 'button', className: 'outline', textContent: voice.muted ? 'Unmute' : 'Mute' }); mute.onclick = () => { voice.mute(!voice.muted); session.setMic(true, voice.muted); render(); };
-    const off = el('button', { type: 'button', className: 'secondary outline', textContent: 'Leave voice' }); off.onclick = stopVoice;
-    vrow.append(mute, off);
-  }
-  if (voice?.blocked) { const s = el('button', { type: 'button', className: 'tg-sound', textContent: '🔈 Tap to hear the others' }); s.onclick = () => voice.unblock?.(); vrow.append(s); }
-  if (status) panel.append(el('p', { className: 'tg-hint', textContent: status }));
-  panel.append(vrow);
+  panel.append(section(`People · ${n}`, people));
+
   // the chat, as speech bubbles
   const log = el('div', { className: 'tg-log' });
   log.setAttribute('aria-live', 'polite');
@@ -165,16 +158,43 @@ function build() {
     const me = m.from === session.me.id;
     log.append(el('div', { className: 'tg-msg' + (me ? ' mine' : '') }, ...(me ? [] : [badge(m.from, m.name)]), el('p', {}, ...(me ? [] : [el('b', { textContent: m.name })]), el('span', { textContent: m.text }))));
   }
-  if (!session.chat.length) log.append(el('p', { className: 'muted tg-empty', textContent: session.members.size ? 'Say hello 👋' : 'Nobody else is here yet. Send them the invite link.' }));
+  if (!session.chat.length) log.append(el('p', { className: 'muted tg-empty', textContent: session.members.size ? 'Say hello 👋' : 'Nobody else is here yet. Send them the invite link below.' }));
   const say = el('input', { placeholder: 'Message everyone…', maxLength: 500 }), send = el('button', { type: 'submit', textContent: 'Send' });
   say.setAttribute('aria-label', 'Message');
   let lastTyped = 0;
   say.oninput = () => { if (Date.now() - lastTyped > 2500 && say.value) { lastTyped = Date.now(); sendRaw?.({ t: 'typing' }); } };
   const form = el('form', { className: 'tg-say tg-row' }, say, send);
   form.onsubmit = e => { e.preventDefault(); if (session.say(say.value)) { say.value = ''; saveChat(); render(); } };
+  panel.append(el('section', { className: 'tg-sec tg-chat' }, el('h5', { textContent: 'Chat' }), log, form));
+
+  // inviting, the host's switches, following, leaving: at the bottom, folded once others are here
+  const inv = el('details', { className: 'tg-sec tg-invite', open: invOpen ?? !session.members.size });
+  inv.ontoggle = () => { invOpen = inv.open; };
+  inv.append(el('summary', { textContent: 'Invite people and settings' }));
+  const link = el('input', { readOnly: true, value: inviteLink() }), cp = el('button', { type: 'button', className: 'outline', textContent: 'Copy link' });
+  link.setAttribute('aria-label', 'Invite link'); link.onfocus = () => link.select(); cp.onclick = () => copy(inviteLink(), cp);
+  inv.append(el('div', { className: 'tg-row' }, link, cp));
+  if (hasHost(token)) {
+    const both = el('button', { type: 'button', className: 'tg-mini', textContent: 'copy link with code' }); both.onclick = () => copy(inviteLink() + '&code=' + code, both);
+    inv.append(el('p', { className: 'tg-code' }, 'Join code ', el('b', { textContent: code.slice(0, 3) + ' ' + code.slice(3) }), ' ', both));
+    if (amHost()) {
+      const lock = el('button', { type: 'button', className: 'tg-mini' + (rules?.locked ? ' on' : ''), textContent: rules?.locked ? '🔒 locked: nobody new can join' : '🔓 lock the session' });
+      lock.onclick = () => setRules({ locked: !rules?.locked, allow: rules?.locked ? [] : [pid, ...[...session.members.values()].map(m => m.pid)] });
+      inv.append(el('p', { className: 'tg-hint' }, '👑 You are the host. Everyone following you goes where you go. ', lock));
+    } else {
+      if (rules?.locked) inv.append(el('p', { className: 'tg-hint', textContent: '🔒 The host has locked this session.' }));
+      if (rules?.host) {
+        const f = el('button', { type: 'button', className: 'tg-mini' + (following ? ' on' : ''), textContent: following ? '👀 following the host' : 'follow the host' });
+        f.title = 'Go to the page the host is on and scroll with them';
+        f.onclick = () => { following = !following; sessionStorage.setItem(KEY + '.follow', following ? '1' : '0'); if (following) sendRaw?.({ t: 'where' }); render(); };
+        inv.append(el('p', { className: 'tg-hint' }, f));
+      }
+    }
+  }
   const leave = el('button', { type: 'button', className: 'secondary outline tg-leave', textContent: 'Leave session' });
   leave.onclick = disconnect;
-  panel.append(log, form, leave);
+  inv.append(leave);
+  panel.append(inv);
   requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
 }
 
@@ -247,6 +267,7 @@ async function connect() {
     send: (d, to) => { if (session && slug) sendRaw({ t: 'app', slug, d }, to); },
   });
   pageRoom.emit({ type: 'people' });
+  panel.hidden = sessionStorage.getItem(KEY + '.collapsed') === '1';
   render();
   // while nobody else is here, say whether the meeting points (Nostr relays) can be reached at all
   const relays = (await import('./trystero-nostr.js')).getRelaySockets;
@@ -296,7 +317,7 @@ function disconnect() {
   voice?.close(); voice = null;
   room?.leave(); room = null; session = null; sendRaw = null; token = null; status = '';
   Object.assign(pageRoom, { active: false, self: '', people: () => [], send() {} }); pageRoom.emit({ type: 'people' });
-  for (const k of ['', '.chat', '.code', '.host']) sessionStorage.removeItem(KEY + k);
+  for (const k of ['', '.chat', '.code', '.host', '.collapsed']) sessionStorage.removeItem(KEY + k);
   host = null; sign = null; rules = null; rulesSigned = null; code = '';
   const u = new URL(location.href); u.searchParams.delete('join'); history.replaceState(history.state, '', u);
   render();

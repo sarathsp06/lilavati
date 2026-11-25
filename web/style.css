@@ -187,44 +187,6 @@ a.gh:hover { color: var(--accent); }
 .chip.concept { background: var(--ink-1); color: #fff; }
 .ccard .cname { font-size: .78rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); margin: -.1rem 0 .4rem; }
 
-/* Together: the invite button, the panel with people and chat (together/index.js) */
-.together-btn { margin: 0 0 0 auto; padding: .3rem .8rem; font-size: .85rem; width: auto; border-radius: 99px; flex-shrink: 0; position: relative;
-  background: transparent; color: var(--ink-1); border: 1px solid var(--line); }
-.together-btn:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
-.together-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
-.together-btn .badge { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--hot); color: #fff; font-size: .7rem; line-height: 18px; }
-.topbar .together-btn + a.gh { margin-left: 0; }
-.home-nav .together-btn { margin: 0 .8rem 0 0; }
-.together { position: fixed; right: 1rem; bottom: 1rem; z-index: 40; width: min(360px, calc(100vw - 2rem)); max-height: min(560px, calc(100vh - 6rem));
-  display: flex; flex-direction: column; gap: .5rem; padding: .9rem 1rem 1rem; background: #fff; border: 1px solid var(--line); border-radius: 14px;
-  box-shadow: 0 12px 40px rgba(0,0,0,.14); font-size: .9rem; }
-.together[hidden] { display: none; }
-.together header { display: flex; align-items: center; justify-content: space-between; }
-.together p { margin: 0; }
-.together input, .together button { margin: 0; padding: .4rem .6rem; font-size: .9rem; height: auto; }
-.together .tg-x { background: none; border: 0; color: var(--ink-2); font-size: 1.4rem; line-height: 1; padding: 0 .2rem; width: auto; }
-.together .tg-row { display: flex; gap: .4rem; }
-.together .tg-row input { flex: 1; min-width: 0; }
-.together .tg-row button { width: auto; flex-shrink: 0; }
-.together .tg-hint { color: var(--ink-2); font-size: .8rem; }
-.together .tg-people { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .25rem; }
-.together .tg-people li { list-style: none; display: flex; align-items: center; gap: .4rem; margin: 0; }
-.together .tg-people input { flex: 1; min-width: 0; padding: .2rem .4rem; }
-.together .dot { width: 9px; height: 9px; border-radius: 50%; background: #16a34a; flex-shrink: 0; }
-.together .dot.me { background: var(--accent); }
-.together .tg-log { flex: 1; min-height: 80px; overflow-y: auto; border-top: 1px solid var(--line); padding-top: .5rem; display: flex; flex-direction: column; gap: .3rem; }
-.together .tg-log p { overflow-wrap: anywhere; }
-.together .tg-log p.mine b { color: var(--accent); }
-.together .tg-leave { align-self: flex-start; width: auto; font-size: .8rem; padding: .25rem .7rem; }
-.tg-toast { position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%); z-index: 45; max-width: min(420px, 90vw); padding: .5rem 1rem;
-  background: var(--ink-1); color: #fff; border-radius: 99px; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 640px) {
-  .together { right: .5rem; left: .5rem; bottom: .5rem; width: auto; max-height: 70vh; }
-  .together-btn { font-size: .8rem; padding: .25rem .6rem; }
-  .home-nav a.gh span { display: none; }
-  .home-nav .together-btn { margin-right: .5rem; }
-}
-
 /* the guessing game (nash-equilibrium): a wide number line, the guess row under it, the table */
 .toy .viewer canvas.wide { width: 100%; touch-action: none; }
 .guessrow { display: flex; align-items: center; gap: .4rem .8rem; flex-wrap: wrap; width: 100%; }
@@ -248,40 +210,111 @@ label.inline select { width: auto; margin: 0; }
   .guessrow button { padding: .25rem .6rem; font-size: .8rem; }
 }
 
-/* Together in a session: half the window at the bottom, people as faces, chat as bubbles, voice */
-.together.big { height: 50vh; max-height: none; width: min(440px, calc(100vw - 2rem)); gap: .6rem; }
-.together .tg-link input { font-size: .8rem; }
-.together .tg-people { flex-direction: row; flex-wrap: wrap; gap: .5rem .9rem; }
-.together .tg-people li { gap: .45rem; }
-.together .tg-people li > div { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
-.together .tg-people li.me input { width: 8.5rem; height: auto; margin: 0 0 .15rem; padding: .1rem .35rem; font-size: .85rem; }
-.together .tg-people small, .together .tg-people a { font-size: .72rem; color: var(--ink-2); }
-.together .tg-typing { color: var(--accent) !important; font-style: italic; }
-.tg-face { --ring: 3px; flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; display: inline-grid; place-items: center; color: #fff;
+/* ---------- Together (together/index.js) ---------- */
+:root { --tg-w: 360px; }
+.together-btn { margin: 0 0 0 auto; padding: .3rem .8rem; font-size: .85rem; width: auto; border-radius: 99px; flex-shrink: 0; position: relative;
+  background: transparent; color: var(--ink-1); border: 1px solid var(--line); }
+.together-btn:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
+.together-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.together-btn.speaking { box-shadow: 0 0 0 4px rgba(22,163,74,.45); }
+.together-btn .badge { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--hot); color: #fff; font-size: .7rem; line-height: 18px; }
+.topbar .together-btn + a.gh { margin-left: 0; }
+.home-nav .together-btn { margin: 0 .8rem 0 0; }
+
+/* the panel: a card before a session; a column on the right during one */
+.together { position: fixed; right: 1rem; bottom: 1rem; z-index: 40; width: min(360px, calc(100vw - 2rem)); max-height: calc(100vh - 6rem);
+  display: flex; flex-direction: column; gap: .75rem; padding: 1rem; background: #fff; border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.14); font-size: .9rem; line-height: 1.4; overflow-y: auto; }
+.together[hidden] { display: none; }
+.together > header { position: sticky; top: -1rem; margin: -1rem -1rem 0; padding: 1rem 1rem .25rem; background: #fff; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.together > header strong { font-size: 1rem; }
+.together p { margin: 0; }
+.together input, .together select, .together button { margin: 0; padding: .45rem .65rem; font-size: .88rem; height: auto; }
+.together .tg-x { background: none; border: 0; color: var(--ink-2); font-size: 1.35rem; line-height: 1; padding: .1rem .35rem; width: auto; }
+.together .tg-row { display: flex; gap: .5rem; align-items: center; }
+.together .tg-row input { flex: 1; min-width: 0; }
+.together .tg-row button { width: auto; flex-shrink: 0; }
+.together .tg-hint { color: var(--ink-2); font-size: .8rem; }
+.together .tg-status { background: #fffbeb; border-radius: 8px; padding: .45rem .6rem; color: #92400e; }
+.together .tg-farewell { background: #fef2f2; color: #991b1b; padding: .5rem .7rem; border-radius: 10px; }
+
+/* sections */
+.together .tg-sec { display: flex; flex-direction: column; gap: .5rem; }
+.together .tg-sec h5 { margin: 0; font-family: var(--pico-font-family); font-size: .72rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-2); }
+
+/* voice */
+.together .tg-voice { display: flex; flex-direction: column; gap: .45rem; padding: .75rem; background: #f6f4ef; border-radius: 12px; }
+.together .tg-voice .tg-join { width: 100%; font-weight: 600; }
+.together .tg-voice .tg-row button { flex: 1; }
+.together .tg-muted { background: var(--hot); border-color: var(--hot); color: #fff; }
+.together .tg-mic { display: flex; align-items: center; gap: .5rem; margin: 0; font-size: .8rem; color: var(--ink-2); }
+.together .tg-mic select { flex: 1; min-width: 0; padding: .3rem .5rem; font-size: .8rem; }
+.together .tg-sound { width: 100%; background: #f59e0b; border-color: #f59e0b; }
+
+/* people */
+.together .tg-people { list-style: none; margin: 0; padding: 6px; display: flex; flex-direction: column; gap: .55rem; }
+.together .tg-people li { list-style: none; margin: 0; display: flex; align-items: center; gap: .6rem; }
+.together .tg-who { display: flex; flex-direction: column; gap: .1rem; min-width: 0; flex: 1; line-height: 1.25; }
+.together .tg-who > span { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.together .tg-who small, .together .tg-who a { font-size: .74rem; color: var(--ink-2); }
+.together .tg-who input { width: 100%; height: 1.75rem !important; line-height: 1.2; padding: 0 .4rem !important; margin: 0 0 .1rem -.4rem !important; font-size: .9rem; font-weight: 600; border-color: transparent; background: transparent; box-shadow: none; }
+.together .tg-who input:hover, .together .tg-who input:focus { border-color: var(--line); background: #fff; }
+.together .tg-tools { display: flex; gap: .25rem; flex-shrink: 0; }
+.tg-face { --ring: 3px; flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; display: inline-grid; place-items: center; color: #fff;
   font-size: .75rem; font-weight: 700; letter-spacing: .02em; transition: box-shadow .1s; }
 .tg-face.speaking { box-shadow: 0 0 0 var(--ring) rgba(22,163,74,.55); }
-.together .tg-voice { align-items: center; flex-wrap: wrap; }
-.together .tg-voice small { color: var(--ink-2); font-size: .78rem; flex: 1; min-width: 8rem; }
-.together .tg-sound { background: #f59e0b; border-color: #f59e0b; }
-.together .tg-log { gap: .45rem; padding: .5rem .1rem 0; }
-.together .tg-msg { display: flex; gap: .4rem; align-items: flex-end; max-width: 88%; }
-.together .tg-msg .tg-face { width: 24px; height: 24px; font-size: .6rem; }
-.together .tg-msg p { background: #f1efe9; border-radius: 14px 14px 14px 4px; padding: .35rem .65rem; display: flex; flex-direction: column; }
+
+/* chat */
+.together .tg-chat { flex: 1; min-height: 12rem; }
+.together .tg-log { flex: 1; min-height: 6rem; overflow-y: auto; display: flex; flex-direction: column; gap: .5rem; padding: .35rem 6px; }
+.together .tg-msg { display: flex; gap: .45rem; align-items: flex-end; max-width: 90%; }
+.together .tg-msg .tg-face { width: 26px; height: 26px; font-size: .62rem; }
+.together .tg-msg p { background: #f1efe9; border-radius: 14px 14px 14px 4px; padding: .4rem .7rem; display: flex; flex-direction: column; overflow-wrap: anywhere; }
 .together .tg-msg p b { font-size: .72rem; color: var(--ink-2); }
 .together .tg-msg.mine { align-self: flex-end; }
 .together .tg-msg.mine p { background: var(--accent); color: #fff; border-radius: 14px 14px 4px 14px; }
-.together .tg-empty { margin: auto; text-align: center; }
-.together .tg-leave { align-self: flex-start; }
-.together-btn.speaking { box-shadow: 0 0 0 4px rgba(22,163,74,.45); }
-@media (max-width: 640px) {
-  .together.big { left: 0; right: 0; bottom: 0; width: auto; height: 50vh; border-radius: 16px 16px 0 0; }
-}
-/* Together: host controls and the join code */
-.together .tg-code { font-size: .8rem; color: var(--ink-2); line-height: 1.7; }
-.together .tg-code b { font-family: var(--pico-font-family-monospace); font-size: 1.05rem; color: var(--ink-1); letter-spacing: .08em; }
-.together button.tg-mini { display: inline; width: auto; padding: .05rem .45rem; margin: 0 .1rem; font-size: .72rem; border-radius: 99px;
+.together .tg-empty { margin: auto 0; text-align: center; font-size: .85rem; }
+
+/* invite and settings */
+.together .tg-invite { border-top: 1px solid var(--line); padding-top: .65rem; }
+.together .tg-invite summary { cursor: pointer; font-size: .82rem; font-weight: 600; color: var(--ink-2); margin: 0; }
+.together .tg-invite[open] summary { margin-bottom: .2rem; }
+.together .tg-invite input { font-size: .78rem; }
+.together .tg-code { font-size: .82rem; color: var(--ink-2); display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.together .tg-code b { font-family: var(--pico-font-family-monospace); font-size: 1.1rem; color: var(--ink-1); letter-spacing: .08em; }
+.together button.tg-mini { display: inline-block; width: auto; padding: .1rem .5rem; margin: 0; font-size: .72rem; border-radius: 99px;
   background: transparent; color: var(--accent); border: 1px solid currentColor; }
 .together button.tg-mini.on { background: var(--accent); color: #fff; border-color: var(--accent); }
 .together button.tg-mini.danger { color: var(--hot); }
-.together .tg-tools { display: flex; gap: .2rem; margin-top: .15rem; }
-.together .tg-farewell { background: #fef2f2; color: #991b1b; padding: .5rem .7rem; border-radius: 10px; }
+.together .tg-leave { align-self: flex-start; width: auto; font-size: .8rem; padding: .3rem .8rem; }
+
+.tg-toast { position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%); z-index: 45; max-width: min(420px, 90vw); padding: .5rem 1rem;
+  background: var(--ink-1); color: #fff; border-radius: 99px; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* during a session on a wide screen: the page makes room and the panel is a full-height column */
+@media (min-width: 900px) {
+  body.tg-docked { padding-right: var(--tg-w); }
+  body.tg-docked main.container { max-width: min(1130px, calc(100vw - var(--tg-w) - 4rem)); padding-left: 0; padding-right: 0; }
+  body.tg-docked .together { top: 0; right: 0; bottom: 0; width: var(--tg-w); max-height: none; border-radius: 0; border-width: 0 0 0 1px; box-shadow: -6px 0 24px rgba(0,0,0,.06); padding: 1rem 1.1rem; }
+  body.tg-docked .tg-toast { left: calc(50% - var(--tg-w) / 2); }
+}
+/* phones and narrow windows: a sheet over the lower half */
+@media (max-width: 899px) {
+  body.tg-docked .together { left: 0; right: 0; bottom: 0; width: auto; height: 60vh; max-height: none; border-radius: 16px 16px 0 0; gap: .6rem; padding: .8rem 1rem; }
+  body.tg-docked .tg-toast { bottom: calc(60vh + .6rem); }
+  body.tg-docked { padding-bottom: 60vh; }
+  /* compact: people as a row of faces with names, voice in one line */
+  .together .tg-people { flex-direction: row; flex-wrap: wrap; gap: .5rem .9rem; }
+  .together .tg-people li { gap: .4rem; }
+  .together .tg-people .tg-tools { display: none; }
+  .together .tg-who input { width: 7.5rem; }
+  .together .tg-voice { padding: .55rem .65rem; }
+  .together .tg-voice .tg-hint { display: none; }
+  .together .tg-chat { min-height: 9rem; }
+}
+@media (max-width: 640px) {
+  .together { right: .5rem; left: .5rem; bottom: .5rem; width: auto; }
+  .together-btn { font-size: .8rem; padding: .25rem .6rem; }
+  .home-nav a.gh span { display: none; }
+  .home-nav .together-btn { margin-right: .5rem; }
+}

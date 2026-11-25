@@ -14,7 +14,7 @@
 const log = (...a) => console.log('[voice]', ...a);
 
 export function createVoice(room, { onChange = () => {} } = {}) {
-  let mic = null, muted = false, blocked = false, ctx = null;
+  let mic = null, muted = false, blocked = false, ctx = null, device = localStorage.getItem('lilavati.mic') || '';
   const heard = new Map();   // id -> { el, meter }
   const audio = () => (ctx ||= new AudioContext());
 
@@ -51,10 +51,16 @@ export function createVoice(room, { onChange = () => {} } = {}) {
 
   const v = {
     get on() { return !!mic; }, get muted() { return muted; }, get blocked() { return blocked; },
+    get device() { return device; },
+    // the microphones this browser has (names appear once microphone access has been given)
+    async devices() { try { return (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'audioinput'); } catch { return []; } },
+    // use another microphone: stop the current one and start that one, keeping mute as it was
+    async use(id) { device = id || ''; localStorage.setItem('lilavati.mic', device); if (!mic) return true; const m = muted; v.stop(); const ok = await v.start(); if (ok && m) v.mute(true); return ok; },
     async start() {
       if (mic) return true;
-      try { mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }
-      catch (e) { log('no microphone', e.name); onChange(e); return false; }
+      const audio_ = { echoCancellation: true, noiseSuppression: true, autoGainControl: true, ...(device ? { deviceId: { exact: device } } : {}) };
+      try { mic = await navigator.mediaDevices.getUserMedia({ audio: audio_ }); }
+      catch (e) { if (device) { device = ''; return v.start(); } log('no microphone', e.name); onChange(e); return false; }
       mic.meter = meter(mic); muted = false; audio().resume();
       room.addStream(mic); log('sending my microphone');
       onChange(); return true;
