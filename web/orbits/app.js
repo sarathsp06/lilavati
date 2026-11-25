@@ -1,5 +1,5 @@
 // The orbits page: a satellite round the Earth, seen from above the North Pole (Rust: pkg/lilavati.js,
-// orbit module). Launch it, fire its engine, build a tower at the equator and let go of a ball from the
+// orbit module). Launch it and fire its engine.
 // top. Positions are metres from the Earth's centre, y up; the Earth spins anticlockwise once a day.
 import init, { Craft, predict, elements, gravity, felt_gravity, circular_speed, escape_speed, synchronous_radius, earth_radius, earth_spin } from '../pkg/lilavati.js';
 
@@ -61,32 +61,21 @@ function autoWarp() {
   const s = Math.min(4.7, Math.max(1, Math.log10(T / 12)));
   $('warp').value = s; labels();
 }
-function dropBall() {
-  if (!tower) return;
-  const th = towerAngle(), r = R + tower, v = OMEGA * r;
-  setCraft(r * Math.cos(th), r * Math.sin(th), -v * Math.sin(th), v * Math.cos(th));
-  // one Earth day in about 15 s if the drop is high, otherwise watch the fall
-  const el = elements(...craft.state().slice(0, 4));
-  const T = ghostOut === 0 && isFinite(el[5]) ? el[5] : 2 * Math.PI * Math.sqrt(r ** 3 / 3.986e14);
-  $('warp').value = Math.min(4.7, Math.max(1, Math.log10(T / 14))); labels();
-}
 function reset() {
   $('height').value = heightSlider(400e3); $('speed').value = 100; $('aim').value = 0;
-  $('tower').value = 0; tower = 0; simT = 0;
+  simT = 0;
   playing = true; $('playBtn').textContent = 'Pause';
-  launch(400e3, 100, 0); updateTower();
+  launch(400e3, 100, 0);
 }
 // engine burns: 100 m/s, or 3% of the speed when that is more (far out, 100 m/s is a lot)
 const dv = () => { const s = craft.state(); return Math.max(50, Math.min(100, 0.03 * Math.hypot(s[2], s[3]))); };
 $('faster').addEventListener('click', () => { if (gone) return; craft.burn(dv()); foresee(); explain(); });
 $('slower').addEventListener('click', () => { if (gone) return; craft.burn(-dv()); foresee(); explain(); });
 $('reset').addEventListener('click', reset);
-$('drop').addEventListener('click', dropBall);
 $('playBtn').addEventListener('click', () => { playing = !playing; $('playBtn').textContent = playing ? 'Pause' : 'Play'; });
 $('warp').addEventListener('input', labels);
 // the launch sliders act straight away: every change is a new launch, so the picture follows your finger
 for (const id of ['height', 'speed', 'aim']) $(id).addEventListener('input', () => { labels(); launch(); playing = true; $('playBtn').textContent = 'Pause'; });
-$('tower').addEventListener('input', () => { tower = towerOf(+$('tower').value); updateTower(); explain(); });
 
 const PRESETS = [
   ['Space station', 400e3, 100], ['GPS', 20_200e3, 100], ['Geostationary', GEO - R, 100], ["Newton's cannon", 150e3, 85],
@@ -95,12 +84,6 @@ for (const [name, h, p] of PRESETS) {
   const b = Object.assign(document.createElement('button'), { className: 'outline', textContent: name });
   b.addEventListener('click', () => { $('height').value = heightSlider(h); $('speed').value = p; $('aim').value = 0; labels(); launch(h, p, 0); });
   $('presets').append(b);
-}
-const TOWERS = [['Burj Khalifa', 828], ['Mount Everest', 8849], ['2,000 km', 2000e3], ['Geostationary', GEO - R], ['50,000 km', 50_000e3]];
-for (const [name, h] of TOWERS) {
-  const b = Object.assign(document.createElement('button'), { className: 'outline', textContent: name });
-  b.addEventListener('click', () => { tower = h; $('tower').value = towerSlider(h); updateTower(); explain(); });
-  $('towers').append(b);
 }
 
 function labels() {
@@ -111,18 +94,6 @@ function labels() {
   const w = warpOf(+$('warp').value);
   $('warpVal').textContent = w < 60 ? `1 s = ${Math.round(w)} s` : w < 3600 ? `1 s = ${(w / 60).toFixed(1)} min` : `1 s = ${(w / 3600).toFixed(1)} h`;
   if (craft) $('dvVal').textContent = `${Math.round(dv())} m/s`;
-}
-function updateTower() {
-  $('tVal').textContent = tower ? hm(tower) : 'none';
-  $('drop').disabled = !tower;
-  if (!tower) { $('towerBox').textContent = 'No tower yet. Pick a height to build one at the equator.'; return; }
-  const r = R + tower, g = gravity(r), f = felt_gravity(r), w = PERSON * f / felt_gravity(R);
-  const less = (1 - g / G0) * 100;
-  const pct = less < 0.1 ? less.toFixed(3) : less < 10 ? less.toFixed(1) : Math.round(less);
-  const weigh = w >= 0
-    ? `A ${PERSON} kg person would weigh <b>${w > 69.9 ? w.toFixed(2) : w.toFixed(1)} kg</b> on a scale up there${w > 69.9 ? ` (${Math.round((PERSON - w) * 1000)} g less)` : ''}.`
-    : `You'd be flung <em>outwards</em>: the tower has to hold you down with a force like <b>${(-w).toFixed(1)} kg</b>.`;
-  $('towerBox').innerHTML = `Gravity at the top: <b>${g.toFixed(g > 9 ? 4 : 2)} m/s²</b>, ${pct}% weaker than at the ground.<br>The top moves at <b>${kms(OMEGA * r)}</b> as the Earth turns.<br>${weigh}`;
 }
 
 // ---------- the picture ----------
@@ -270,10 +241,6 @@ function explain() {
       g.fillStyle = '#333'; g.font = '13px system-ui'; g.fillText(name, bx - 6, val >= 0 ? mid + 18 : mid - 8); g.fillText(`${(val / 1e6).toFixed(1)} MJ/kg`, bx + 6, val >= 0 ? mid - bh - 6 : mid - bh + 16); });
     g.font = 'bold 13px system-ui'; g.fillStyle = tot < 0 ? '#2563eb' : '#b45309';
     g.fillText(tot < 0 ? 'Total below zero: trapped, it orbits.' : 'Total zero or more: it escapes.', 30, 20); }
-  // 6: what you weigh up a tower
-  { const { g, X, Y } = curve('ex6', [[hh => PERSON * felt_gravity(R + hh) / felt_gravity(R), '#f97316']], 1e3, 60e6, { top: 75, bot: -25, unit: 'kg', ticks: [-20, 0, 35, 70] });
-    g.fillStyle = '#92400e'; g.font = '12px system-ui'; g.fillText('weightless: 35,786 km', X(GEO - R) - 120, Y(0) - 8);
-    if (tower > 1e3) { g.fillStyle = '#f97316'; g.beginPath(); g.arc(X(Math.min(60e6, tower)), Y(PERSON * felt_gravity(R + tower) / felt_gravity(R)), 7, 0, 7); g.fill(); } }
 }
 // 1: Newton's cannon (fixed)
 orbitFigure('ex1', 600e3, [50, 70, 85, 95, 100, 130], RAINBOW, 1.5 * R);
@@ -283,11 +250,9 @@ const TRY = {
   speedup: () => { reset(); setTimeout(() => { for (let i = 0; i < 3; i++) craft.burn(dv()); foresee(); explain(); }, 50); },
   escape: () => { $('height').value = heightSlider(400e3); $('speed').value = 142; $('aim').value = 0; launch(); $('warp').value = 3.3; labels(); },
   crash: () => { $('height').value = heightSlider(400e3); $('speed').value = 80; $('aim').value = 0; launch(); },
-  geo: () => { tower = GEO - R; $('tower').value = towerSlider(tower); updateTower(); dropBall(); },
-  low: () => { tower = 2000e3; $('tower').value = towerSlider(tower); updateTower(); dropBall(); },
 };
 for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('click', () => { TRY[b.dataset.try]?.(); playing = true; $('playBtn').textContent = 'Pause'; $('play').scrollIntoView({ behavior: 'smooth' }); });
 
 reset();
 requestAnimationFrame(frame);
-window.__orbits = { readouts, get craft() { return craft; }, get ghostOut() { return ghostOut; }, get tower() { return tower; }, reset, launch, dropBall };
+window.__orbits = { readouts, get craft() { return craft; }, get ghostOut() { return ghostOut; }, get tower() { return tower; }, reset, launch };

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Orbits and escape velocity · Lilavati</title>
-  <meta name="description" content="A satellite is always falling, but moving sideways so fast it keeps missing the Earth. Launch one, speed it up, slow it down, escape, and build a tower into space.">
+  <meta name="description" content="A satellite is always falling, but moving sideways so fast it keeps missing the Earth. Launch one, speed it up, slow it down, and push it past escape velocity.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="../style.css">
   <style>
@@ -42,9 +42,7 @@
     aside label { font-size: .9rem; }
     aside .row button { padding: .35rem .75rem; font-size: .85rem; }
     .presets button { padding: .3rem .65rem; font-size: .8rem; }
-    .tower-box { margin-top: .5rem; padding: .7rem .8rem; border-radius: 10px; background: #fff7ed; border: 1px solid #fed7aa; font-size: .88rem; }
-    .tower-box b { font-family: var(--pico-font-family-monospace); }
-    .hint-s { font-size: .8rem; color: var(--ink-2); margin: -.4rem 0 .6rem; }
+        .hint-s { font-size: .8rem; color: var(--ink-2); margin: -.4rem 0 .6rem; }
   </style>
 </head>
 <body data-concept="orbits">
@@ -52,7 +50,7 @@
     <header id="hero" class="hero">
       <h1>Orbits and escape velocity</h1>
       <p class="idea">A satellite is always falling, but it moves sideways so fast that it keeps missing the Earth.</p>
-      <p>Launch a satellite at any height and speed, then fire its engine to speed up or slow down and watch the orbit change shape. Push it past escape velocity and it never comes back. Build a tower as tall as you like, see how much lighter you'd feel at the top, and drop a ball off it. <strong>Reset</strong> puts everything back to normal.</p>
+      <p>Launch a satellite at any height and speed, then fire its engine to speed up or slow down and watch the orbit change shape. Push it past escape velocity and it never comes back. <strong>Reset</strong> puts everything back to normal.</p>
     </header>
 
     <section id="play" data-label="Play">
@@ -61,10 +59,10 @@
           <div class="stage dark">
             <canvas id="space" width="900" height="900" aria-label="The Earth seen from above the North Pole, with a satellite going round it"></canvas>
             <div class="hud">
-              <button id="slower" class="hb" title="Fire the engine backwards">◀ Slower</button>
+              <button id="slower" class="hb" title="Fire the engine against the direction of travel">🔥 Brake</button>
               <button id="playBtn" class="hb">Pause</button>
               <button id="reset" class="hb">Reset</button>
-              <button id="faster" class="hb" title="Fire the engine forwards">Faster ▶</button>
+              <button id="faster" class="hb" title="Fire the engine in the direction of travel">🔥 Boost</button>
             </div>
           </div>
           <div class="quick">
@@ -81,18 +79,10 @@
           <label>Aim above level <strong id="aVal"></strong>
             <input type="range" id="aim" min="-45" max="60" step="1" value="0">
           </label>
-          <p class="hint-s">◀ Slower and Faster ▶ on the picture fire the engine: <span id="dvVal">100 m/s</span> per press, along the direction it is moving.</p>
+          <p class="hint-s"><b>🔥 Boost</b> and <b>🔥 Brake</b> on the picture fire the satellite's engine once: each press adds or removes <span id="dvVal">100 m/s</span> of the satellite's own speed. (Time speed below only changes how fast the film plays.)</p>
           <label>Time speed <strong id="warpVal"></strong>
             <input type="range" id="warp" min="1" max="4.7" step="0.01" value="2.66">
           </label>
-
-          <h4>Build a tower</h4>
-          <div class="row presets" id="towers"></div>
-          <label>Tower height <strong id="tVal"></strong>
-            <input type="range" id="tower" min="0" max="100" step="0.1" value="0">
-          </label>
-          <div class="tower-box" id="towerBox">No tower yet. Pick a height to build one at the equator.</div>
-          <button id="drop" class="outline" style="margin-top:.6rem" disabled>Let go of a ball from the top</button>
         </aside>
         <div class="readout-grid">
           <div><small>Height</small><b id="rAlt">–</b></div>
@@ -108,17 +98,15 @@
     <section id="try" data-label="Try this" class="block reveal">
       <h2>Try this</h2>
       <ol class="try">
-        <li><strong>Press "Faster" three times on the space station.</strong> <span>The orbit stretches into an ellipse, but the high point appears on the <em>opposite</em> side of the Earth, half a lap later. Where you burn stays the low point.</span><button class="outline" data-try="speedup">Show me</button></li>
+        <li><strong>Press "Boost" three times on the space station.</strong> <span>The orbit stretches into an ellipse, but the high point appears on the <em>opposite</em> side of the Earth, half a lap later. Where you burn stays the low point.</span><button class="outline" data-try="speedup">Show me</button></li>
         <li><strong>Launch at 142% speed.</strong> <span>That's escape velocity. The path never closes: it slows down as it climbs, but never quite stops, and never comes back.</span><button class="outline" data-try="escape">Show me</button></li>
         <li><strong>Launch at 80% speed.</strong> <span>Not enough sideways speed to miss the Earth. It falls in an ellipse that cuts into the ground.</span><button class="outline" data-try="crash">Show me</button></li>
-        <li><strong>Build a 35,786 km tower and let go of a ball.</strong> <span>It doesn't fall. The top of the tower already moves at exactly orbital speed: that's a geostationary orbit.</span><button class="outline" data-try="geo">Show me</button></li>
-        <li><strong>Now a 2,000 km tower.</strong> <span>Gravity at the top is only about 58% of normal, yet the ball still falls straight back. Height alone doesn't get you into orbit; sideways speed does.</span><button class="outline" data-try="low">Show me</button></li>
       </ol>
     </section>
 
     <section id="steps" data-label="Step by step" class="block">
       <h2>Why things orbit, step by step</h2>
-      <p class="lead">These pictures follow the satellite and tower above.</p>
+      <p class="lead">These pictures follow the satellite above.</p>
 
       <div class="step reveal">
         <div>
@@ -135,7 +123,7 @@
           <p>Gravity pulls with a strength that falls with the square of the distance from the Earth's <em>centre</em>. Double the distance and the pull is a quarter.</p>
           <p>The centre is about 6,400 km below you, so going up 400 km to the space station barely changes anything: gravity there is still about 89% of what you feel now. Astronauts float because they are falling, not because gravity is gone.</p>
         </div>
-        <figure><canvas id="ex2" width="600" height="380"></canvas><figcaption id="ex2cap">Gravity against height. Blue dot: the satellite now. Orange: the top of your tower.</figcaption></figure>
+        <figure><canvas id="ex2" width="600" height="380"></canvas><figcaption id="ex2cap">Gravity against height. Blue dot: the satellite now.</figcaption></figure>
       </div>
 
       <div class="step reveal">
@@ -164,27 +152,6 @@
         </div>
         <figure><canvas id="ex5" width="600" height="340"></canvas><figcaption>Your satellite's energy per kilogram right now: speed energy up, well depth down, total in the middle.</figcaption></figure>
       </div>
-
-      <div class="step reveal">
-        <div>
-          <h3><span class="num">6</span>A tower into space</h3>
-          <p>Stand on a tower at the equator and the Earth's spin carries you round once a day. The higher the tower, the faster its top moves, while gravity gets weaker. Some of gravity is used up just turning you round in a circle, so a scale reads less than gravity alone.</p>
-          <p>At 35,786 km the two match exactly. You'd weigh nothing, and a ball let go there stays put: it's in geostationary orbit. Above that, the spin wins: you'd have to hang on to the tower or be flung outwards. This is the idea behind a <em>space elevator</em>.</p>
-        </div>
-        <figure><canvas id="ex6" width="600" height="380"></canvas><figcaption>What a 70 kg person weighs on a scale at each height of the tower. Orange: your tower's top.</figcaption></figure>
-      </div>
-    </section>
-
-    <section id="symbols" data-label="In symbols" class="block reveal">
-      <h2>In symbols</h2>
-      <div class="symbols">
-        <div><code class="formula">F = G M m / r²</code><p>In words: the pull between the Earth (mass M) and a satellite (mass m) falls with the square of the distance r between their centres.</p></div>
-        <div><code class="formula">v_circle = √(GM / r)</code><p>In words: the speed for a circular orbit. The satellite's own mass cancels out, so a pebble and a space station at the same height go equally fast.</p></div>
-        <div><code class="formula">v_escape = √(2GM / r) = √2 · v_circle</code><p>In words: escape speed is about 41% more than circle speed at the same height. From the ground it is 11.2 km/s.</p></div>
-        <div><code class="formula">E = ½v² − GM / r</code><p>In words: energy per kilogram. Negative means trapped in an orbit; zero or more means it escapes.</p></div>
-        <div><code class="formula">T = 2π √(a³ / GM)</code><p>In words: Kepler's third law. The time for one lap depends only on the size of the orbit (a, half its longest width): higher orbits take longer.</p></div>
-        <div><code class="formula">v² = GM (2/r − 1/a)</code><p>In words: the vis-viva equation. Your speed at any point of an orbit, from how far out you are and how big the orbit is.</p></div>
-      </div>
     </section>
 
     <section id="uses" data-label="Where you meet it" class="block reveal">
@@ -204,8 +171,6 @@
         <article><h4>16 sunrises a day</h4><p>The space station goes round the Earth about every 92 minutes at around 7.7 km/s, so the crew sees about 16 sunrises and 16 sunsets every day.</p></article>
         <article><h4>Newton's cannon</h4><p>The cannon on a mountain comes from Isaac Newton's "A Treatise of the System of the World", published in 1728, the year after his death. It is the same idea as step 1.</p></article>
         <article><h4>A sci-fi writer's idea</h4><p>Arthur C. Clarke described using satellites in geostationary orbit to relay radio and TV around the world in a 1945 magazine article, "Extra-Terrestrial Relays". It's sometimes called the Clarke orbit.</p></article>
-        <article><h4>A tower to the sky, in 1895</h4><p>Konstantin Tsiolkovsky, inspired by the Eiffel Tower, imagined a tower reaching up to geostationary height in 1895. Today's space elevator ideas use a cable instead, because no material is strong enough for a tower.</p></article>
-        <article><h4>Lighter at the top of the Burj Khalifa</h4><p>At the top of the 828 m Burj Khalifa, gravity is about 0.026% weaker than at its foot. A 70 kg person would weigh about 18 grams less. The building's own pull on you is far smaller still.</p></article>
         <article><h4>GPS has to correct for time</h4><p>The clocks on GPS satellites run about 38 microseconds a day fast compared with clocks on the ground, because of Einstein's relativity. Without correcting for it, GPS would drift by kilometres a day.</p></article>
       </div>
     </section>
