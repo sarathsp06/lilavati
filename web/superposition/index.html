@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Superposition of waves · Lilavati</title>
+  <meta name="description" content="Waves that meet simply add, moment by moment. Add up to three waves, hear them, and see how cancelling, beats, chords and square waves come out of it.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .wv { display: grid; grid-template-columns: 1.2rem 1fr 1fr 1fr; gap: .1rem .6rem; align-items: end; margin-bottom: .5rem; }
+    .wv .dot { width: .9rem; height: .9rem; border-radius: 50%; margin-bottom: .9rem; }
+    .wv label { font-size: .78rem; margin: 0; }
+    .wv input { margin: .1rem 0 .5rem; }
+    .under select { width: auto; margin: 0; padding: .3rem 2rem .3rem .6rem; font-size: .88rem; }
+    .under button { margin: 0; width: auto; padding: .35rem .8rem; font-size: .88rem; }
+    .under .ctl { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; width: 100%; }
+    .under label { font-size: .82rem; margin: 0; display: flex; gap: .4rem; align-items: center; }
+    .under input[type=range] { margin: 0; width: 9rem; }
+    .figctl { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-top: .5rem; font-size: .85rem; }
+    .figctl input { margin: 0; max-width: 14rem; }
+  </style>
+</head>
+<body data-concept="superposition">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Superposition of waves</h1>
+      <p class="idea">Waves that meet don't bump into each other: at every moment, they simply add up.</p>
+      <p>Mix up to three waves and watch, and listen to, what their sum does. Two equal waves can double each other or cancel to silence. Two notes slightly out of tune throb in loudness. A few waves at whole-number frequencies make a chord, or even the corners of a square wave.</p>
+    </header>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="plane" width="900" height="640" aria-label="Three waves and their sum"></canvas>
+          <div class="under">
+            <div class="ctl">
+              <select id="presets" aria-label="Pick a mix"></select>
+              <button id="listen">▶ Listen</button>
+              <label>Time shown <strong id="winVal"></strong><input type="range" id="win" min="0" max="100" step="1" value="40"></label>
+            </div>
+            <p class="say" id="say"></p>
+          </div>
+        </div>
+        <aside class="panel">
+          <h4>The waves</h4>
+          <p class="hint-s">Frequency: how many times a second it goes up and down (Hz). Size: how tall. Shift: how far along its cycle it starts.</p>
+          <div id="waves"></div>
+          <p class="hint-s">Size 0 switches a wave off. Listening plays the real sound, quietly.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Pick "Cancel out".</strong> <span>Two identical waves, one shifted by half a cycle. Every peak meets a dip, so the sum is a flat line: silence. Press Listen.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Pick "Beats" and listen.</strong> <span>220 Hz and 224 Hz together throb 4 times a second: the difference between them. Musicians tune by listening for this.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Slide wave B from 224 Hz up to 230 Hz.</strong> <span>The throbbing speeds up to 10 a second. Bring it back to 220 and the throbbing stops: they're in tune.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Pick "Towards a square wave".</strong> <span>Three smooth waves at 1, 3 and 5 times the frequency, sized 1, ⅓ and ⅕, already show flat tops and steep sides. That's a Fourier series built by ear.</span><button class="outline" data-try="3">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>How waves add up, step by step</h2>
+      <p class="lead">These pictures follow the waves you set up above.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>Add them up, moment by moment</h3>
+          <p>Pick any moment. Wave A is at some height (the blue arrow), wave B at another (orange). The sum at that moment is one height stacked on top of the other. If B is below the line, it pulls the total down.</p>
+          <p>Do that at every moment and the black line appears. There's no other rule: superposition just means "add the heights".</p></div>
+        <figure><canvas id="ex1" width="640" height="400"></canvas><figcaption id="cap1">The scan line stacks B's height on top of A's at each moment.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>Same frequency: the shift decides everything</h3>
+          <p>A wave is the height of an arrow spinning round a circle. Two waves at the same frequency are two arrows spinning together, so put the second on the tip of the first: the black arrow from the centre to the tip is the sum, and it spins too.</p>
+          <p>Its length comes from the triangle the two arrows make. In step (shift 0°) they point the same way and the sum is a + b. Half a cycle apart (180°) they point opposite ways and the sum is a − b: equal waves cancel completely.</p>
+          <div class="figctl"><label for="gap">Shift between them <strong id="gapVal"></strong></label><input type="range" id="gap" min="0" max="360" step="1" value="60"></div></div>
+        <figure><canvas id="ex2" width="640" height="400"></canvas><figcaption id="cap2">Left: the two spinning arrows, head to tail. Right: their heights over time, and the sum.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>Nearly the same frequency: beats</h3>
+          <p>If B spins slightly faster than A, it slowly laps it. Sometimes the two arrows line up and the sum is big; half a lap later they point opposite ways and the sum nearly vanishes.</p>
+          <p>That makes the loudness swell and fade, as many times a second as B gains a full lap on A: the difference between the two frequencies. 224 − 220 = 4 beats per second.</p></div>
+        <figure><canvas id="ex3" width="640" height="400"></canvas><figcaption id="cap3">Left: arrow B turning slowly relative to A. Right: the sum, with its swelling outline.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>Whole-number frequencies build shapes</h3>
+          <p>Waves at 1, 2, 3 … times a base frequency repeat together, so their sum repeats too: it has a shape. Musical instruments sound different because they mix these harmonics in different amounts.</p>
+          <p>Take only the odd ones, 1, 3, 5, 7 …, with sizes 1, ⅓, ⅕, 1/7 … Each new wave flattens the tops a bit more and steepens the sides, closing in on a square wave. That is exactly what a Fourier series does.</p></div>
+        <figure><canvas id="ex4" width="640" height="400"></canvas><figcaption id="cap4">The square wave rebuilt from odd harmonics, one added at a time.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>Two waves going opposite ways: a standing wave</h3>
+          <p>Send one wave right and the same wave left, and add them. Some points always get a peak from one wave and a dip from the other at the same moment: they never move. These are <em>nodes</em>. Halfway between, the two waves always agree and the string swings widest.</p>
+          <p>A guitar string pinned at both ends can only hold the waves whose nodes land on its ends: that's why it plays one note and its harmonics.</p></div>
+        <figure><canvas id="ex5" width="640" height="400"></canvas><figcaption>Blue moves right, orange moves left; black is their sum. The red dots never move.</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <div class="symbols">
+        <div><code class="formula">y(t) = a · sin(2π f t + φ)</code><p>In words: one wave of size a, f cycles a second, started φ of the way round its cycle.</p></div>
+        <div><code class="formula">y_total(t) = y₁(t) + y₂(t) + y₃(t)</code><p>In words: superposition: at every moment, the heights add.</p></div>
+        <div><code class="formula">A = √(a² + b² + 2ab cos φ)</code><p>In words: two waves of the same frequency add to one wave; its size is the third side of the arrow triangle (the law of cosines).</p></div>
+        <div><code class="formula">f_beat = |f₁ − f₂|</code><p>In words: two nearly equal notes throb as many times a second as their frequencies differ.</p></div>
+        <div><code class="formula">sin x + ⅓ sin 3x + ⅕ sin 5x + … = π/4 · square(x)</code><p>In words: odd harmonics, smaller and smaller, add up to a square wave.</p></div>
+        <div><code class="formula">sin(kx − ωt) + sin(kx + ωt) = 2 sin(kx) cos(ωt)</code><p>In words: two waves going opposite ways make a standing wave: a fixed shape, sin(kx), whose size swings with time.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Noise-cancelling headphones.</strong> Microphones hear the noise outside and the speaker plays the same sound shifted by half a cycle, so the two cancel at your ear.</li>
+        <li><strong>Tuning instruments.</strong> Play two strings together and listen for beats; when the throbbing slows down to nothing, they are in tune.</li>
+        <li><strong>Music and voices.</strong> Every note from a piano, violin or voice is a base wave plus harmonics; their mix is what makes a flute sound different from a trumpet.</li>
+        <li><strong>Soap bubbles and oil on water.</strong> Light reflected from the top and the bottom of the thin film adds up; some colours cancel and others are boosted, giving the rainbow swirls.</li>
+        <li><strong>Wi-Fi and 5G antennas.</strong> Several antennas send the same signal with small shifts so the waves add up towards your phone and cancel elsewhere (beamforming).</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>Light adding up</h4><p>Around 1801–1803 Thomas Young shone light through two narrow slits and saw bright and dark stripes: light waves adding and cancelling. It settled that light behaves as a wave.</p></article>
+        <article><h4>Tuning to A</h4><p>The standard tuning note A above middle C is 440 Hz, set as international standard ISO 16. An orchestra tunes to it, often listening for beats.</p></article>
+        <article><h4>Helmholtz and harmony</h4><p>In 1863 Hermann von Helmholtz published <em>On the Sensations of Tone</em>, explaining why some note combinations sound rough: their harmonics beat against each other.</p></article>
+        <article><h4>Hearing a black-hole merger</h4><p>LIGO detected gravitational waves in 2015 by splitting a laser beam, sending it down two 4 km arms and adding it back together. A ripple in space shifted the beams by a tiny fraction of a cycle.</p></article>
+        <article><h4>Pythagoras and string lengths</h4><p>The Pythagoreans noticed that strings whose lengths are in simple ratios, 2:1 (an octave) or 3:2 (a fifth), sound pleasant together. Their harmonics line up instead of beating.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "Two sounds together are always louder." <strong>But:</strong> half a cycle apart, two equal sounds cancel to silence. Where the energy goes: it is louder somewhere else in the room.</li>
+        <li><strong>Not:</strong> "Beats are a third note." <strong>But:</strong> they are the loudness of the sum swelling and fading. You hear one note that throbs.</li>
+        <li><strong>Not:</strong> "Waves always just add." <strong>But:</strong> only while they are small enough for the material to respond in proportion. Very loud sounds, or ocean waves breaking on a beach, stop adding simply.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://en.wikipedia.org/wiki/Superposition_principle" target="_blank" rel="noopener">Superposition principle</a><span>Wikipedia: the general idea, from waves to circuits to quantum physics.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Beat_(acoustics)" target="_blank" rel="noopener">Beat (acoustics)</a><span>Wikipedia: beats, how musicians use them, and the maths.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Standing_wave" target="_blank" rel="noopener">Standing wave</a><span>Wikipedia: nodes, strings, pipes and microwave ovens.</span></li>
+        <li><a href="https://www.3blue1brown.com/lessons/fourier-transforms" target="_blank" rel="noopener">3Blue1Brown: But what is the Fourier Transform?</a><span>Pulling the separate waves back out of a sum: the reverse of this page.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>

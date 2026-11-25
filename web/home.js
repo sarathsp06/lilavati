@@ -99,6 +99,12 @@ Object.assign(previews, {
     const m = mul(rot(0.7 * t3), mul([1 + 0.8 * t2, 0, 0, 1 - 0.45 * t2], rot(-0.5 * t1)));
     p.grid(m, 'rgba(3,105,161,.2)').axes().circle(I2, null, 'rgba(0,0,0,.2)', 1.5).circle(m, 'rgba(14,165,233,.18)', '#0369a1', 2.5).arrow(...apply(m, Math.cos(0.5), Math.sin(0.5)), COL.w, { width: 3 }); },
 });
+// two waves and their sum, scrolling
+previews.superposition = (c, w, h, sec) => {
+  const rows = [[h * 0.2, x => Math.sin(x), '#2563eb'], [h * 0.42, x => Math.sin(1.1 * x), '#ea580c'], [h * 0.75, x => Math.sin(x) + Math.sin(1.1 * x), '#111']];
+  for (const [y0, f, col] of rows) { c.strokeStyle = col; c.lineWidth = col === '#111' ? 2.5 : 2; c.beginPath();
+    for (let i = 0; i <= 200; i++) { const x = 0.25 * i + sec * 3, X = 20 + (w - 40) * i / 200, Y = y0 - f(x) * (col === '#111' ? 22 : 14); i ? c.lineTo(X, Y) : c.moveTo(X, Y); } c.stroke(); }
+};
 const cards = [...document.querySelectorAll('canvas[data-preview]')];
 
 function frame(now) {

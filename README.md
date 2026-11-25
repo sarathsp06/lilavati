@@ -34,6 +34,7 @@ centuries. This project borrows its idea: **maths as play**.
 |---|---|
 | [Fourier series](https://lilavati.pages.dev/fourier-series/) | Draw any closed shape and get its equation; a chain of spinning circles draws it back |
 | [Derivatives and integrals](https://lilavati.pages.dev/derivatives/) | Draw how something moves and watch velocity and acceleration appear, as slopes and areas |
+| [Superposition of waves](https://lilavati.pages.dev/superposition/) | Mix three waves, hear them, and see cancelling, beats, chords and square waves appear |
 | [Orbits and escape velocity](https://lilavati.pages.dev/orbits/) | Launch a satellite, fire its engine, escape the Earth, build a tower into space |
 
 **Chapter: Linear algebra for AI**, the matrix maths every neural network is made of:
@@ -60,7 +61,7 @@ facts, common mix-ups and further reading.
 
 | Where | What |
 |---|---|
-| `src/fourier.rs`, `motion.rs`, `orbit.rs`, `linalg.rs` | The maths, one module per topic, with tests |
+| `src/fourier.rs`, `motion.rs`, `orbit.rs`, `linalg.rs`, `waves.rs` | The maths, one module per topic, with tests |
 | `web/<concept>/` | One folder per concept page |
 | `web/concepts.js` | The list of concepts and chapters; builds the home page and page navigation |
 | `web/la.js` | Shared drawing for the linear algebra pages |
