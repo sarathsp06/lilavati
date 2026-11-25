@@ -1,6 +1,6 @@
 // The home page: the concept cards (from concepts.js) with small live previews, and the hero,
 // where spinning circles (the Rust Fourier series) draw one shape after another.
-import init, { Fourier, Craft, circular_speed } from './pkg/lilavati.js';
+import init, { Fourier, Craft, circular_speed, computer_guesses } from './pkg/lilavati.js';
 import { CONCEPTS, CHAPTERS, card } from './concepts.js';
 import { Plane, COL, I2, apply, rot, mul } from './la.js';
 
@@ -104,6 +104,18 @@ previews.superposition = (c, w, h, sec) => {
   const rows = [[h * 0.2, x => Math.sin(x), '#2563eb'], [h * 0.42, x => Math.sin(1.1 * x), '#ea580c'], [h * 0.75, x => Math.sin(x) + Math.sin(1.1 * x), '#111']];
   for (const [y0, f, col] of rows) { c.strokeStyle = col; c.lineWidth = col === '#111' ? 2.5 : 2; c.beginPath();
     for (let i = 0; i <= 200; i++) { const x = 0.25 * i + sec * 3, X = 20 + (w - 40) * i / 200, Y = y0 - f(x) * (col === '#111' ? 22 : 14); i ? c.lineTo(X, Y) : c.moveTo(X, Y); } c.stroke(); }
+};
+// the guessing game: rounds of guesses sliding down the number line towards 0
+const rounds = []; { let avg = -1; for (let k = 1; k <= 6; k++) { const g = Array.from(computer_guesses(14, k, avg, 2 / 3, 5)); avg = g.reduce((a, b) => a + b, 0) / g.length; rounds.push({ g, avg }); } }
+previews['nash-equilibrium'] = (c, w, h, sec) => {
+  const X = v => 30 + (w - 60) * v / 100, y = h * 0.66, s = (sec * 0.45) % rounds.length, k = Math.floor(s), u = Math.min(1, (s - k) * 2.5), e = 1 - (1 - u) ** 3;
+  const a = rounds[k], b = rounds[(k + 1) % rounds.length], wrap = k + 1 === rounds.length;
+  c.strokeStyle = 'rgba(0,0,0,.2)'; c.lineWidth = 2; c.beginPath(); c.moveTo(X(0), y); c.lineTo(X(100), y); c.stroke();
+  c.fillStyle = 'rgba(0,0,0,.45)'; c.font = '13px system-ui'; c.textAlign = 'center'; for (const v of [0, 50, 100]) c.fillText(v, X(v), y + 22);
+  a.g.forEach((v, i) => { const to = wrap ? v : b.g[i], x = X(v + (to - v) * e), yy = y - 14 - (i % 4) * 13; c.fillStyle = i === 0 ? '#be123c' : 'rgba(37,99,235,.7)'; c.beginPath(); c.arc(x, yy, 6, 0, 7); c.fill(); });
+  const avg = wrap ? a.avg : a.avg + (b.avg - a.avg) * e;
+  c.strokeStyle = '#be123c'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(X(avg * 2 / 3), y + 4); c.lineTo(X(avg * 2 / 3), 30); c.stroke();
+  c.fillStyle = '#be123c'; c.font = '600 14px system-ui'; c.textAlign = 'left'; c.fillText(`round ${wrap ? k + 1 : k + 1 + (u > 0.5 ? 1 : 0)}: ⅔ of the average`, X(avg * 2 / 3) + 6, 40);
 };
 const cards = [...document.querySelectorAll('canvas[data-preview]')];
 

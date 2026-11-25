@@ -224,3 +224,26 @@ a.gh:hover { color: var(--accent); }
   .home-nav a.gh span { display: none; }
   .home-nav .together-btn { margin-right: .5rem; }
 }
+
+/* the guessing game (nash-equilibrium): a wide number line, the guess row under it, the table */
+.toy .viewer canvas.wide { width: 100%; touch-action: none; }
+.guessrow { display: flex; align-items: center; gap: .4rem .8rem; flex-wrap: wrap; width: 100%; }
+.guessrow label { margin: 0; font-size: .9rem; white-space: nowrap; }
+.guessrow input[type=range] { flex: 1; min-width: 8rem; margin: 0; }
+.guessrow button { width: auto; margin: 0; padding: .35rem .9rem; font-size: .9rem; }
+.table-list { list-style: none; padding: 0; margin: 0 0 .8rem; }
+.table-list li { list-style: none; margin: .15rem 0; display: flex; gap: .5rem; align-items: center; font-size: .92rem; }
+.table-list .tick { display: inline-block; width: 1.2em; text-align: center; color: var(--ink-2); }
+.table-list li.ok .tick { color: #16a34a; font-weight: 700; }
+.table-list li.cpu { color: var(--ink-2); }
+.toy .panel #inviteBtn { width: 100%; margin: .2rem 0 .4rem; }
+table.rounds { font-size: .82rem; margin: 0; }
+table.rounds th, table.rounds td { padding: .25rem .4rem; }
+label.inline { display: flex; gap: .6rem; align-items: center; font-size: .9rem; }
+label.inline select { width: auto; margin: 0; }
+@media (max-width: 900px) {
+  .toy .viewer canvas.wide { width: 100%; }
+  .guessrow { gap: .3rem .5rem; }
+  .guessrow label { font-size: .8rem; }
+  .guessrow button { padding: .25rem .6rem; font-size: .8rem; }
+}

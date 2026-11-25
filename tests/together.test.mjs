@@ -1,4 +1,4 @@
-// The Together session logic (web/together/session.js) with a pretend network. Run: node --test tests/
+// The Together session logic (web/together/session.js) with a pretend network. Run: node --test tests/*.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createSession, newToken, validToken, cleanName } from '../web/together/session.js';

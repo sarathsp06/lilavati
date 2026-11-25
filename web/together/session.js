@@ -17,9 +17,10 @@
 //   hist  { msgs: [...] }          recent chat for a newcomer
 //   state { slug, s }              the picture's state (index.js snapshot())
 //   click { slug, i }              a button press, by its position on the page
+//   app   { slug, d }              the page's own message (share.js room.send)
 //
 // receive() returns { type, ... }: 'join' (a hello, with answerState/answerChat when I should send
-// the newcomer the picture/the chat), 'name', 'chat', 'hist', 'state', 'click', 'leave', or null.
+// the newcomer the picture/the chat), 'name', 'chat', 'hist', 'state', 'click', 'app', 'leave', or null.
 export const LIMITS = { name: 24, text: 500, chat: 200 };
 
 export const cleanName = s => String(s ?? '').replace(/[\u0000-\u001f]/g, '').trim().slice(0, LIMITS.name);
@@ -95,10 +96,13 @@ export function createSession({ self, name = '', slug = '', since = 0, send = ()
         }
         case 'state': return msg.slug === me.slug && msg.s && typeof msg.s === 'object' ? { type: 'state', state: msg.s, from } : null;
         case 'click': return msg.slug === me.slug && Number.isInteger(msg.i) && msg.i >= 0 && msg.i < 10000 ? { type: 'click', index: msg.i, from } : null;
+        case 'app': return msg.slug === me.slug && msg.d !== undefined && members.has(from) ? { type: 'app', data: msg.d, from } : null;
         default: return null;
       }
     },
     history: () => chat.slice(-50),
     member: id => members.get(id),
+    // the others on a page, oldest first
+    on: page => [...members.values()].filter(m => m.slug === page).sort((a, b) => (older(a, b) ? -1 : 1)),
   };
 }

@@ -9,6 +9,23 @@
 // set() receives data from other people's browsers: check it before use (nums() helps).
 export const hooks = { get: null, set: null, ready: false, onReady: null };
 
+// The people on this page and messages of the page's own, for things that are not one shared picture
+// (a game where each person keeps a secret until it is revealed). index.js fills in send and people.
+//
+//   room.active             in a session
+//   room.self               my id ('' when not in a session)
+//   room.people()           [{ id, name, me }] on this page, me first
+//   room.send(data, to?)    data (plain JSON, at most ~16 kB) to everyone on this page, or one id
+//   room.on(f) -> unsub     f({ type: 'message', data, from }) or f({ type: 'people' }) on any change
+export const room = {
+  active: false, self: '',
+  people: () => [],
+  send() {},
+  subs: new Set(),
+  on(f) { this.subs.add(f); return () => this.subs.delete(f); },
+  emit(ev) { for (const f of this.subs) { try { f(ev); } catch (e) { console.warn('[together] page handler', e); } } },
+};
+
 export function share(get = null, set = null) {
   Object.assign(hooks, { get, set, ready: true });
   hooks.onReady?.();

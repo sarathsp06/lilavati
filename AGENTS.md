@@ -34,6 +34,7 @@ Notes for anyone (person or AI agent) adding to or changing this site.
   that lives only in JavaScript (dragged points, drawings, simulations) must be handed over with
   `share(get, set)` from `web/together/share.js` at the end of `app.js`; a page with nothing beyond its
   controls still calls `share()`. Validate what `set` receives (it comes from other browsers; `nums()` helps).
-  Mark controls that must stay personal (copy buttons, sound, a playback clock) with `data-local`.
-- **Checks:** `./build.sh` runs `cargo test` for the maths and `node --test tests/` for Together; open every changed page in a browser at desktop and phone
+  Mark controls that must stay personal (copy buttons, sound, a playback clock) with `data-local`. Pages
+  where people act separately (a game with hidden guesses) use `room` from the same file instead.
+- **Checks:** `./build.sh` runs `cargo test` for the maths and `node --test tests/*.test.mjs` for Together; open every changed page in a browser at desktop and phone
   width before deploying. Deploy steps are in [docs/DEPLOY.md](docs/DEPLOY.md).

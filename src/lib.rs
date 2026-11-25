@@ -6,8 +6,10 @@
 //! - `orbit`: a satellite around the Earth under gravity; orbits, escape speed, towers into space.
 //! - `linalg`: matrices as moves of the plane, determinants, eigenvectors, the SVD, dot products.
 //! - `waves`: adding waves: cancelling, beats, harmonics.
+//! - `games`: guess two-thirds of the average: levels of thinking, best replies, the Nash equilibrium.
 pub mod fourier;
 pub mod motion;
 pub mod orbit;
 pub mod linalg;
 pub mod waves;
+pub mod games;

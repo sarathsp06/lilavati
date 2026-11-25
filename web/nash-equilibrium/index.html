@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why the stock market is a guessing game about guesses · Nash equilibrium · Lilavati</title>
+  <meta name="description" content="Everyone picks a number from 0 to 100; whoever is closest to two-thirds of the average wins. Levels of thinking, best replies and the Nash equilibrium.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body data-concept="nash-equilibrium">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Why the stock market is a guessing game about guesses</h1>
+      <p class="idea">Everyone picks a number from 0 to 100. Whoever is closest to two-thirds of the average wins.</p>
+      <p>Pick your number and lock it in. Computer players pick theirs at the same moment, or press <strong>Invite</strong> at the top and play with friends: nobody sees anyone's number until everyone has locked in. Then play again, and watch where the whole group goes.</p>
+    </header>
+
+    <section id="play" data-label="Play">
+      <div class="toy game">
+        <div class="viewer">
+          <canvas id="line" class="wide" width="960" height="420" data-local aria-label="A number line from 0 to 100 with everyone's guesses, the average and two-thirds of it"></canvas>
+          <div class="under" data-local>
+            <p class="say" id="say"></p>
+            <div class="guessrow">
+              <label for="guess">Your number <strong id="gVal">50</strong></label>
+              <input type="range" id="guess" min="0" max="100" step="0.1" value="50">
+              <button id="lockBtn">Lock in</button>
+              <button id="revealBtn" class="outline" hidden>Reveal now</button>
+              <button id="nextBtn" hidden>Next round</button>
+            </div>
+          </div>
+        </div>
+        <aside class="panel">
+          <h4>At the table</h4>
+          <ul class="table-list" id="who" data-local></ul>
+          <label data-local>Computer players
+            <select id="cpu"><option value="0">None (people only)</option><option value="3">3</option><option value="7" selected>7</option><option value="15">15</option></select>
+          </label>
+          <button id="inviteBtn" class="outline" data-local>Play with friends</button>
+          <h4>Rounds</h4>
+          <table class="rounds" data-local><thead><tr><th>Round</th><th>Average</th><th>⅔ of it</th><th>Winner</th></tr></thead><tbody id="rounds"></tbody></table>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try" data-local>
+        <li><strong>Guess 33.3.</strong> <span>That is two-thirds of 50: the right answer if everyone else picked at random. Against players who think one step further, it is too high.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Guess 0, the answer from the textbook.</strong> <span>In a first round you almost always lose: the others don't think that far.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Play five quick rounds against the computer players.</strong> <span>Each round you guess two-thirds of the last average. Watch the average fall round after round, towards 0.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Play with friends.</strong> <span>Send the link. You see a tick when someone has locked in, never their number. Their number arrives with a fingerprint, so nobody can change it after seeing yours.</span><button class="outline" data-try="3">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>From one round to the Nash equilibrium, step by step</h2>
+      <p class="lead">These pictures use your last round above (or a round of computer players, until you have played).</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>The average is the balance point</h3><p>Put every guess on a seesaw as a weight. The seesaw balances at exactly one place: the average. Left of it, the distances to the guesses add up to the same total as on the right.</p><p>Watch the pivot slide: while the guesses on one side pull harder, the seesaw tips that way and the pivot moves, until both sides weigh the same.</p></div>
+        <figure><canvas id="ex1" width="640" height="400"></canvas><figcaption id="cap1"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>Take two-thirds of it, and find who is closest</h3><p>Cut the stretch from 0 to the average into three equal parts and keep two: that is the target. Then measure how far each guess is from it. The shortest line wins.</p><p>Notice that your own guess is part of the average too. With only two players the lower guess always wins, whatever it is.</p></div>
+        <figure><canvas id="ex2" width="640" height="400"></canvas><figcaption id="cap2"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>No sensible guess is above 66.7, and then above 44.4…</h3><p>Even if everyone guessed 100, two-thirds of the average would be 66.7. So any guess above 66.7 can never be the best one: cross it out. But if nobody guesses above 66.7, the target is at most 44.4: cross that out too.</p><p>Keep going and the space left shrinks by a third every time, down towards 0. That is where perfectly logical players, who know everyone else is perfectly logical too, would end up.</p></div>
+        <figure><canvas id="ex3" width="640" height="400"></canvas><figcaption id="cap3"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>Levels of thinking: how far did each player go?</h3><p>Someone who doesn't think about the others guesses around 50 (level 0). Someone who expects that guesses 33.3 (level 1). Someone who expects level 1 players guesses 22.2 (level 2), and so on: each level is two-thirds of the one before.</p><p>Here every guess from the round is placed on its nearest level. Real people, again and again in experiments, stop after one or two steps.</p></div>
+        <figure><canvas id="ex4" width="640" height="400"></canvas><figcaption id="cap4"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>Reply to the reply: 0 is the only resting point</h3><p>If the others average x, your best guess is ⅔·x: the purple line. Start from the round's average, go up to the purple line for the best reply, across to the grey diagonal to make that the new average, and repeat. The staircase walks down into 0.</p><p>0 is the one place where the best reply to everyone is to do exactly what everyone does: nobody can do better by changing on their own. That is a <em>Nash equilibrium</em>. Make the fraction exactly 1 and every number becomes one.</p>
+          <label class="inline">Fraction of the average <select id="pFig"><option value="0.6667" selected>two-thirds</option><option value="0.5">one half</option><option value="0.9">nine tenths</option><option value="1">exactly 1</option></select></label></div>
+        <figure><canvas id="ex5" width="640" height="400"></canvas><figcaption id="cap5"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">6</span>Round after round, the group walks down</h3><p>People learn. After a round, many guess two-thirds of the last average, so the next average is lower, and the next lower still. The bars are your rounds; the dotted line falls by a third each round from your first average, the way perfect replies would.</p><p>The equilibrium is not where a first round lands. It is where the group is heading.</p></div>
+        <figure><canvas id="ex6" width="640" height="400"></canvas><figcaption id="cap6"></figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <div class="symbols">
+        <div><code class="formula">T = ⅔ · (g₁ + g₂ + … + gₙ) / n</code><p>The target is two-thirds of the average of all n guesses, yours included.</p></div>
+        <div><code class="formula">gₖ = 50 · (⅔)ᵏ</code><p>A level-k thinker replies to level k − 1: 50, 33.3, 22.2, 14.8, … each two-thirds of the one before.</p></div>
+        <div><code class="formula">b(x) = ⅔·x,   g* = ⅔·g*  ⇒  g* = 0</code><p>The best reply to an average x is ⅔·x. The equilibrium is the guess that is its own best reply, and the only one is 0.</p></div>
+        <div><code class="formula">no sensible guess above 100 · (⅔)ᵏ</code><p>After k rounds of crossing out guesses that can never win, everything above 100·(⅔)ᵏ is gone.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>The stock market.</strong> A share is worth what others will pay for it tomorrow, so investors guess what other investors will guess. Keynes compared it to this kind of contest in 1936.</li>
+        <li><strong>Penalty kicks.</strong> The kicker and the goalkeeper each guess the other's guess. The equilibrium is to be unpredictable: pick sides at random, in the right proportions.</li>
+        <li><strong>Traffic.</strong> Every driver picks the fastest route given what everyone else does. Traffic settles where nobody can save time by switching alone: a Nash equilibrium, and often not the fastest arrangement for all.</li>
+        <li><strong>Prices and auctions.</strong> Shops set prices, and bidders bid, by guessing what competitors will do.</li>
+        <li><strong>Economics experiments.</strong> This very game is used to measure how many steps ahead people think.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>Keynes's beauty contest, 1936</h4><p>In chapter 12 of <em>The General Theory</em>, John Maynard Keynes described a newspaper contest: pick the six prettiest faces out of 100 photographs, and win if your choice matches the most popular one. The trick is to pick what others will pick, and some, he wrote, reach "the fourth, fifth and higher degrees".</p></article>
+        <article><h4>A two-page idea</h4><p>John Nash's paper defining the equilibrium, "Equilibrium points in n-person games", fills pages 48 and 49 of the January 1950 issue of the Proceedings of the National Academy of Sciences. He shared the Nobel prize in economics for it in 1994.</p></article>
+        <article><h4>19,196 readers</h4><p>In 2005 the Danish newspaper Politiken ran this game for a prize of 5,000 kroner. 19,196 people took part. The winning number was 21.6, shared by five winners, and the most popular guess was 33.3: one level of thinking.</p></article>
+        <article><h4>From one to a billion</h4><p>In 1981 Alain Ledoux used the game as a tiebreaker in the French magazine <em>Jeux &amp; Stratégie</em>: about 4,000 readers picked a whole number from 1 to 1,000,000,000.</p></article>
+        <article><h4>Ten steps to almost zero</h4><p>Starting from 50 and taking two-thirds again and again, it takes 10 steps to get below 1 and 27 to get below a thousandth. People in experiments, including economists, usually take one or two.</p></article>
+        <article><h4>Rosemarie Nagel, 1995</h4><p>Nagel's experiments (<em>American Economic Review</em>, 1995) made this game famous as a way to measure depth of reasoning. Groups that played again and again moved towards 0 round by round, just as in step 6.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "0 is the right answer." <strong>But:</strong> 0 is the equilibrium, the answer if everyone is perfectly logical and knows it. To win, guess what the real people at the table will do.</li>
+        <li><strong>Not:</strong> "The average will be 50, so guess 33.3." <strong>But:</strong> the others are thinking too. If they all reason like that, the average is 33.3 and the winner is near 22.</li>
+        <li><strong>Not:</strong> "A Nash equilibrium is the best outcome." <strong>But:</strong> it is only where nobody gains by changing on their own. Traffic jams can be equilibria.</li>
+        <li><strong>Not:</strong> "My own guess doesn't count." <strong>But:</strong> it is part of the average. With few players it moves the target; with two players, the lower guess always wins.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://en.wikipedia.org/wiki/Guess_2/3_of_the_average" target="_blank" rel="noopener">Guess 2/3 of the average</a><span>Wikipedia. The game, its history and many experiments.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Keynesian_beauty_contest" target="_blank" rel="noopener">Keynesian beauty contest</a><span>Wikipedia. Keynes's newspaper contest and what it says about markets.</span></li>
+        <li><a href="https://www.jstor.org/stable/2950991" target="_blank" rel="noopener">Rosemarie Nagel, "Unraveling in Guessing Games: An Experimental Study"</a><span>American Economic Review, 1995. The experiments that measured levels of thinking.</span></li>
+        <li><a href="https://www.upf.edu/documents/8394861/8967210/boschetalAER2002.pdf" target="_blank" rel="noopener">Bosch-Domènech, Montalvo, Nagel and Satorra, "One, Two, (Three), Infinity, …"</a><span>American Economic Review, 2002. The game played in newspapers and in the lab, compared.</span></li>
+        <li><a href="https://doi.org/10.1073/pnas.36.1.48" target="_blank" rel="noopener">John Nash, "Equilibrium points in n-person games"</a><span>PNAS, 1950. The two pages themselves.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>

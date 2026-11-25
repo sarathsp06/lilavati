@@ -31,7 +31,7 @@ The same approach as Toy City (github.com/sarathsp06/toycity, `docs/multiplayer.
 |---|---|
 | `web/together/session.js` | The session without network or page: members, chat, and who answers a newcomer (whoever has been on that page longest). Pure; tested by `tests/together.test.mjs`. |
 | `web/together/index.js` | The Invite button, the panel, the connection, and keeping the page in step. Loaded by `concepts.js` on every page. |
-| `web/together/share.js` | `share(get, set)`: how a page hands over state that lives only in JavaScript. |
+| `web/together/share.js` | `share(get, set)`: how a page hands over state that lives only in JavaScript; `room`: the people on the page and messages of its own. |
 
 What is shared on a page:
 
@@ -44,6 +44,23 @@ What is shared on a page:
 
 Only things a person actually did are sent (trusted events), so a change that arrives is never echoed back.
 While dragging, updates go out about 12 times a second. Anything marked `data-local` stays personal.
+
+## Pages with secrets: the room
+
+Some pages are not one shared picture: in the guessing game (`web/nash-equilibrium/`) each person keeps
+their number to themselves until the reveal. `room` from `share.js` gives a page the people on it and a
+channel of its own:
+
+```js
+import { room } from '../together/share.js';
+room.on(ev => ev.type === 'message' ? handle(ev.data, ev.from) : seatPeople(room.people()));
+room.send({ k: 'lock', r: 1, h: fingerprint });   // to everyone on this page
+```
+
+The game sends only a SHA-256 fingerprint of each guess (with a random salt) when someone locks in, and
+the guess itself once everyone has; the others check it against the fingerprint, so a guess can be
+neither seen early nor changed late. The round logic is pure and tested: `web/nash-equilibrium/game.js`,
+`tests/game.test.mjs`.
 
 ## Adding a page
 

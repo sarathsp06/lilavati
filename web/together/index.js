@@ -10,7 +10,7 @@
 // buttons and preset links, and what the page gives share() (share.js). Mark anything that must stay
 // personal with data-local (copy buttons, sound). Loaded by concepts.js on every page.
 import { createSession, newToken, validToken, cleanName } from './session.js';
-import { hooks } from './share.js';
+import { hooks, room as pageRoom } from './share.js';
 import { bySlug } from '../concepts.js';
 
 const CONFIG = {
@@ -76,7 +76,7 @@ function build() {
   // people
   const name = el('input', { value: myName, maxLength: 24 });
   name.setAttribute('aria-label', 'Your name');
-  name.onchange = () => { myName = cleanName(name.value) || myName; name.value = myName; localStorage.setItem(NAME, myName); session.rename(myName); };
+  name.onchange = () => { myName = cleanName(name.value) || myName; name.value = myName; localStorage.setItem(NAME, myName); session.rename(myName); pageRoom.emit({ type: 'people' }); };
   const people = el('ul', { className: 'tg-people' }, el('li', {}, el('span', { className: 'dot me' }), name, el('span', { className: 'muted', textContent: ' (you)' })));
   for (const m of session.members.values()) {
     const where = m.slug === slug ? el('span', { className: 'muted', textContent: ' here' })
@@ -131,13 +131,20 @@ async function connect() {
   const [send, receive] = room.makeAction('m');
   sendRaw = (msg, to) => { send(msg, to).catch(() => {}); };
   room.onPeerJoin(id => { status = ''; session.joined(id); });
-  room.onPeerLeave(id => { const r = session.left(id); if (r) { toast(`${r.member.name} left`); render(); } });
+  room.onPeerLeave(id => { const r = session.left(id); if (r) { toast(`${r.member.name} left`); render(); pageRoom.emit({ type: 'people' }); } });
   receive((msg, from) => handle(session.receive(msg, from), from));
+  Object.assign(pageRoom, {
+    active: true, self: selfId,
+    people: () => session ? [{ id: selfId, name: myName, me: true }, ...session.on(slug).map(m => ({ id: m.id, name: m.name, me: false }))] : [],
+    send: (d, to) => { if (session && slug) sendRaw({ t: 'app', slug, d }, to); },
+  });
+  pageRoom.emit({ type: 'people' });
   render();
   setTimeout(() => { if (session && !session.members.size && status) { status = 'Nobody else is here yet. Send them the link.'; render(); } }, 8000);
 }
 function disconnect() {
   room?.leave(); room = null; session = null; sendRaw = null; token = null; status = '';
+  Object.assign(pageRoom, { active: false, self: '', people: () => [], send() {} }); pageRoom.emit({ type: 'people' });
   sessionStorage.removeItem(KEY); sessionStorage.removeItem(KEY + '.chat');
   const u = new URL(location.href); u.searchParams.delete('join'); history.replaceState(history.state, '', u);
   render();
@@ -154,7 +161,9 @@ function handle(r, from) {
   if (r.type === 'hist') saveChat();
   if (r.type === 'state') whenReady(() => applyState(r.state));
   if (r.type === 'click') whenReady(() => replayClick(r.index));
-  if (r.type !== 'state' && r.type !== 'click') render();
+  if (r.type === 'app') whenReady(() => pageRoom.emit({ type: 'message', data: r.data, from }));
+  if (r.type === 'join' || r.type === 'leave' || r.type === 'name') pageRoom.emit({ type: 'people' });
+  if (r.type !== 'state' && r.type !== 'click' && r.type !== 'app') render();
 }
 
 // ---------- the page: what is shared and how ----------
