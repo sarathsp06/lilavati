@@ -49,6 +49,21 @@ export const CONCEPTS = [
     related: ['fourier-series', 'derivatives'] },
   { slug: 'taylor-series', name: 'Taylor series', status: 'soon', topic: 'Calculus', level: 'Curious', color: '#db2777',
     idea: 'A curve near one point, rebuilt from its derivatives there.', related: ['derivatives'] },
+  // the person's list of 2026-11-25, in their order; each page gets its preview from web/<slug>/preview.js
+  { slug: 'monty-hall', hook: 'Why you should always switch doors', tagline: 'Three doors, one car, one goat revealed. Switching wins twice as often, and you can prove it by playing.', name: 'The Monty Hall problem', status: 'soon', topic: 'Probability', level: 'Starter', color: '#b45309', previewFile: true,
+    idea: 'Your first pick is right one time in three; the host\u2019s reveal moves the other two-thirds onto one door.', related: ['nash-equilibrium'] },
+  { slug: 'brachistochrone', hook: 'The fastest slide is not the straight one', tagline: 'Drop steeply first, then coast: the curve that beats the straight line every time.', name: 'The brachistochrone', status: 'soon', topic: 'Calculus', level: 'Curious', color: '#0e7490', previewFile: true,
+    idea: 'The quickest path between two points under gravity is a cycloid, found by comparing whole paths, not points.', related: ['derivatives', 'orbits'] },
+  { slug: 'chaos', hook: 'Why the weather forecast stops at ten days', tagline: 'Two almost identical starts, two completely different futures. Deterministic, yet unpredictable.', name: 'Chaos and the butterfly effect', status: 'soon', topic: 'Dynamics', level: 'Curious', color: '#7c2d12', previewFile: true,
+    idea: 'Simple rules can amplify a tiny difference until the future is unknowable in practice.', related: ['three-body-problem', 'derivatives'] },
+  { slug: 'three-body-problem', hook: 'Why three planets can\u2019t be predicted forever', tagline: 'Two bodies dance in ellipses. Add a third and the dance turns to chaos.', name: 'The three-body problem', status: 'soon', topic: 'Gravity and space', level: 'Curious', color: '#1d4ed8', previewFile: true,
+    idea: 'Gravity between three bodies has no formula for the future; only step-by-step computation, and tiny errors grow.', related: ['orbits', 'chaos'] },
+  { slug: 'topology', hook: 'Why a coffee cup is a doughnut', tagline: 'Stretch, bend and squeeze all you like, never tear or glue: only the holes count.', name: 'Topology', status: 'soon', topic: 'Shapes', level: 'Starter', color: '#15803d', previewFile: true,
+    idea: 'Shapes that can be deformed into each other without tearing are the same; the number of holes tells them apart.', related: ['linear-transformations'] },
+  { slug: 'fourth-dimension', hook: 'What a four-dimensional cube looks like from here', tagline: 'A cube\u2019s shadow is flat. A tesseract\u2019s shadow is a cube. Turn it and watch the shadow change.', name: 'Four-dimensional geometry', status: 'soon', topic: 'Geometry', level: 'Curious', color: '#6d28d9', previewFile: true,
+    idea: 'A fourth direction at right angles to all three; we see it only as projections that shift as it turns.', related: ['linear-transformations', 'topology'] },
+  { slug: 'double-slit', hook: 'Why one electron goes through both slits', tagline: 'Fire them one at a time and the stripes still build up. Look which slit, and they vanish.', name: 'The double-slit experiment', status: 'soon', topic: 'Quantum', level: 'Curious', color: '#be185d', previewFile: true,
+    idea: 'Add the two paths\u2019 amplitudes before squaring; the cross term is the interference pattern.', related: ['superposition', 'fourier-series'] },
 ];
 export const bySlug = Object.fromEntries(CONCEPTS.map(c => [c.slug, c]));
 

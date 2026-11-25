@@ -119,6 +119,8 @@ previews['nash-equilibrium'] = (c, w, h, sec) => {
   c.fillStyle = '#be123c'; c.font = '600 14px system-ui'; c.textAlign = 'left'; c.fillText(`round ${wrap ? k + 1 : k + 1 + (u > 0.5 ? 1 : 0)}: ⅔ of the average`, X(avg * 2 / 3) + 6, 40);
 };
 const cards = [...document.querySelectorAll('canvas[data-preview]')];
+// newer pages keep their card preview in web/<slug>/preview.js (default export (c, w, h, sec) => void), loaded here
+for (const c of CONCEPTS) if (c.status === 'live' && c.previewFile) import(`./${c.slug}/preview.js`).then(m => { previews[c.slug] = m.default; }).catch(e => console.warn('preview', c.slug, e));
 const drawCard = (cv, sec) => { const c = cv.getContext('2d'); c.clearRect(0, 0, cv.width, cv.height); previews[cv.dataset.preview]?.(c, cv.width, cv.height, sec); };
 // only what is on screen is drawn: the hero and the card previews stop while scrolled out of view,
 // and the previews run at 25 frames a second (the hero keeps the screen's rate)
