@@ -134,3 +134,36 @@ footer.site { margin-top: 5rem; padding-top: 1.5rem; border-top: 1px solid var(-
 .soonlist .ccard .body { padding: .9rem 1rem; }
 .soonlist .ccard { border-left: 4px solid var(--accent); }
 .ccard h3, .hero h1, .home-hero h1, .facts h4 { margin-top: 0; }
+
+/* the toy layout on the matrix pages (and alike): picture + panel; on phones the picture and the
+   numbers right under it stay on screen while the controls scroll underneath */
+.toy { display: grid; grid-template-columns: minmax(0, 3fr) minmax(280px, 1.3fr); gap: 1rem 1.5rem; align-items: start; }
+.toy .viewer canvas { width: min(100%, 72vh); margin: 0 auto; border-radius: 14px; border: 1px solid var(--line); background: #fff; }
+.toy .panel { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1.1rem 1.2rem; }
+.toy .panel h4 { font-size: 1rem; margin: 1rem 0 .4rem; } .toy .panel h4:first-child { margin-top: 0; }
+.under { display: flex; gap: .6rem 1.2rem; align-items: center; flex-wrap: wrap; margin-top: .6rem; padding: .5rem .8rem; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+.under .say { flex: 1; min-width: 12rem; font-size: .92rem; color: var(--ink-1); }
+.under .say b { font-family: var(--pico-font-family-monospace); }
+.hint-s { font-size: .82rem; color: var(--ink-2); margin: .2rem 0 .6rem; }
+.matrix { display: inline-grid; grid-template-columns: 4.3rem 4.3rem; gap: .3rem .45rem; padding: .3rem .5rem; border-left: 3px solid var(--ink-1); border-right: 3px solid var(--ink-1); border-radius: 8px; }
+.matrix input { margin: 0 !important; padding: .25rem .3rem !important; height: auto !important; font-family: var(--pico-font-family-monospace); font-weight: 600; text-align: center; font-size: .95rem; }
+.matrix .ci { color: #15803d; } .matrix .cj { color: #b91c1c; }
+.key { font-size: .82rem; color: var(--ink-2); } .key b.i { color: #15803d; } .key b.j { color: #b91c1c; } .key b.v { color: #b45309; } .key b.w { color: #6d28d9; }
+@media (max-width: 900px) {
+  .toy { grid-template-columns: 1fr; }
+  .toy .viewer { position: sticky; top: 50px; z-index: 5; background: var(--paper); padding-bottom: .4rem; }
+  .toy .viewer canvas { width: min(100%, 38vh); }
+  .under { padding: .35rem .6rem; margin-top: .35rem; gap: .4rem .8rem; }
+  .under .say { font-size: .8rem; }
+  .matrix { grid-template-columns: 3.5rem 3.5rem; }
+  .matrix input { font-size: .85rem; }
+}
+/* chapters: series badge and previous/next links */
+.series { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 3rem; padding: 1rem 1.2rem; border-radius: 14px; background: color-mix(in srgb, var(--accent) 8%, white); }
+.series a { font-weight: 600; text-decoration: none; }
+ul.reading { list-style: none; padding: 0; display: grid; gap: .6rem; }
+ul.reading li { list-style: none; margin: 0; padding: .8rem 1rem; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+ul.reading li span { display: block; font-size: .88rem; color: var(--ink-2); }
+.chapter { margin-top: 3rem; }
+.chapter > p.lead { margin-bottom: 1rem; }
+.ccard .num { font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }

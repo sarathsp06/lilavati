@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The determinant · Math Toys</title>
+  <meta name="description" content="The determinant says how much a matrix stretches area, and whether it flips space over.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body data-concept="determinant">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>The determinant</h1>
+      <p class="idea">The determinant says how much a matrix stretches area, and whether it flips space over.</p>
+      <p>The shaded square starts with area 1. Drag <b>î</b> and <b>ĵ</b> and watch it become a parallelogram: its area is the determinant. Every other shape grows or shrinks by the same factor. If the colour turns red, space has been flipped over like a mirror image; if the area hits zero, space has been squashed flat.</p>
+    </header>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="plane" width="800" height="800" aria-label="A unit square and a circle being stretched by a matrix, with the area shown"></canvas>
+          <div class="under"><div id="mx"></div><p class="say" id="say"></p></div>
+        </div>
+        <aside class="panel">
+          <p class="key">Drag the tips of <b class="i">î</b> (green) and <b class="j">ĵ</b> (red), or type into the matrix.</p>
+          <label>Try a matrix <select id="presets"></select></label>
+          <label>Show the move <strong id="tVal">100%</strong><input type="range" id="morph" min="0" max="1" step="0.01" value="1"></label>
+          <div class="row"><button id="playMove">Play the move</button></div>
+          <label><input type="checkbox" id="showCircle" checked> also show a circle</label>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Pick "Shear".</strong> <span>The square leans over, but its area stays exactly 1. Shears and turns never change area.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Drag ĵ across to the other side of î.</strong> <span>Just as it crosses, the area hits 0, then turns red and negative: space has been flipped.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Pick "Make twice as big".</strong> <span>Lengths double, but areas grow 4 times: the determinant is 2 × 2 = 4.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Pick "Squash onto a line".</strong> <span>Area 0: the whole plane lands on one line, and the circle becomes a line segment.</span><button class="outline" data-try="3">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>What the determinant measures, step by step</h2>
+      <p class="lead">These pictures follow what is in the toy above: change it and they change.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>Watch one square</h3><p>The square between î and ĵ has area 1. After the move it is the parallelogram between the new î and ĵ. Its area is the determinant (ignoring the sign for now).</p></div>
+        <figure><canvas id="ex1" width="640" height="420"></canvas><figcaption id="cap1">Your matrix: the square becomes a parallelogram.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>Every shape scales by the same amount</h3><p>A linear move treats every little grid square the same way, and any shape is made of little grid squares. So every area, of a circle, a flag, a country on a map, gets multiplied by the same number.</p></div>
+        <figure><canvas id="ex2" width="640" height="420"></canvas><figcaption id="cap2">A circle of area π and a flag, before and after your matrix.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>Where ad − bc comes from</h3><p>Put the parallelogram in a box of width a + b and height c + d. Its area is the box minus the corner pieces: two triangles of area ac/2, two of area bd/2 and two rectangles of area bc. What is left is ad − bc.</p><p>The same idea in 3D gives the volume of a slanted box, and in any number of dimensions, the "volume" a matrix multiplies by.</p></div>
+        <figure><canvas id="ex3" width="640" height="420"></canvas><figcaption id="cap3">For [[3, 1], [1, 2]]: box 4 × 3 = 12, minus the corners 3 + 2 + 2 = 7, leaves 5 = 3·2 − 1·1.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>A negative determinant means space is flipped</h3><p>Normally ĵ is a quarter turn anticlockwise from î. If after the move ĵ is clockwise from î, space has been turned over like a page: every shape becomes its mirror image. The determinant is then negative; its size is still the area factor.</p></div>
+        <figure><canvas id="ex4" width="640" height="420"></canvas><figcaption id="cap4">The flag and the turn from î to ĵ, before and after a mirroring matrix.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>Zero means squashed flat, and no way back</h3><p>If the determinant is 0, the two arrows land on the same line and every area becomes 0: the whole plane is squashed onto a line (or a point). Many points land on the same spot, so the move can't be undone: there is no inverse.</p><p>In data, this happens when one input is just a mix of others, for example height in cm and height in inches. They add nothing new, and the matrix has a determinant of 0.</p></div>
+        <figure><canvas id="ex5" width="640" height="420"></canvas><figcaption id="cap5">A squashing matrix: three different points land on the same spot.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">6</span>Moves multiply, so determinants multiply</h3><p>Doing B and then A scales area by det(B) and then by det(A). So det(AB) = det(A) × det(B). Undoing A scales area back, so det(A⁻¹) = 1 / det(A).</p></div>
+        <figure><canvas id="ex6" width="640" height="420"></canvas><figcaption id="cap6">Your matrix A after a doubling B: the areas multiply.</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <div class="symbols">
+        <div><code class="formula">det [[a, b], [c, d]] = ad − bc</code><p>In words: the area factor of a 2×2 matrix, with a sign for flipping.</p></div>
+        <div><code class="formula">det(AB) = det(A) · det(B)</code><p>In words: doing two moves multiplies their area factors.</p></div>
+        <div><code class="formula">det(A⁻¹) = 1 / det(A)</code><p>In words: undoing a move undoes its area change.</p></div>
+        <div><code class="formula">det(A) = 0  ⇔  no inverse</code><p>In words: squashed flat means the move can't be undone, and the columns lie on one line.</p></div>
+        <div><code class="formula">det(A) = λ₁ · λ₂</code><p>In words: the product of the eigenvalues (next chapter).</p></div>
+        <div><code class="formula">det(A) = σ₁ · σ₂ (up to sign)</code><p>In words: the product of the singular values (last chapter).</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Solving equations.</strong> A set of equations has exactly one answer only if its matrix has a non-zero determinant.</li>
+        <li><strong>Generative AI.</strong> "Normalizing flow" models generate data by stretching simple randomness into complex shapes; the log of the determinant keeps track of how probability gets spread out.</li>
+        <li><strong>Changing coordinates in calculus.</strong> Switching to new coordinates (like polar) multiplies every small area by a determinant, the Jacobian.</li>
+        <li><strong>3D graphics.</strong> The sign of a 2D determinant tells whether a triangle's corners go clockwise or anticlockwise on screen, so the back sides of objects can be skipped.</li>
+        <li><strong>Robotics.</strong> When a robot arm's determinant reaches zero, it is in a position where it can't move in some direction.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>Before matrices existed</h4><p>Determinants came first. Seki Takakazu used them in Japan in 1683, and Gottfried Leibniz in Europe in 1693, more than 150 years before matrices were named.</p></article>
+        <article><h4>Cramer's rule, 1750</h4><p>Gabriel Cramer published a rule in 1750 that solves equations as ratios of determinants. It is elegant, but far too slow for big systems.</p></article>
+        <article><h4>Named by Gauss</h4><p>Carl Friedrich Gauss used the word "determinant" in 1801, for a different but related number; Augustin-Louis Cauchy gave it its modern meaning in 1812.</p></article>
+        <article><h4>Shears keep area</h4><p>Sliding a stack of cards sideways keeps its volume: Cavalieri's principle (1635). A shear matrix has determinant 1 for the same reason.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "A big determinant means big numbers in the matrix." <strong>But:</strong> [[100, 100], [100, 100]] has determinant 0: its columns lie on one line.</li>
+        <li><strong>Not:</strong> "Turning changes the determinant." <strong>But:</strong> turning keeps every area, so its determinant is always 1.</li>
+        <li><strong>Not:</strong> "Determinant 0 means the matrix is all zeros." <strong>But:</strong> it only means space is squashed into fewer dimensions.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://cedar.buffalo.edu/~srihari/CSE676/2%20LinearAlgebra.pdf" target="_blank" rel="noopener">Linear Algebra for Machine Learning (slides)</a><span>Sargur Srihari, University at Buffalo, CSE 676 Deep Learning. Scalars to tensors, norms, eigendecomposition, SVD, pseudoinverse and PCA.</span></li>
+        <li><a href="https://www.deeplearningbook.org/contents/linear_algebra.html" target="_blank" rel="noopener">Deep Learning, chapter 2: Linear Algebra</a><span>Goodfellow, Bengio and Courville (2016). The chapter the slides follow; free to read online.</span></li>
+        <li><a href="https://www.3blue1brown.com/lessons/determinant" target="_blank" rel="noopener">3Blue1Brown: The determinant</a><span>Grant Sanderson's "Essence of linear algebra": short animated lessons that build the same pictures.</span></li>
+        <li><a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/" target="_blank" rel="noopener">MIT 18.06 Linear Algebra</a><span>Gilbert Strang's full course: lecture videos, notes and problem sets.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>

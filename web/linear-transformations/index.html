@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Linear transformations and matrices · Math Toys</title>
+  <meta name="description" content="A matrix is a recipe for moving every point of space: its columns say where the two basic arrows land.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body data-concept="linear-transformations">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Linear transformations and matrices</h1>
+      <p class="idea">A matrix is a recipe for moving every point of space: its columns say where the two basic arrows land.</p>
+      <p>Drag the green arrow <b>î</b> and the red arrow <b>ĵ</b>, and the whole grid follows. The four numbers of the matrix are just where those two arrows end up. Every layer of a neural network does this to its data, in many more dimensions, millions of times a second.</p>
+    </header>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="plane" width="800" height="800" aria-label="A grid being moved by a 2 by 2 matrix, with a flag shape and a vector v"></canvas>
+          <div class="under"><div id="mx"></div><p class="say" id="say"></p></div>
+        </div>
+        <aside class="panel">
+          <p class="key">Drag the tips of <b class="i">î</b> (green) and <b class="j">ĵ</b> (red), or type into the matrix.</p>
+          <label>Try a matrix <select id="presets"></select></label>
+          <label>Show the move <strong id="tVal">100%</strong><input type="range" id="morph" min="0" max="1" step="0.01" value="1"></label>
+          <div class="row"><button id="playMove">Play the move</button><button id="undo" class="outline">Undo it (inverse)</button></div>
+          <h4>A vector</h4>
+          <p class="key">Drag the tip of <b class="v">v</b> (orange, before the move); its landing spot <b class="v">Av</b> is the solid arrow.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Pick "Turn a quarter".</strong> <span>î lands where ĵ was, and ĵ lands pointing left. The matrix is [[0, −1], [1, 0]]: its columns are exactly those two landing spots.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Pick "Shear" and press "Play the move".</strong> <span>The top of the grid slides sideways while the bottom stays put, yet the squares keep the same area.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Pick "Squash onto a line", then "Undo it".</strong> <span>The whole plane lands on one line. Nothing can undo that: many points landed on the same spot.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Drag v and watch Av.</strong> <span>Av is always x green steps plus y red steps of the moved arrows, as the dashed path shows.</span><button class="outline" data-try="3">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>How a matrix moves space, step by step</h2>
+      <p class="lead">These pictures follow what is in the toy above: change it and they change.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>Follow the two arrows and you know where everything goes</h3><p>Any vector v = (x, y) is x steps of î plus y steps of ĵ. A linear move keeps that recipe: after the move, v lands at x steps of the <em>new</em> î plus y steps of the <em>new</em> ĵ.</p><p>That is why two arrows are enough to describe the whole move, and why a 2×2 matrix only needs four numbers.</p></div>
+        <figure><canvas id="ex1" width="640" height="420"></canvas><figcaption id="cap1">Your v, built from steps of the moved î and ĵ.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>Lines stay lines, and the middle stays put</h3><p>"Linear" means: grid lines stay straight, stay parallel, stay evenly spaced, and the origin doesn't move. Squares become parallelograms, all the same.</p><p>Moves that bend lines, or slide everything sideways, are not linear. A shift added afterwards is called <em>affine</em>; neural networks add one, the bias.</p></div>
+        <figure><canvas id="ex2" width="640" height="420"></canvas><figcaption id="cap2">Before (left) and after (right) your matrix.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>The matrix is the two landing spots, written as columns</h3><p>Write where î lands as the first column and where ĵ lands as the second. Multiplying the matrix by a vector (x, y) means: x times the first column plus y times the second. Row by row, that is a dot product of each row with the vector.</p><p>Some matrices have names. A <em>diagonal</em> one only stretches along the axes. A <em>symmetric</em> one has the same number above and below the diagonal. An <em>orthogonal</em> one only turns or mirrors, keeping every length.</p></div>
+        <figure><canvas id="ex3" width="640" height="420"></canvas><figcaption id="cap3">Your matrix: green column = where î lands, red column = where ĵ lands.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>One move after another is matrix multiplication</h3><p>Doing B first and then A is a single move, the matrix product AB. Read right to left: the move nearest the vector happens first.</p><p>Order matters. Turning and then stretching is not the same as stretching and then turning, so AB and BA are usually different matrices.</p></div>
+        <figure><canvas id="ex4" width="640" height="420"></canvas><figcaption id="cap4">Your matrix A and a quarter turn B, in both orders.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>Undoing a move is the inverse matrix</h3><p>If a move can be undone, the matrix that undoes it is the inverse, A⁻¹. Do A and then A⁻¹, and every point is back where it started.</p><p>Solving equations is the same question backwards: which v lands on b, so that Av = b? If A can be undone, v = A⁻¹b. If A squashes space onto a line, there is no inverse, and most b can't be reached at all.</p></div>
+        <figure><canvas id="ex5" width="640" height="420"></canvas><figcaption id="cap5">The flag, moved by A, then moved back by A⁻¹.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">6</span>A layer of a neural network: a matrix, then a bend</h3><p>A neural network layer computes W x + b: a matrix move and a shift. On its own that could only ever stretch and turn the data. So after it comes a bend, usually ReLU: any negative number becomes 0.</p><p>The bend folds space along the axes. Stack layers, move-fold-move-fold, and a network can untangle data no single matrix could.</p></div>
+        <figure><canvas id="ex6" width="640" height="420"></canvas><figcaption id="cap6">Left: the grid moved by your matrix. Right: after the ReLU bend, everything negative is folded onto the axes.</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <div class="symbols">
+        <div><code class="formula">A v = x (first column) + y (second column)</code><p>In words: a matrix times a vector mixes the columns in the amounts the vector says.</p></div>
+        <div><code class="formula">[[a, b], [c, d]] (x, y) = (ax + by, cx + dy)</code><p>In words: the same, row by row: each row dotted with the vector.</p></div>
+        <div><code class="formula">(AB) v = A (B v)</code><p>In words: multiplying matrices means doing one move after the other, right to left.</p></div>
+        <div><code class="formula">AB ≠ BA</code><p>In words: usually; the order of the moves matters.</p></div>
+        <div><code class="formula">A⁻¹ = 1/(ad − bc) · [[d, −b], [−c, a]]</code><p>In words: the inverse of a 2×2 matrix; it doesn't exist when ad − bc = 0.</p></div>
+        <div><code class="formula">y = ReLU(W x + b)</code><p>In words: one neural network layer: move, shift, then fold negatives to zero.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Neural networks.</strong> Every layer multiplies its input vector by a weight matrix. Training a model means finding good numbers for those matrices.</li>
+        <li><strong>Graphics cards.</strong> Every frame of a 3D game turns and projects millions of corners of shapes with 4×4 matrices. Chips built for that turned out to be perfect for AI.</li>
+        <li><strong>Photos and video.</strong> Turning, flipping and skewing an image are matrices. Converting colours from RGB to the brightness-and-colour form video uses is a 3×3 matrix.</li>
+        <li><strong>Robots.</strong> Each joint of a robot arm is a turn; chaining the matrices tells where the hand is.</li>
+        <li><strong>Solving equations.</strong> Engineering software solves systems like Ax = b with thousands of unknowns, for bridges, circuits and weather models.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>The name "matrix", 1850</h4><p>James Joseph Sylvester coined the word "matrix" in 1850. Arthur Cayley wrote the first paper treating matrices as things you can add and multiply, in 1858.</p></article>
+        <article><h4>8 multiplications or 7?</h4><p>Multiplying two 2×2 matrices the school way takes 8 multiplications. In 1969 Volker Strassen found a way with 7, which speeds up multiplying huge matrices.</p></article>
+        <article><h4>An AI found faster ways</h4><p>In 2022 DeepMind's AlphaTensor searched for new matrix multiplication methods and found one for 4×4 matrices (in arithmetic where 1 + 1 = 0) using 47 multiplications instead of the 49 Strassen's method needs.</p></article>
+        <article><h4>175 billion numbers</h4><p>GPT-3 (2020) has 175 billion parameters, and almost all of them are entries of weight matrices.</p></article>
+        <article><h4>Graphics chips became AI chips</h4><p>Graphics cards were built to multiply matrices for games. Around 2012, researchers found they also train neural networks many times faster than ordinary processors.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "AB is the same as BA." <strong>But:</strong> the order of moves matters, so they are usually different.</li>
+        <li><strong>Not:</strong> "A matrix is just a table of numbers." <strong>But:</strong> it is also a move of space. The columns tell you where the basic arrows go.</li>
+        <li><strong>Not:</strong> "y = 2x + 3 is linear, so it's a linear transformation." <strong>But:</strong> it shifts the origin, so in this sense it is affine: a linear move plus a shift.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://cedar.buffalo.edu/~srihari/CSE676/2%20LinearAlgebra.pdf" target="_blank" rel="noopener">Linear Algebra for Machine Learning (slides)</a><span>Sargur Srihari, University at Buffalo, CSE 676 Deep Learning. Scalars to tensors, norms, eigendecomposition, SVD, pseudoinverse and PCA.</span></li>
+        <li><a href="https://www.deeplearningbook.org/contents/linear_algebra.html" target="_blank" rel="noopener">Deep Learning, chapter 2: Linear Algebra</a><span>Goodfellow, Bengio and Courville (2016). The chapter the slides follow; free to read online.</span></li>
+        <li><a href="https://www.3blue1brown.com/lessons/linear-transformations" target="_blank" rel="noopener">3Blue1Brown: Linear transformations and matrices</a><span>Grant Sanderson's "Essence of linear algebra": short animated lessons that build the same pictures.</span></li>
+        <li><a href="https://www.3blue1brown.com/lessons/matrix-multiplication" target="_blank" rel="noopener">3Blue1Brown: Matrix multiplication as composition</a><span>Grant Sanderson's "Essence of linear algebra": short animated lessons that build the same pictures.</span></li>
+        <li><a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/" target="_blank" rel="noopener">MIT 18.06 Linear Algebra</a><span>Gilbert Strang's full course: lecture videos, notes and problem sets.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>

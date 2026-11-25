@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Singular value decomposition · Math Toys</title>
+  <meta name="description" content="Every matrix is a turn, then a stretch along two directions, then another turn.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body data-concept="svd">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Singular value decomposition</h1>
+      <p class="idea">Every matrix is a turn, then a stretch along two directions, then another turn.</p>
+      <p>Any matrix at all, however messy, sends a circle to an ellipse. The SVD finds the three simple moves that do it: turn, stretch along the axes, turn again. Slide through the three moves below, then scroll to see the same idea compress a picture and find the main direction in a cloud of data (PCA), and why modern AI fine-tuning keeps only the biggest stretches.</p>
+    </header>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="plane" width="800" height="800" aria-label="A circle being turned, stretched and turned into an ellipse by a matrix"></canvas>
+          <div class="under"><div id="mx"></div><p class="say" id="say"></p></div>
+        </div>
+        <aside class="panel">
+          <p class="key">Drag the tips of <b class="i">î</b> (green) and <b class="j">ĵ</b> (red), or type into the matrix.</p>
+          <label>Try a matrix <select id="presets"></select></label>
+          <label>The three moves <strong id="sVal"></strong><input type="range" id="stage" min="0" max="3" step="0.01" value="3"></label>
+          <div class="row"><button id="playMove">Play the three moves</button></div>
+          <label><input type="checkbox" id="rank1"> keep only the biggest stretch (rank 1)</label>
+          <p class="hint-s">Purple and blue arrows start at right angles on the circle and land on the ellipse's longest and shortest axes.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Slide "The three moves" from 0 to 3 slowly.</strong> <span>The circle turns, then stretches along the axes into an ellipse, then turns into place. Three easy moves make any matrix.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Pick "Turn 30°".</strong> <span>σ₁ = σ₂ = 1: a turn doesn't stretch at all, so the circle stays a circle.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Pick "Shear" and tick "keep only the biggest stretch".</strong> <span>The ellipse collapses onto its long axis: the best one-direction version of the shear.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Pick "Mirror".</strong> <span>The singular values are 1 and 1, but the stretch step flips: the mirror shows up as a stretch by −1 along one axis.</span><button class="outline" data-try="3">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>Taking any matrix apart, step by step</h2>
+      <p class="lead">These pictures follow what is in the toy above: change it and they change.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>A circle always becomes an ellipse</h3><p>Whatever the matrix, the unit circle lands on an ellipse (or, if the matrix squashes, a line segment). The ellipse has a longest radius σ₁ and a shortest σ₂: the <em>singular values</em>.</p></div>
+        <figure><canvas id="ex1" width="640" height="420"></canvas><figcaption id="cap1">Your matrix: the circle becomes an ellipse with radii σ₁ and σ₂.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>Two arrows at right angles stay at right angles</h3><p>On the circle there are two arrows at right angles, v₁ and v₂, that land exactly on the ellipse's axes: A v₁ = σ₁ u₁ and A v₂ = σ₂ u₂, where u₁ and u₂ are also at right angles.</p><p>Eigenvectors only exist for some matrices and need not be at right angles. These singular vectors always exist, for any matrix, even a non-square one.</p></div>
+        <figure><canvas id="ex2" width="640" height="420"></canvas><figcaption id="cap2">v₁ and v₂ on the circle, and where they land.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>Three simple moves: turn, stretch, turn</h3><p>So A = U Σ Vᵀ. First Vᵀ turns v₁ and v₂ onto the axes. Then Σ stretches along the axes by σ₁ and σ₂. Then U turns the axes onto u₁ and u₂. (If the matrix mirrors, one stretch also flips.)</p></div>
+        <figure><canvas id="ex3" width="640" height="420"></canvas><figcaption id="cap3">Your matrix as three moves: start, after Vᵀ, after Σ, after U.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>Keep the big stretches, drop the small ones</h3><p>A picture is a grid of numbers, a matrix. Its SVD writes it as a sum of simple layers, each one column times one row, ordered by size σ. Keeping only the first few layers gives the best possible approximation with that few numbers (the Eckart–Young theorem).</p><p>A 48×48 picture has 2,304 numbers; 5 layers need only 485. Modern AI uses the same idea: LoRA fine-tunes giant language models by learning only small low-rank changes to their weight matrices.</p></div>
+        <figure><canvas id="ex4" width="640" height="360"></canvas><figcaption id="cap4">A 48×48 picture rebuilt from 1, 2, 5, 10 and all 48 layers.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>PCA: the main directions of data</h3><p>Take a cloud of data points. The SVD of the centred data, or equally the eigenvectors of its covariance matrix, gives the directions it varies most: the principal components. Projecting onto the first one keeps the most information in a single number.</p><p>Here the cloud is a round blob moved by your matrix, so PCA should find your matrix's u₁ and u₂, and it does.</p></div>
+        <figure><canvas id="ex5" width="640" height="420"></canvas><figcaption id="cap5">A data cloud made by your matrix, with its principal components and the 1D version (projections onto the first).</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <div class="symbols">
+        <div><code class="formula">A = U Σ Vᵀ</code><p>In words: turn, stretch, turn: works for every matrix, any shape.</p></div>
+        <div><code class="formula">σ₁ ≥ σ₂ ≥ … ≥ 0</code><p>In words: the stretches, biggest first; never negative.</p></div>
+        <div><code class="formula">A vᵢ = σᵢ uᵢ</code><p>In words: each right singular vector lands on a left one, stretched by σᵢ.</p></div>
+        <div><code class="formula">Aₖ = σ₁u₁v₁ᵀ + … + σₖuₖvₖᵀ</code><p>In words: the best approximation using k layers; the error is the dropped σ²s.</p></div>
+        <div><code class="formula">σᵢ² = eigenvalues of AᵀA</code><p>In words: how to compute them: the SVD is eigenvectors of AᵀA and AAᵀ.</p></div>
+        <div><code class="formula">A⁺ = V Σ⁺ Uᵀ</code><p>In words: the Moore-Penrose pseudoinverse: flip each non-zero σ to 1/σ. It gives the best possible "undo", even for squashing matrices.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Compressing data.</strong> Keeping only the biggest singular values shrinks pictures, sensor data and text tables with little loss.</li>
+        <li><strong>Recommendations.</strong> A table of users × films is approximated by a low-rank product: a few hidden "tastes" per user and per film.</li>
+        <li><strong>Fine-tuning AI models.</strong> LoRA adapts a huge language model by learning low-rank updates to its weight matrices, a tiny fraction of the parameters.</li>
+        <li><strong>Search.</strong> Latent semantic analysis (1990) used the SVD of a word-by-document table to find documents about the same topic with different words.</li>
+        <li><strong>Fitting data.</strong> Least-squares fitting, finding the best line through noisy points, is solved reliably with the pseudoinverse built from the SVD.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>Found twice</h4><p>Eugenio Beltrami (1873) and Camille Jordan (1874) discovered the SVD independently of each other.</p></article>
+        <article><h4>Best low-rank picture, 1936</h4><p>Carl Eckart and Gale Young proved in 1936 that cutting the SVD after k terms gives the best possible rank-k approximation.</p></article>
+        <article><h4>PCA, 1901</h4><p>Karl Pearson described principal component analysis in 1901, as finding the line that best fits a cloud of points.</p></article>
+        <article><h4>A million-dollar prize</h4><p>Netflix offered $1,000,000 for a 10% better film recommender. Low-rank matrix factorisation, close to the SVD, was at the heart of the winning BellKor's Pragmatic Chaos team in 2009.</p></article>
+        <article><h4>10,000 times fewer</h4><p>The 2021 LoRA paper reported fine-tuning GPT-3 while training about 10,000 times fewer parameters, by learning low-rank matrix updates.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "The SVD only works for square matrices." <strong>But:</strong> it works for every matrix, of any shape.</li>
+        <li><strong>Not:</strong> "Singular values can be negative." <strong>But:</strong> they never are; a mirror is put in one of the turns (or, as here, shown as a flipped stretch).</li>
+        <li><strong>Not:</strong> "Singular values are the same as eigenvalues." <strong>But:</strong> only for symmetric matrices with no negative eigenvalues. A turn has singular values 1 and 1 but no real eigenvalues.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://cedar.buffalo.edu/~srihari/CSE676/2%20LinearAlgebra.pdf" target="_blank" rel="noopener">Linear Algebra for Machine Learning (slides)</a><span>Sargur Srihari, University at Buffalo, CSE 676 Deep Learning. Scalars to tensors, norms, eigendecomposition, SVD, pseudoinverse and PCA.</span></li>
+        <li><a href="https://www.deeplearningbook.org/contents/linear_algebra.html" target="_blank" rel="noopener">Deep Learning, chapter 2: Linear Algebra</a><span>Goodfellow, Bengio and Courville (2016). The chapter the slides follow; free to read online.</span></li>
+        <li><a href="https://mml-book.github.io/" target="_blank" rel="noopener">Mathematics for Machine Learning</a><span>Deisenroth, Faisal and Ong (2020). Free book; chapters 2–4 cover this series.</span></li>
+        <li><a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noopener">Hu et al. (2021): LoRA, Low-Rank Adaptation of Large Language Models</a><span>Fine-tuning huge models with low-rank matrices.</span></li>
+        <li><a href="https://cs229.stanford.edu/section/cs229-linalg.pdf" target="_blank" rel="noopener">Stanford CS229: Linear Algebra Review</a><span>A compact review written for a machine learning course.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>

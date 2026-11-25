@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eigenvectors and eigenvalues · Math Toys</title>
+  <meta name="description" content="An eigenvector is a direction a matrix only stretches and never turns; the eigenvalue is by how much.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body data-concept="eigenvectors">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Eigenvectors and eigenvalues</h1>
+      <p class="idea">An eigenvector is a direction a matrix only stretches and never turns; the eigenvalue is by how much.</p>
+      <p>Most arrows get knocked off their line by a matrix. A few special directions don't: they only get longer, shorter or flipped. Drag the orange arrow <b>v</b> round until <b>Av</b> lies on the same line, or press <b>Apply again</b> and watch any arrow swing towards the strongest eigenvector by itself, the trick behind Google's first search ranking.</p>
+    </header>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="plane" width="800" height="800" aria-label="A matrix moving the plane, with an arrow v, its image Av, and the eigenvector lines"></canvas>
+          <div class="under"><div id="mx"></div><p class="say" id="say"></p></div>
+        </div>
+        <aside class="panel">
+          <p class="key">Drag the tips of <b class="i">î</b> (green) and <b class="j">ĵ</b> (red), or type into the matrix.</p>
+          <label>Try a matrix <select id="presets"></select></label>
+          <h4>Find the special directions</h4>
+          <p class="key">Drag the tip of <b class="v">v</b> round. When <b class="v">Av</b> lands on the dashed line through v, you have found an eigenvector.</p>
+          <div class="row"><button id="again">Apply again</button><button id="restart" class="outline">Start over</button></div>
+          <p class="hint-s" id="againSay">Each press replaces v by Av, scaled back to length 2 so it stays on screen.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Pick "Stretch sideways" and drag v onto the x-axis.</strong> <span>Av stays on the x-axis, twice as long: eigenvalue 2. On the y-axis it halves: eigenvalue 0.5.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Pick "Turn a quarter".</strong> <span>No arrow stays on its line. There are no real eigenvectors, only complex ones.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Pick "Symmetric" and press "Apply again" five times.</strong> <span>v swings onto the (1, 1) line and stays: the biggest eigenvector, eigenvalue 3. That is power iteration.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Pick "Fibonacci rabbits" and keep applying.</strong> <span>The arrow settles where its two parts are in the ratio 1.618…, the golden ratio.</span><button class="outline" data-try="3">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>Finding the directions a matrix doesn't turn, step by step</h2>
+      <p class="lead">These pictures follow what is in the toy above: change it and they change.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>Most arrows get turned</h3><p>Take arrows pointing every way round a circle and apply the matrix. Most land pointing in a new direction. That is what makes a matrix hard to read at a glance.</p></div>
+        <figure><canvas id="ex1" width="640" height="420"></canvas><figcaption id="cap1">Arrows all round a circle (grey) and where your matrix sends them (coloured by how far they turned).</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>A few stay on their own line</h3><p>Some directions come out pointing the same way (or exactly backwards): Av = λv. These are the eigenvectors, from the German <em>eigen</em>, "own": the matrix's own directions.</p><p>Any arrow along that line works, so really an eigenvector is a whole line. A 2×2 matrix has at most two such lines.</p></div>
+        <figure><canvas id="ex2" width="640" height="420"></canvas><figcaption id="cap2">The eigenvector lines of your matrix, with v and Av on each.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>The eigenvalue is the stretch</h3><p>λ = 2 doubles the arrow, λ = 0.5 halves it, λ = −1 flips it to point backwards, λ = 0 squashes it to nothing. A turn has no real eigenvalues at all, because it turns every direction.</p></div>
+        <figure><canvas id="ex3" width="640" height="420"></canvas><figcaption id="cap3">Your eigenvalues on a number line.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>Finding them: where the determinant hits zero</h3><p>Av = λv means (A − λI)v = 0: the matrix A − λI squashes v to nothing. A matrix squashes something only if its determinant is 0. For a 2×2 matrix that gives a quadratic: λ² − (a + d)λ + (ad − bc) = 0.</p><p>Its two roots add up to a + d (the <em>trace</em>) and multiply to ad − bc (the determinant).</p></div>
+        <figure><canvas id="ex4" width="640" height="420"></canvas><figcaption id="cap4">The quadratic for your matrix; its roots are the eigenvalues.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>Apply it again and again</h3><p>Apply a matrix many times and the part along the biggest eigenvector grows fastest, so any starting arrow swings round to it. This is <em>power iteration</em>, and it is how PageRank found the most important web pages.</p><p>Rabbits too: the matrix [[1, 1], [1, 0]] makes Fibonacci numbers, 1, 1, 2, 3, 5, 8, …, and its biggest eigenvalue, the golden ratio 1.618…, is how fast they grow.</p></div>
+        <figure><canvas id="ex5" width="640" height="420"></canvas><figcaption id="cap5">Your matrix applied ten times to a starting arrow, scaled to fit.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">6</span>In its own directions, a matrix just stretches</h3><p>Use the eigenvectors as your grid. Then the matrix only stretches along each grid direction: it becomes a diagonal matrix. This is the eigendecomposition A = P D P⁻¹, and it makes powers easy: Aⁿ = P Dⁿ P⁻¹.</p><p>Symmetric matrices are the best case: their eigenvectors are always at right angles. Covariance matrices in data science are symmetric, which is why PCA works.</p></div>
+        <figure><canvas id="ex6" width="640" height="420"></canvas><figcaption id="cap6">A grid along your eigenvectors, before and after: its lines stay on the same lines.</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <div class="symbols">
+        <div><code class="formula">A v = λ v</code><p>In words: v is only stretched by λ, not turned.</p></div>
+        <div><code class="formula">det(A − λI) = 0</code><p>In words: the equation the eigenvalues solve.</p></div>
+        <div><code class="formula">λ₁ + λ₂ = a + d,   λ₁ λ₂ = ad − bc</code><p>In words: they add up to the trace and multiply to the determinant.</p></div>
+        <div><code class="formula">A = P D P⁻¹</code><p>In words: eigendecomposition: change to eigen-directions, stretch, change back.</p></div>
+        <div><code class="formula">Aⁿ = P Dⁿ P⁻¹</code><p>In words: repeating the move just raises each stretch to a power.</p></div>
+        <div><code class="formula">A = Q Λ Qᵀ (A symmetric)</code><p>In words: for symmetric matrices the directions are at right angles, so Q is a turn.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Google search.</strong> PageRank scored every web page by the biggest eigenvector of a huge matrix of links between pages.</li>
+        <li><strong>Data science.</strong> Principal component analysis finds the eigenvectors of the data's covariance matrix: the directions it varies most.</li>
+        <li><strong>Training neural networks.</strong> When a signal is multiplied by the same matrix again and again, eigenvalues above 1 make it explode and below 1 make it vanish: the classic problem of recurrent networks.</li>
+        <li><strong>Bridges and guitars.</strong> The ways a structure or a string likes to vibrate are eigenvectors; the eigenvalues give the frequencies.</li>
+        <li><strong>Quantum physics.</strong> The energy levels of an atom are the eigenvalues of its energy matrix.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>"Eigen" means own</h4><p>David Hilbert used the German word eigen in this sense in 1904. English kept half of it: eigenvalue, eigenvector.</p></article>
+        <article><h4>The $25,000,000,000 eigenvector</h4><p>That is the title of a 2006 paper by Kurt Bryan and Tanya Leise explaining that Google's PageRank is an eigenvector problem.</p></article>
+        <article><h4>Eigenfaces, 1991</h4><p>Matthew Turk and Alex Pentland recognised faces by describing each one as a mix of a few eigenvectors of many face photos, "eigenfaces".</p></article>
+        <article><h4>The golden ratio in rabbits</h4><p>Fibonacci's rabbit numbers grow by the golden ratio 1.618… each step, because that is the biggest eigenvalue of the matrix [[1, 1], [1, 0]].</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "Every matrix has eigenvectors you can draw." <strong>But:</strong> a turn moves every direction, so it has none in the real plane (its eigenvalues are complex numbers).</li>
+        <li><strong>Not:</strong> "An eigenvector is one particular arrow." <strong>But:</strong> any multiple of it works too; it is really a whole line.</li>
+        <li><strong>Not:</strong> "An eigenvalue of 0 isn't allowed." <strong>But:</strong> it is: it means the matrix squashes that direction flat. Only the zero vector is never called an eigenvector.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://cedar.buffalo.edu/~srihari/CSE676/2%20LinearAlgebra.pdf" target="_blank" rel="noopener">Linear Algebra for Machine Learning (slides)</a><span>Sargur Srihari, University at Buffalo, CSE 676 Deep Learning. Scalars to tensors, norms, eigendecomposition, SVD, pseudoinverse and PCA.</span></li>
+        <li><a href="https://www.deeplearningbook.org/contents/linear_algebra.html" target="_blank" rel="noopener">Deep Learning, chapter 2: Linear Algebra</a><span>Goodfellow, Bengio and Courville (2016). The chapter the slides follow; free to read online.</span></li>
+        <li><a href="https://www.3blue1brown.com/lessons/eigenvalues" target="_blank" rel="noopener">3Blue1Brown: Eigenvectors and eigenvalues</a><span>Grant Sanderson's "Essence of linear algebra": short animated lessons that build the same pictures.</span></li>
+        <li><a href="https://www.rose-hulman.edu/~bryan/googleFinalVersionFixed.pdf" target="_blank" rel="noopener">Bryan and Leise (2006): The $25,000,000,000 Eigenvector</a><span>How Google's PageRank is an eigenvector, explained with small examples.</span></li>
+        <li><a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/" target="_blank" rel="noopener">MIT 18.06 Linear Algebra</a><span>Gilbert Strang's full course: lecture videos, notes and problem sets.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>

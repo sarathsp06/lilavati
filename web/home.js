@@ -1,9 +1,11 @@
 // The home page: the concept cards (from concepts.js) with small live previews, and the hero,
 // where spinning circles (the Rust Fourier series) draw one shape after another.
 import init, { Fourier, Craft, circular_speed } from './pkg/mathtoys.js';
-import { CONCEPTS, card } from './concepts.js';
+import { CONCEPTS, CHAPTERS, card } from './concepts.js';
+import { Plane, COL, I2, apply, rot, mul } from './la.js';
 
-document.getElementById('cards').innerHTML = CONCEPTS.filter(c => c.status === 'live').map(card).join('');
+document.getElementById('cards').innerHTML = CONCEPTS.filter(c => c.status === 'live' && !c.series).map(card).join('');
+document.getElementById('cards-la').innerHTML = CHAPTERS[0].slugs.map(s => card(CONCEPTS.find(c => c.slug === s))).join('');
 document.getElementById('soon').innerHTML = CONCEPTS.filter(c => c.status !== 'live').map(card).join('');
 await init();
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -82,6 +84,21 @@ previews.orbits = (c, w, h, sec) => {
   c.strokeStyle = '#22d3ee'; c.lineWidth = 2; c.beginPath(); for (let i = 0; i < orbTrail.length; i += 2) { const [px, py] = V(orbTrail[i], orbTrail[i + 1]); i ? c.lineTo(px, py) : c.moveTo(px, py); } c.stroke();
   const [px, py] = V(x, y); c.fillStyle = '#fff'; c.beginPath(); c.arc(px, py, 5, 0, 7); c.fill();
 };
+// the linear algebra chapter: small moving pictures of each idea
+const laPlane = (c, w, h) => new Plane(c.canvas, 2.6, [(w - h) / 2, 0, h]);
+const breathe = sec => [1 + 0.5 * Math.sin(sec * 0.9), 0.6 * Math.sin(sec * 0.6), 0.3 * Math.sin(sec * 0.7 + 1), 1 + 0.3 * Math.cos(sec * 0.8)];
+Object.assign(previews, {
+  'dot-product'(c, w, h, sec) { const p = laPlane(c, w, h), t = sec * 0.7, b = [1.8 * Math.cos(t), 1.8 * Math.sin(t)], a = [2, 0.6], k = (a[0] * b[0] + a[1] * b[1]) / (a[0] ** 2 + a[1] ** 2);
+    p.axes().line(b[0], b[1], a[0] * k, a[1] * k, '#999', 1.5, [5, 5]).line(0, 0, a[0] * k, a[1] * k, k >= 0 ? 'rgba(22,163,74,.8)' : 'rgba(220,38,38,.8)', 7).arrow(...a, COL.v, { width: 3 }).arrow(...b, COL.w, { width: 3 }); },
+  'linear-transformations'(c, w, h, sec) { const p = laPlane(c, w, h), m = breathe(sec); p.grid(m, 'rgba(79,70,229,.35)').axes().arrow(...apply(m, 1, 0), COL.i, { width: 3 }).arrow(...apply(m, 0, 1), COL.j, { width: 3 }); },
+  determinant(c, w, h, sec) { const p = laPlane(c, w, h), m = [1.3, 0.9 * Math.sin(sec * 0.6), 0.2, 1.1], d = m[0] * m[3] - m[1] * m[2];
+    p.grid(m, 'rgba(194,65,12,.18)').axes().poly([0, 0, 1, 0, 1, 1, 0, 1], m, d > 0 ? 'rgba(22,163,74,.3)' : 'rgba(220,38,38,.3)', d > 0 ? '#15803d' : '#b91c1c').arrow(...apply(m, 1, 0), COL.i, { width: 3 }).arrow(...apply(m, 0, 1), COL.j, { width: 3 }); },
+  eigenvectors(c, w, h, sec) { const p = laPlane(c, w, h), m = [1.6, 0.6, 0.6, 1.6], t = sec * 0.5, v = [1.2 * Math.cos(t), 1.2 * Math.sin(t)], av = apply(m, ...v);
+    p.axes().through(1, 1, 'rgba(147,51,234,.6)', 2, [8, 6]).through(1, -1, 'rgba(147,51,234,.35)', 2, [4, 6]).arrow(...v, 'rgba(245,158,11,.5)', { width: 3 }).arrow(...av, COL.v, { width: 3 }); },
+  svd(c, w, h, sec) { const p = laPlane(c, w, h), s = (sec * 0.5) % 4, t1 = Math.min(1, s), t2 = Math.max(0, Math.min(1, s - 1)), t3 = Math.max(0, Math.min(1, s - 2));
+    const m = mul(rot(0.7 * t3), mul([1 + 0.8 * t2, 0, 0, 1 - 0.45 * t2], rot(-0.5 * t1)));
+    p.grid(m, 'rgba(3,105,161,.2)').axes().circle(I2, null, 'rgba(0,0,0,.2)', 1.5).circle(m, 'rgba(14,165,233,.18)', '#0369a1', 2.5).arrow(...apply(m, Math.cos(0.5), Math.sin(0.5)), COL.w, { width: 3 }); },
+});
 const cards = [...document.querySelectorAll('canvas[data-preview]')];
 
 function frame(now) {

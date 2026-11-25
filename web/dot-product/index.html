@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vectors and the dot product · Math Toys</title>
+  <meta name="description" content="A vector is a list of numbers and an arrow; the dot product measures how much two arrows point the same way.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body data-concept="dot-product">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Vectors and the dot product</h1>
+      <p class="idea">A vector is a list of numbers and an arrow; the dot product measures how much two arrows point the same way.</p>
+      <p>Every piece of data an AI touches is a vector: a picture, a word, a song, you. Drag the two arrows below and watch the one number that compares them. Then switch to <em>A neuron</em> and see that the most basic building block of a neural network is nothing but a dot product.</p>
+    </header>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="plane" width="800" height="800" aria-label="Two arrows a and b on a grid, with the shadow of b on a"></canvas>
+          <div class="under"><p class="say" id="say"></p></div>
+        </div>
+        <aside class="panel">
+          <h4>What to show</h4>
+          <select id="mode"><option value="arrows">Two arrows</option><option value="neuron">A neuron</option></select>
+          <div id="arrowsBox">
+            <p class="key">Drag the tips of <b class="v">a</b> (orange) and <b class="w">b</b> (purple).</p>
+            <label>Try a pair <select id="pairs"></select></label>
+            <label>Length measured as <select id="norm"><option value="2">L² (straight line)</option><option value="1">L¹ (city blocks)</option><option value="inf">L∞ (biggest part)</option></select></label>
+            <p class="hint-s">The dashed outline shows every arrow with the same length as <b>a</b> in that measure.</p>
+          </div>
+          <div id="neuronBox" hidden>
+            <p class="key">Drag the tip of the weights <b class="w">w</b>. The neuron says <em>yes</em> on the shaded side, where w·x + b &gt; 0.</p>
+            <label>Bias b <strong id="bVal">0</strong><input type="range" id="bias" min="-6" max="6" step="0.1" value="0"></label>
+            <div class="row"><button id="learn">Let it learn</button><button id="shuffle" class="outline">New points</button></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Pick "At right angles".</strong> <span>The dot product is exactly 0, whatever the lengths. The shadow of b on a shrinks to a point.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Drag b slowly round a.</strong> <span>The dot product goes up, through zero, and negative: it follows cos θ, like a wave.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Make b twice as long without turning it.</strong> <span>The dot product doubles, but the cosine similarity stays the same. Only direction counts for similarity.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Switch to "A neuron" and press "Let it learn".</strong> <span>The weights turn step by step until the line separates the two kinds of points. That is the 1958 perceptron learning rule.</span><button class="outline" data-try="3">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>From a list of numbers to a neuron, step by step</h2>
+      <p class="lead">These pictures follow what is in the toy above: change it and they change.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>A vector is a list of numbers, and an arrow</h3><p>The vector a = (3, 1) is just two numbers. Drawn as an arrow, it means: go 3 across, then 1 up. A list of 3 numbers is an arrow in 3D space, and a list of 1,000 numbers is an arrow in a space with 1,000 directions. We can't picture that, but the maths works exactly the same.</p><p>A grid of numbers is a <em>matrix</em>, and a stack of grids (like the red, green and blue layers of a photo) is a <em>tensor</em>. AI software is named after them: TensorFlow, PyTorch tensors.</p></div>
+        <figure><canvas id="ex1" width="640" height="420"></canvas><figcaption id="cap1">Your arrow a, as steps across and up.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>How long is an arrow? It depends on how you measure</h3><p>The usual length is the straight line, from Pythagoras: √(3² + 1²) ≈ 3.16. That is the L² norm. If you can only walk along streets, the length is 3 + 1 = 4: the L¹ norm. If only the biggest step counts, it is 3: the L∞ norm.</p><p>Machine learning uses all three. L² is the ordinary distance; L¹ is used to make models prefer using only a few inputs; the "size" of a whole matrix (the Frobenius norm) is just L² over all its numbers.</p></div>
+        <figure><canvas id="ex2" width="640" height="420"></canvas><figcaption id="cap2">All arrows of length 1 in each measure: a circle (L²), a diamond (L¹) and a square (L∞). Orange: your arrow.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>The dot product: multiply matching parts, then add</h3><p>To compare two arrows, multiply their first numbers together, their second numbers together, and add it all up. That single number is the dot product, a·b. It works the same for lists of any length.</p><p>Big and positive means they point roughly the same way. Zero means they are at right angles. Negative means they point away from each other.</p></div>
+        <figure><canvas id="ex3" width="640" height="420"></canvas><figcaption id="cap3">Your two arrows, number by number.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>It is really about the angle between them</h3><p>The dot product also equals |a| × |b| × cos θ, where θ is the angle between the arrows. Turn b around a full circle and the dot product rises and falls like a wave: largest when they line up, zero at right angles, most negative when opposite.</p><p>So the dot product mixes two things: how long the arrows are and how well they line up. The shadow of b on a (the dashed line in the toy) has length a·b / |a|.</p></div>
+        <figure><canvas id="ex4" width="640" height="420"></canvas><figcaption id="cap4">Every direction b could point, coloured by its dot product with your a: green same way, grey right angles, red opposite.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>Cosine similarity: how AI compares meaning</h3><p>Divide the dot product by both lengths and only the angle is left: cos θ, between −1 and 1. This is <em>cosine similarity</em>. Language models turn every word, sentence or picture into a long vector, an <em>embedding</em>, so that things with similar meaning point in similar directions.</p><p>Search, recommendations and "find similar" all work this way: turn the question into a vector and look for the stored vectors with the highest cosine similarity.</p></div>
+        <figure><canvas id="ex5" width="640" height="420"></canvas><figcaption id="cap5">A made-up 2D word map (real embeddings have hundreds or thousands of numbers). Cosine similarity of each word to “cat”.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">6</span>A neuron is a dot product with a threshold</h3><p>A single artificial neuron takes the inputs x, takes the dot product with its weights w, adds a bias b, and says <em>yes</em> if the result is above zero. All points where w·x + b = 0 form a straight line (in more dimensions, a flat plane): one side is yes, the other no.</p><p>Learning means nudging w and b whenever the neuron gets a point wrong. Rosenblatt's perceptron did exactly this in 1958. A modern network stacks millions of these, with a bend between layers.</p></div>
+        <figure><canvas id="ex6" width="640" height="420"></canvas><figcaption id="cap6">The neuron from the toy: weights w, the dividing line, and how it sorts the points.</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <div class="symbols">
+        <div><code class="formula">a·b = a₁b₁ + a₂b₂ + … + aₙbₙ</code><p>In words: multiply the matching numbers and add them up.</p></div>
+        <div><code class="formula">a·b = |a| |b| cos θ</code><p>In words: the same number, from the lengths and the angle between the arrows.</p></div>
+        <div><code class="formula">‖a‖₂ = √(a·a),  ‖a‖₁ = Σ|aᵢ|,  ‖a‖∞ = max|aᵢ|</code><p>In words: three ways to measure length: straight line, city blocks, biggest part.</p></div>
+        <div><code class="formula">cos θ = a·b / (‖a‖ ‖b‖)</code><p>In words: cosine similarity: only the direction counts, not the length.</p></div>
+        <div><code class="formula">proj = (a·b / a·a) a</code><p>In words: the shadow of b on the line of a.</p></div>
+        <div><code class="formula">y = step(w·x + b)</code><p>In words: a neuron: weigh the inputs, add the bias, say yes above zero.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Search and recommendations.</strong> Shops, music apps and search engines turn items and questions into embedding vectors and rank by cosine similarity.</li>
+        <li><strong>Chatbots.</strong> Inside a transformer, every word asks a question (a query vector) and every other word holds a key vector; their dot products decide where it pays attention.</li>
+        <li><strong>Every neuron.</strong> Each neuron in a neural network computes a dot product of its inputs and its weights.</li>
+        <li><strong>3D games.</strong> How brightly a surface is lit is the dot product of its facing direction and the direction of the light.</li>
+        <li><strong>Physics.</strong> Work done by a force is the dot product of the force and the movement: pushing sideways on a moving cart does no work.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>The perceptron, 1958</h4><p>Frank Rosenblatt's perceptron learned to sort inputs into two groups by adjusting the weights in a dot product. It was one of the first machines that learned from examples.</p></article>
+        <article><h4>King − man + woman ≈ queen</h4><p>In 2013 Tomas Mikolov and colleagues at Google showed that word vectors learned from text (word2vec) capture meaning: subtracting and adding them gives answers like this.</p></article>
+        <article><h4>Attention is dot products</h4><p>The 2017 paper "Attention Is All You Need" introduced the transformer, the design behind today's chatbots. Its attention scores are dot products, divided by the square root of the vector length to keep them from growing too large.</p></article>
+        <article><h4>Light and angles, 1760</h4><p>Johann Heinrich Lambert described in 1760 that a matte surface looks dimmer the more it is tilted from the light, by the cosine of the angle. Games still light surfaces with exactly this dot product.</p></article>
+        <article><h4>Vectors are younger than you think</h4><p>The dot and cross product notation we use today comes from Josiah Willard Gibbs's lecture notes on vector analysis, printed for his students at Yale in the early 1880s.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "The dot product of two vectors is a vector." <strong>But:</strong> it is a single number. (The cross product, in 3D, is the one that gives a vector.)</li>
+        <li><strong>Not:</strong> "A dot product of zero means one of them is zero." <strong>But:</strong> it usually means they are at right angles.</li>
+        <li><strong>Not:</strong> "A big dot product means very similar." <strong>But:</strong> longer arrows give bigger dot products too. That is why AI usually compares with cosine similarity, which ignores length.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://cedar.buffalo.edu/~srihari/CSE676/2%20LinearAlgebra.pdf" target="_blank" rel="noopener">Linear Algebra for Machine Learning (slides)</a><span>Sargur Srihari, University at Buffalo, CSE 676 Deep Learning. Scalars to tensors, norms, eigendecomposition, SVD, pseudoinverse and PCA.</span></li>
+        <li><a href="https://www.deeplearningbook.org/contents/linear_algebra.html" target="_blank" rel="noopener">Deep Learning, chapter 2: Linear Algebra</a><span>Goodfellow, Bengio and Courville (2016). The chapter the slides follow; free to read online.</span></li>
+        <li><a href="https://www.3blue1brown.com/lessons/dot-products" target="_blank" rel="noopener">3Blue1Brown: Dot products and duality</a><span>Grant Sanderson's "Essence of linear algebra": short animated lessons that build the same pictures.</span></li>
+        <li><a href="https://arxiv.org/abs/1301.3781" target="_blank" rel="noopener">Mikolov et al. (2013): Efficient Estimation of Word Representations in Vector Space</a><span>The word2vec paper: words as vectors whose directions carry meaning.</span></li>
+        <li><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Vaswani et al. (2017): Attention Is All You Need</a><span>The transformer paper; section 3.2 is attention built from dot products.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>
