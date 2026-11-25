@@ -128,22 +128,7 @@ function graph(k) {
   }
 }
 function track() {
-  const cv = $('track'), c = cv.getContext('2d'), w = cv.width, h = cv.height, [lo, hi] = range.s, pad = 40;
-  const X = s => pad + (w - 2 * pad) * (s - lo) / (hi - lo), y = 58;
-  c.clearRect(0, 0, w, h);
-  c.strokeStyle = '#bbb'; c.lineWidth = 3; c.beginPath(); c.moveTo(pad, y + 14); c.lineTo(w - pad, y + 14); c.stroke();
-  c.font = '12px system-ui'; c.fillStyle = '#888';
-  for (const v of ticks(lo, hi, 6).out) { c.fillRect(X(v) - .5, y + 10, 1, 8); c.fillText(v + ' m', X(v) - 10, y + 34); }
-  const s = valAt(cur.s, t), v = valAt(cur.v, t), a = valAt(cur.a, t), x = X(s), scale = (w - 2 * pad) / (hi - lo);
-  c.fillStyle = '#1d4ed8'; c.beginPath(); c.arc(x, y, 12, 0, 7); c.fill();
-  const arrow = (len, col, yy, label) => {
-    if (Math.abs(len) < 2) return; len = Math.max(-300, Math.min(300, len));
-    c.strokeStyle = c.fillStyle = col; c.lineWidth = 3; c.beginPath(); c.moveTo(x, yy); c.lineTo(x + len, yy); c.stroke();
-    const d = Math.sign(len); c.beginPath(); c.moveTo(x + len, yy); c.lineTo(x + len - 9 * d, yy - 5); c.lineTo(x + len - 9 * d, yy + 5); c.fill();
-    c.fillText(label, x + len + (d > 0 ? 6 : -60), yy + 4);
-  };
-  arrow(v * scale * 0.5, '#16a34a', y - 26, 'velocity');
-  arrow(a * scale * 0.25, '#dc2626', y - 42, 'push');
+  const s = valAt(cur.s, t), v = valAt(cur.v, t), a = valAt(cur.a, t);
   $('readout').textContent = `t = ${t.toFixed(2)} s   position = ${s.toFixed(2)} m   velocity = ${v.toFixed(2)} m/s   acceleration = ${a.toFixed(2)} m/s²`;
 }
 function drawAll() { if (!motion) return; for (const k of KEYS) graph(k); track(); $('time').value = t; }

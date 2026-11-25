@@ -132,7 +132,7 @@ function explain() {
     const cat = F(3, 1.2);
     for (const [wd, x, y] of WORDS) { p.arrow(x, y, wd === 'cat' ? COL.v : 'rgba(79,70,229,.6)', { width: 2.5, head: 10 }); p.label(`${wd} ${wd === 'cat' ? '' : fmt(cosine(cat, F(x, y)))}`, x, y, wd === 'cat' ? '#b45309' : '#3730a3', 19); } }
   { const p = fig('ex6'); neuronShade(p, w, bias, 0.14); p.axes('rgba(0,0,0,.25)'); points(p); p.arrow(w[0], w[1], COL.w, { label: 'w' });
-    $('cap6').textContent = `The neuron from the toy: w = ${vec(w[0], w[1], 1)}, b = ${fmt(bias, 1)}. Blue side: yes. ${correct()} of ${pts.length} points sorted right. Switch the toy to "A neuron" to change it.`; }
+    $('cap6').textContent = `The neuron from above: w = ${vec(w[0], w[1], 1)}, b = ${fmt(bias, 1)}. Blue side: yes. ${correct()} of ${pts.length} points sorted right. Switch the toy to "A neuron" to change it.`; }
 }
 
 const TRY = [

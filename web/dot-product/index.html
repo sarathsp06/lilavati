@@ -52,7 +52,7 @@
 
     <section id="steps" data-label="Step by step" class="block">
       <h2>From a list of numbers to a neuron, step by step</h2>
-      <p class="lead">These pictures follow what is in the toy above: change it and they change.</p>
+      <p class="lead">These pictures follow what you set up above: change it and they change.</p>
 
       <div class="step reveal">
         <div><h3><span class="num">1</span>A vector is a list of numbers, and an arrow</h3><p>The vector a = (3, 1) is just two numbers. Drawn as an arrow, it means: go 3 across, then 1 up. A list of 3 numbers is an arrow in 3D space, and a list of 1,000 numbers is an arrow in a space with 1,000 directions. We can't picture that, but the maths works exactly the same.</p><p>A grid of numbers is a <em>matrix</em>, and a stack of grids (like the red, green and blue layers of a photo) is a <em>tensor</em>. AI software is named after them: TensorFlow, PyTorch tensors.</p></div>
@@ -70,7 +70,7 @@
       </div>
 
       <div class="step reveal">
-        <div><h3><span class="num">4</span>It is really about the angle between them</h3><p>The dot product also equals |a| × |b| × cos θ, where θ is the angle between the arrows. Turn b around a full circle and the dot product rises and falls like a wave: largest when they line up, zero at right angles, most negative when opposite.</p><p>So the dot product mixes two things: how long the arrows are and how well they line up. The shadow of b on a (the dashed line in the toy) has length a·b / |a|.</p></div>
+        <div><h3><span class="num">4</span>It is really about the angle between them</h3><p>The dot product also equals |a| × |b| × cos θ, where θ is the angle between the arrows. Turn b around a full circle and the dot product rises and falls like a wave: largest when they line up, zero at right angles, most negative when opposite.</p><p>So the dot product mixes two things: how long the arrows are and how well they line up. The shadow of b on a (the dashed line in the picture above) has length a·b / |a|.</p></div>
         <figure><canvas id="ex4" width="640" height="420"></canvas><figcaption id="cap4">Every direction b could point, coloured by its dot product with your a: green same way, grey right angles, red opposite.</figcaption></figure>
       </div>
 
@@ -81,7 +81,7 @@
 
       <div class="step reveal">
         <div><h3><span class="num">6</span>A neuron is a dot product with a threshold</h3><p>A single artificial neuron takes the inputs x, takes the dot product with its weights w, adds a bias b, and says <em>yes</em> if the result is above zero. All points where w·x + b = 0 form a straight line (in more dimensions, a flat plane): one side is yes, the other no.</p><p>Learning means nudging w and b whenever the neuron gets a point wrong. Rosenblatt's perceptron did exactly this in 1958. A modern network stacks millions of these, with a bend between layers.</p></div>
-        <figure><canvas id="ex6" width="640" height="420"></canvas><figcaption id="cap6">The neuron from the toy: weights w, the dividing line, and how it sorts the points.</figcaption></figure>
+        <figure><canvas id="ex6" width="640" height="420"></canvas><figcaption id="cap6">The neuron from above: weights w, the dividing line, and how it sorts the points.</figcaption></figure>
       </div>
     </section>
 

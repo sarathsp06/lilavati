@@ -7,6 +7,7 @@
   <meta name="description" content="Any closed shape is a sum of circles spinning at different speeds. Draw a shape and get its Fourier series and the circles that draw it back.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="../style.css">
+  <style>.kpick button{padding:.25rem .6rem;font-size:.85rem}.kpick button.on{background:var(--accent);color:#fff}.kpick select{width:auto;margin:0;padding:.25rem 2rem .25rem .6rem;font-size:.85rem}</style>
 </head>
 <body data-concept="fourier-series">
   <main class="container">
@@ -88,30 +89,54 @@
 
       <div class="step reveal">
         <div>
-          <h3><span class="num">3</span>Measure how much of each wave is in there</h3>
-          <p>To find how much of the "k waves per lap" cosine is in x(t), multiply the two together at every point and take the average. Where they rise and fall together the products are positive; where they don't, they cancel out. Doubled, that average is the coefficient aₖ.</p>
-          <code class="formula">aₖ = 2 · average of x(t)·cos(kt)<br>bₖ = 2 · average of x(t)·sin(kt)<br>cₖ, dₖ: the same for y(t)</code>
-          <p>Nobody guesses these numbers. They are measured from the drawing, which is the whole trick. Most of the size sits in the slow waves; the fast ones only add detail.</p>
+          <h3><span class="num">3</span>Hold a test wave against it</h3>
+          <p>How much of the wave that repeats k times per lap is hiding in x(t)? Lay that test wave, cos(kt), over x(t) (top row) and multiply the two at every moment (middle row). Where both are up, or both are down, the product is positive: green. Where one is up and the other down, it is negative: red.</p>
+          <p>Now add up the green and subtract the red as the scan moves along (bottom row). If x(t) really contains this wave, they keep agreeing and the total grows. Twice the average at the end is the number in the equation: <b>aₖ</b>. Use sin(kt) instead and you get <b>bₖ</b>; do the same with y(t) for cₖ and dₖ.</p>
+          <code class="formula">aₖ = 2 · average of x(t)·cos(kt)</code>
+          <div class="row kpick" role="group" aria-label="Choose the test wave">
+            <span class="muted">Test wave:</span>
+            <button class="outline" data-k="1">k = 1</button><button class="outline" data-k="2">2</button><button class="outline" data-k="3">3</button><button class="outline" data-k="5">5</button><button class="outline" data-k="8">8</button>
+            <select id="kfn" aria-label="cos or sin"><option value="sin">sin</option><option value="cos">cos</option></select>
+            <select id="kxy" aria-label="x or y"><option value="x">x(t)</option><option value="y">y(t)</option></select>
+          </div>
         </div>
-        <figure><canvas id="step3" width="600" height="400"></canvas><figcaption>The size of each frequency in your shape (the radius of its circles), k = 1 to 40.</figcaption></figure>
+        <figure><canvas id="step3" width="600" height="470"></canvas><figcaption id="cap3">The scan measuring one coefficient of your shape.</figcaption></figure>
       </div>
 
       <div class="step reveal">
         <div>
-          <h3><span class="num">4</span>Add the waves back up, one at a time</h3>
+          <h3><span class="num">4</span>Why the other waves don't get in the way</h3>
+          <p>x(t) is a mix of many waves at once, so why does the test wave pick out only its own? Because two different waves that repeat a whole number of times per lap always cancel when multiplied: they agree exactly as often as they disagree, so the green and red areas are equal and the total is 0.</p>
+          <p>Only a wave times itself never cancels: the product is never below zero and its average is exactly ½. That is where the 2 in the formula comes from. So multiplying by cos(kt) and averaging silences every other wave and leaves half of the cos(kt) part: twice that is aₖ.</p>
+        </div>
+        <figure><canvas id="step4" width="600" height="420"></canvas><figcaption>Left: a 3-per-lap wave times a 2-per-lap wave cancels out. Right: a wave times itself averages to ½.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">5</span>Do it for every k: the recipe of your shape</h3>
+          <p>Repeat the scan for k = 1, 2, 3 … and you get a list of numbers: how much of each wave the shape contains. That list is the shape's <em>spectrum</em>, and it is exactly the numbers in the equations at the top.</p>
+          <p>Most of the size sits in the slow waves; the fast ones only add detail. That is why a few terms already look right.</p>
+        </div>
+        <figure><canvas id="step5" width="600" height="400"></canvas><figcaption id="cap5">The size of each frequency in your shape, k = 1 to 40. Outlined: the one being scanned in step 3.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">6</span>Add the waves back up, one at a time</h3>
           <p>With only k = 1, every shape becomes an ellipse: the crudest possible version. Each extra frequency adds a smaller, faster wiggle on top, and the shape sharpens.</p>
-          <p>Smooth curves need only a few terms. Sharp corners, like a star's points or a bird's beak, need many: smooth waves can only ever approximate a corner.</p>
+          <p>Watch it happen to x(t) itself: each measured wave, scaled by its number, is stacked on the ones before, and the sum closes in on what you drew. Smooth curves need only a few terms. Sharp corners need many: smooth waves can only ever approximate a corner.</p>
         </div>
-        <figure><canvas id="step4" width="600" height="400"></canvas><figcaption>Your shape with 1, 2, 3, 5, 10 and 40 terms. Grey is what you drew.</figcaption></figure>
+        <figure><canvas id="step6" width="600" height="470"></canvas><figcaption id="cap6">Top: x(t) rebuilt from its first waves. Bottom: your shape with 1, 2, 3, 5, 10 and 40 terms.</figcaption></figure>
       </div>
 
       <div class="step reveal">
         <div>
-          <h3><span class="num">5</span>Turn each wave into a spinning circle</h3>
+          <h3><span class="num">7</span>Turn each wave into a spinning circle</h3>
           <p>A cosine and a sine of the same speed together are just a point going round a circle. So each frequency is a circle turning k times per lap, some clockwise and some anticlockwise.</p>
           <p>Put each circle's centre on the rim of the one before, biggest first, and the tip of the last one traces your shape. That chain is exactly the animation at the top of the page, and the two equations are the same thing written down.</p>
         </div>
-        <figure><canvas id="step5" width="600" height="400"></canvas><figcaption>The first 8 circles at one moment. The red dot is the pen.</figcaption></figure>
+        <figure><canvas id="step7" width="600" height="400"></canvas><figcaption>The first 8 circles at one moment. The red dot is the pen.</figcaption></figure>
       </div>
     </section>
 
