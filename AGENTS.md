@@ -15,6 +15,13 @@ Notes for anyone (person or AI agent) adding to or changing this site.
   arrive at the coefficient). A bar chart of the answers or a finished picture alone is not an explanation.
   Figures follow what the reader set up above, and offer a small control (pick k, pick a case) when a
   derivation has cases.
+- **Say what the concept is (the person's rule, 2026-11-25):** right after the heading, every page has a short
+  **What it is** block (`id="what"`) that defines the concept itself in plain words, at a high level, and says
+  how the page's example is an instance of it. The demo never replaces the definition: the Fourier page must say
+  what a Fourier series is, not only draw with circles.
+- **Symbols the reader can read (same rule):** the first use of every symbol says what it is; products are written
+  so they cannot be misread (`cos(3·t)`, read "three times t", never a bare `3t` that could be "the third t");
+  subscripts and indices are explained; every formula has a one-line plain reading under it. See docs/CONCEPT_PAGE.md.
 - **Words on the site:** call it Lilavati; don't call pages "toys" in visible text. Keep visible text plain;
   prefer a simple readout or nothing over a busy strip that is hard to read.
 - **Headings (the person's choice, 2026-11-25):** each page's big heading is a real-world hook, a short
