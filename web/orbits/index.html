@@ -19,6 +19,8 @@
     #slower { background: rgba(239,68,68,.32); border-color: rgba(248,113,113,.7); }
     .quick { display: grid; grid-template-columns: 1fr 1fr; gap: .2rem 1rem; margin-top: .6rem; padding: .5rem .8rem .1rem; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
     .quick label { font-size: .85rem; margin: 0; }
+    .quick .nowline { grid-column: 1 / -1; margin: 0 0 .3rem; font-size: .85rem; color: var(--ink-2); }
+    .quick .nowline b { font-family: var(--pico-font-family-monospace); color: var(--ink-1); }
     .quick input { margin: .2rem 0 .4rem; }
     /* phones: the picture stays at the top of the screen while you scroll through the controls */
     @media (max-width: 900px) {
@@ -66,8 +68,9 @@
             </div>
           </div>
           <div class="quick">
-            <label>Height <strong id="hVal"></strong><input type="range" id="height" min="0" max="100" step="0.1" value="0"></label>
-            <label>Speed <strong id="sVal"></strong><input type="range" id="speed" min="0" max="160" step="1" value="100"></label>
+            <label>Launch height <strong id="hVal"></strong><input type="range" id="height" min="0" max="100" step="0.1" value="0"></label>
+            <label>Launch speed <strong id="sVal"></strong><input type="range" id="speed" min="0" max="160" step="1" value="100"></label>
+            <p class="nowline" id="now"></p>
           </div>
           <p id="verdict">…</p>
         </div>

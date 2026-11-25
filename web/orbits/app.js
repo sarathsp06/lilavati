@@ -69,8 +69,16 @@ function reset() {
 }
 // engine burns: 100 m/s, or 3% of the speed when that is more (far out, 100 m/s is a lot)
 const dv = () => { const s = craft.state(); return Math.max(50, Math.min(100, 0.03 * Math.hypot(s[2], s[3]))); };
-$('faster').addEventListener('click', () => { if (gone) return; craft.burn(dv()); foresee(); explain(); });
-$('slower').addEventListener('click', () => { if (gone) return; craft.burn(-dv()); foresee(); explain(); });
+// after a burn the sliders show where the satellite is now and its new speed there, so they follow
+function syncSliders() {
+  const [x, y, vx, vy] = craft.state(), r = Math.hypot(x, y);
+  $('height').value = heightSlider(Math.max(100e3, r - R));
+  $('speed').value = Math.round(100 * Math.hypot(vx, vy) / circular_speed(r));
+  labels();
+}
+const burn = d => { if (gone || craft.crashed()) return; craft.burn(d); syncSliders(); foresee(); explain(); };
+$('faster').addEventListener('click', () => burn(dv()));
+$('slower').addEventListener('click', () => burn(-dv()));
 $('reset').addEventListener('click', reset);
 $('playBtn').addEventListener('click', () => { playing = !playing; $('playBtn').textContent = playing ? 'Pause' : 'Play'; });
 $('warp').addEventListener('input', labels);
@@ -151,7 +159,12 @@ function draw() {
 }
 
 // ---------- the numbers under the picture ----------
+function liveLine() {
+  const [x, y, vx, vy] = craft.state(), r = Math.hypot(x, y), v = Math.hypot(vx, vy);
+  $('now').innerHTML = craft.crashed() ? 'Now: on the ground.' : `Now: <b>${kms(v)}</b> (${Math.round(100 * v / circular_speed(r))}% of circle speed at this height), <b>${km(r - R)}</b> up.`;
+}
 function readouts() {
+  liveLine();
   const [x, y, vx, vy, t] = craft.state(), r = Math.hypot(x, y), v = Math.hypot(vx, vy), el = elements(x, y, vx, vy);
   $('rAlt').textContent = km(r - R); $('rSpeed').textContent = kms(v);
   $('rCirc').textContent = kms(circular_speed(r)); $('rEsc').textContent = kms(escape_speed(r));
