@@ -59,7 +59,14 @@ const inviteLink = () => { const u = new URL(location.href); u.search = '?join='
 
 function render() {
   const n = session ? session.members.size + 1 : 0;
-  button.textContent = session ? `${voice?.on ? '🎤' : '💬'} Together · ${n}` : 'Invite';
+  button.replaceChildren();
+  if (session) {
+    const faces = el('span', { className: 'tg-stack' });
+    for (const [id, nm] of [[session.me.id, myName], ...[...session.members.values()].map(m => [m.id, m.name])].slice(0, 3)) faces.append(badge(id, nm, ''));
+    button.append(faces, el('span', { textContent: n > 3 ? `+${n - 3}` : 'Together' }));
+    if (voice?.on) button.append(el('span', { className: 'tg-micdot', textContent: voice.muted ? '🔇' : '🎤' }));
+    button.title = `${n} ${n === 1 ? 'person' : 'people'} together. Show or hide the panel.`;
+  } else button.textContent = 'Invite';
   if (unread && panel.hidden) button.append(el('span', { className: 'badge', textContent: unread }));
   button.classList.toggle('on', !!session);
   // in a session the panel is a column on the right of the page (a sheet at the bottom on phones)
@@ -88,7 +95,8 @@ function build() {
   close.setAttribute('aria-label', 'Close'); close.onclick = () => { panel.hidden = true; if (session) sessionStorage.setItem(KEY + '.collapsed', '1'); render(); };
   if (session) { close.textContent = '»'; close.title = 'Hide the panel (the Together button brings it back)'; close.setAttribute('aria-label', 'Hide'); }
   const n = session ? session.members.size + 1 : 0;
-  panel.append(el('header', {}, el('strong', { textContent: session ? `Together · ${n} ${n === 1 ? 'person' : 'people'}` : 'Together' }), close));
+  panel.append(el('header', {}, el('div', {}, el('strong', {}, ...(session ? [el('span', { className: 'tg-live' })] : []), 'Together'),
+    ...(session ? [el('small', { textContent: `${n} ${n === 1 ? 'person' : 'people'} in this session` })] : [])), close));
   if (!session) {
     if (farewell) panel.append(el('p', { className: 'tg-farewell', textContent: farewell }));
     if (token && hasHost(token) && !code) {
@@ -124,16 +132,16 @@ function build() {
     pick.append(new Option('Default microphone', ''));
     voice.devices().then(ds => { for (const d of ds) if (d.deviceId && d.deviceId !== 'default') pick.append(new Option(d.label || 'Microphone', d.deviceId)); pick.value = voice.device; });
     pick.onchange = async () => { await voice.use(pick.value); render(); };
-    vbox.append(el('div', { className: 'tg-row' }, mute, off), el('label', { className: 'tg-mic' }, 'Microphone', pick),
+    vbox.append(el('div', { className: 'tg-row' }, mute, off), el('div', { className: 'tg-meter', title: 'How loud you are' }, el('i')), el('label', { className: 'tg-mic' }, 'Microphone', pick),
       el('p', { className: 'tg-hint', textContent: voice.muted ? 'You are muted: the others can’t hear you.' : 'You’re on voice: everyone in the session hears you.' }));
   }
   if (voice?.blocked) { const s = el('button', { type: 'button', className: 'tg-sound', textContent: '🔈 Tap to hear the others' }); s.onclick = () => voice.unblock?.(); vbox.append(s); }
   panel.append(section('', vbox));
 
   // people: one row each, with what they are doing
-  const name = el('input', { value: myName, maxLength: 24 });
-  name.setAttribute('aria-label', 'Your name'); name.title = 'Your name: click to change it';
-  name.onchange = () => { myName = cleanName(name.value) || myName; name.value = myName; localStorage.setItem(NAME, myName); session.rename(myName); pageRoom.emit({ type: 'people' }); render(); };
+  // your name: click it to change it
+  const name = el('button', { type: 'button', className: 'tg-name', textContent: myName, title: 'Change your name' });
+  name.onclick = () => { const v = cleanName(prompt('Your name, as others see it:', myName) || ''); if (!v || v === myName) return; myName = v; localStorage.setItem(NAME, myName); session.rename(myName); pageRoom.emit({ type: 'people' }); render(); };
   const people = el('ul', { className: 'tg-people' },
     el('li', { className: 'me' }, badge(session.me.id, myName, 'me'), el('div', { className: 'tg-who' }, name,
       el('small', { textContent: [amHost() ? '👑 host' : '', 'you', voice?.on ? (voice.muted ? '🔇 muted' : '🎤 on voice') : ''].filter(Boolean).join(' · ') }))));
@@ -159,7 +167,7 @@ function build() {
     log.append(el('div', { className: 'tg-msg' + (me ? ' mine' : '') }, ...(me ? [] : [badge(m.from, m.name)]), el('p', {}, ...(me ? [] : [el('b', { textContent: m.name })]), el('span', { textContent: m.text }))));
   }
   if (!session.chat.length) log.append(el('p', { className: 'muted tg-empty', textContent: session.members.size ? 'Say hello 👋' : 'Nobody else is here yet. Send them the invite link below.' }));
-  const say = el('input', { placeholder: 'Message everyone…', maxLength: 500 }), send = el('button', { type: 'submit', textContent: 'Send' });
+  const say = el('input', { placeholder: 'Message everyone…', maxLength: 500 }), send = el('button', { type: 'submit', className: 'tg-send', textContent: '↑', title: 'Send' });
   say.setAttribute('aria-label', 'Message');
   let lastTyped = 0;
   say.oninput = () => { if (Date.now() - lastTyped > 2500 && say.value) { lastTyped = Date.now(); sendRaw?.({ t: 'typing' }); } };
@@ -169,8 +177,10 @@ function build() {
 
   // inviting, the host's switches, following, leaving: at the bottom, folded once others are here
   const inv = el('details', { className: 'tg-sec tg-invite', open: invOpen ?? !session.members.size });
-  inv.ontoggle = () => { invOpen = inv.open; };
-  inv.append(el('summary', { textContent: 'Invite people and settings' }));
+
+  const sum = el('summary', { textContent: 'Invite people and settings' });
+  sum.onclick = () => { invOpen = !inv.open; };   // only a person's click counts, not the initial state
+  inv.append(sum);
   const link = el('input', { readOnly: true, value: inviteLink() }), cp = el('button', { type: 'button', className: 'outline', textContent: 'Copy link' });
   link.setAttribute('aria-label', 'Invite link'); link.onfocus = () => link.select(); cp.onclick = () => copy(inviteLink(), cp);
   inv.append(el('div', { className: 'tg-row' }, link, cp));
@@ -218,6 +228,7 @@ setInterval(() => {
     f.classList.toggle('speaking', l > 0.08); f.style.setProperty('--ring', `${Math.round(3 + l * 9)}px`);
   }
   button.classList.toggle('speaking', [...session.members.keys()].some(id => (loud.get(id) || 0) > 0.08));
+  const bar = panel.querySelector('.tg-meter i'); if (bar) bar.style.width = `${Math.round(Math.min(1, (loud.get('me') || 0) * 1.6) * 100)}%`;
 }, 80);
 
 async function copy(text, btn) {
