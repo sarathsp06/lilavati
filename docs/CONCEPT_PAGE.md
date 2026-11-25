@@ -9,7 +9,7 @@ to build the "On this page" bar, so a section only shows up there if it follows 
 
 | # | Section | id | What goes in it | Size |
 |---|---|---|---|---|
-| 1 | **Hero** | `hero` | Concept name (h1), the big idea in one sentence (`.idea`), two or three sentences of what you can do here. Topic and level chips come from `concepts.js`. | 3 sentences |
+| 1 | **Hero** | `hero` | A real-world heading (h1, the `hook` in `concepts.js`), e.g. "How noise-cancelling headphones make silence", then a one-line tagline (`.idea`, the `tagline`), then two or three sentences of what you can do here. The concept name, topic and level appear as chips above the heading (from `concepts.js`). | 3 sentences |
 | 2 | **Play** | `play` | The interactive toy: the thing to poke at. Starts already showing something alive (a preset), never a blank canvas. | — |
 | 3 | **Try this** | `try` | Three to five small experiments, each "do X, notice Y". Each one makes one point of the concept visible. Buttons may set the toy up. | 3–5 items |
 | 4 | **Step by step** | `steps` | Four to seven numbered steps from the reader's own input to the idea. Each step: a short heading that states the point, two short paragraphs, and a figure drawn **from what the reader set up above**, so the walk-through follows the reader. **Each figure derives its result visually**: show the intermediate quantities and how they combine into the number or formula (animate the process where it helps), never only the final answer. | 4–7 steps |

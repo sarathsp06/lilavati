@@ -17,6 +17,10 @@ Notes for anyone (person or AI agent) adding to or changing this site.
   derivation has cases.
 - **Words on the site:** call it Lilavati; don't call pages "toys" in visible text. Keep visible text plain;
   prefer a simple readout or nothing over a busy strip that is hard to read.
+- **Headings (the person's choice, 2026-11-25):** each page's big heading is a real-world hook, a short
+  question or claim from everyday life ("Why the space station never falls down"), with a one-line tagline under
+  it. The concept name stays in the URL, the page title and a chip above the heading. Set `hook` and `tagline`
+  in `web/concepts.js`.
 - **Naming:** pages are named after the concept (Fourier series, Derivatives and integrals), not the
   example used to show it.
 - **Phones:** controls that change the picture sit right next to it; on phones the picture and its key

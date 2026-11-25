@@ -4,42 +4,42 @@
 const SERIES = { name: 'Linear algebra for AI', slugs: ['dot-product', 'linear-transformations', 'determinant', 'eigenvectors', 'svd'] };
 export const CHAPTERS = [SERIES];
 export const CONCEPTS = [
-  { slug: 'fourier-series', name: 'Fourier series', status: 'live', topic: 'Waves and signals', level: 'Curious', color: '#2563eb',
+  { slug: 'fourier-series', hook: 'How to draw anything with circles', tagline: 'Every shape you can trace is just circles spinning on circles.', name: 'Fourier series', status: 'live', topic: 'Waves and signals', level: 'Curious', color: '#2563eb',
     idea: 'Any closed shape is a sum of circles spinning at different speeds.',
     blurb: 'Draw a shape and get its equation. A chain of spinning circles draws it back.',
     related: ['superposition', 'derivatives'] },
-  { slug: 'derivatives', name: 'Derivatives and integrals', status: 'live', topic: 'Calculus', level: 'Starter', color: '#059669',
+  { slug: 'derivatives', hook: 'What your speedometer actually measures', tagline: 'Speed is how fast distance changes; distance is all the speed added up.', name: 'Derivatives and integrals', status: 'live', topic: 'Calculus', level: 'Starter', color: '#059669',
     idea: 'The slope of a graph tells how fast it changes; the area under it adds the changes back up.',
     blurb: 'Draw how something moves and watch its rate of change, and the rate of that, appear.',
     related: ['orbits', 'riemann-sums'] },
-  { slug: 'orbits', name: 'Orbits and escape velocity', status: 'live', topic: 'Gravity and space', level: 'Curious', color: '#0891b2',
+  { slug: 'orbits', hook: 'Why the space station never falls down', tagline: "It's always falling. It just keeps missing the Earth.", name: 'Orbits and escape velocity', status: 'live', topic: 'Gravity and space', level: 'Curious', color: '#0891b2',
     idea: 'A satellite is always falling, but moves sideways so fast that it keeps missing the Earth.',
-    blurb: 'Launch a satellite, speed it up, slow it down, escape, and build a tower into space.',
+    blurb: 'Launch a satellite, fire its engine to speed it up or slow it down, and push it past escape velocity.',
     related: ['derivatives', 'fourier-series'] },
   // a chapter: five pages in order (series), from vectors to the SVD, after the deep learning maths outline
-  { slug: 'dot-product', name: 'Vectors and the dot product', status: 'live', topic: 'Linear algebra', level: 'Starter', color: '#0d9488', series: SERIES,
+  { slug: 'dot-product', hook: 'How Spotify knows two songs are alike', tagline: 'Turn things into arrows; similar things point the same way.', name: 'Vectors and the dot product', status: 'live', topic: 'Linear algebra', level: 'Starter', color: '#0d9488', series: SERIES,
     idea: 'A vector is a list of numbers and an arrow; the dot product measures how much two arrows point the same way.',
     blurb: 'Drag two arrows and watch their dot product, angle and lengths, then train a one-neuron classifier by hand.',
     related: ['linear-transformations'] },
-  { slug: 'linear-transformations', name: 'Linear transformations and matrices', status: 'live', topic: 'Linear algebra', level: 'Starter', color: '#4f46e5', series: SERIES,
+  { slug: 'linear-transformations', hook: 'What one layer of a neural network does', tagline: 'It stretches, turns and folds space, and a matrix is the recipe.', name: 'Linear transformations and matrices', status: 'live', topic: 'Linear algebra', level: 'Starter', color: '#4f46e5', series: SERIES,
     idea: 'A matrix is a recipe for moving every point of space: its columns say where the two basic arrows land.',
     blurb: 'Drag two arrows and the whole grid follows. Multiply matrices, undo them, and see what a neural network layer does.',
     related: ['determinant'] },
-  { slug: 'determinant', name: 'The determinant', status: 'live', topic: 'Linear algebra', level: 'Starter', color: '#c2410c', series: SERIES,
+  { slug: 'determinant', hook: 'How much a move stretches the world', tagline: 'One number says how areas grow, shrink or flip inside out.', name: 'The determinant', status: 'live', topic: 'Linear algebra', level: 'Starter', color: '#c2410c', series: SERIES,
     idea: 'The determinant says how much a matrix stretches area, and whether it flips space over.',
     blurb: 'Watch a square become a parallelogram: its area is the determinant. Zero means space is squashed flat.',
     related: ['eigenvectors'] },
-  { slug: 'eigenvectors', name: 'Eigenvectors and eigenvalues', status: 'live', topic: 'Linear algebra', level: 'Curious', color: '#9333ea', series: SERIES,
+  { slug: 'eigenvectors', hook: 'How Google ranked the whole web', tagline: 'Find the directions a matrix only stretches, never turns.', name: 'Eigenvectors and eigenvalues', status: 'live', topic: 'Linear algebra', level: 'Curious', color: '#9333ea', series: SERIES,
     idea: 'An eigenvector is a direction a matrix only stretches and never turns; the eigenvalue is by how much.',
     blurb: 'Find the arrows that stay on their own line, apply a matrix again and again, and see why Google needed them.',
     related: ['svd'] },
-  { slug: 'svd', name: 'Singular value decomposition', status: 'live', topic: 'Linear algebra', level: 'Curious', color: '#0369a1', series: SERIES,
+  { slug: 'svd', hook: 'How to shrink a photo to a few numbers', tagline: 'Any matrix is a turn, a stretch and another turn. Keep the big stretches.', name: 'Singular value decomposition', status: 'live', topic: 'Linear algebra', level: 'Curious', color: '#0369a1', series: SERIES,
     idea: 'Every matrix is a turn, then a stretch along two directions, then another turn.',
     blurb: 'Take any matrix apart into three simple moves, compress a picture, and find the main direction in data (PCA).',
     related: ['eigenvectors', 'fourier-series'] },
   { slug: 'riemann-sums', name: 'Riemann sums', status: 'soon', topic: 'Calculus', level: 'Starter', color: '#d97706',
     idea: 'Thinner and thinner rectangles fill the area under any curve.', related: ['derivatives'] },
-  { slug: 'superposition', name: 'Superposition of waves', status: 'live', topic: 'Waves and signals', level: 'Starter', color: '#7c3aed',
+  { slug: 'superposition', hook: 'How noise-cancelling headphones make silence', tagline: 'Add a sound to its mirror image and you hear nothing at all.', name: 'Superposition of waves', status: 'live', topic: 'Waves and signals', level: 'Starter', color: '#7c3aed',
     idea: 'Waves that meet simply add up, moment by moment: into chords, beats, silence and every sound you hear.',
     blurb: 'Mix three waves, listen to them, and see cancelling, beats and square waves appear.',
     related: ['fourier-series', 'derivatives'] },
@@ -63,7 +63,7 @@ if (me) {
   // chips under the name
   const h1 = document.querySelector('#hero h1');
   const part = me.series ? `<span class="chip">${me.series.name} · ${me.series.slugs.indexOf(slug) + 1} of ${me.series.slugs.length}</span>` : '';
-  h1.insertAdjacentHTML('beforebegin', `<p class="chips"><span class="chip">${me.topic}</span>${part}<span class="chip">${me.level}</span></p>`);
+  h1.insertAdjacentHTML('beforebegin', `<p class="chips"><span class="chip concept">${me.name}</span><span class="chip">${me.topic}</span>${part}<span class="chip">${me.level}</span></p>`);
   // "On this page", with the current section marked while scrolling
   const toc = bar.querySelector('.toc'), secs = [...document.querySelectorAll('section[data-label]')];
   for (const s of secs) toc.insertAdjacentHTML('beforeend', `<a href="#${s.id}">${s.dataset.label}</a>`);
@@ -93,5 +93,5 @@ export function card(c) {
   return `<${live ? 'a' : 'div'} class="ccard${live ? '' : ' soon'}" ${live ? `href="${slug ? '../' : ''}${c.slug}/"` : ''} style="--accent:${c.color}">
     ${live && !slug ? `<canvas class="preview" data-preview="${c.slug}" width="560" height="260" aria-hidden="true"></canvas>` : ''}
     <div class="body">${c.series ? `<span class="num">Part ${c.series.slugs.indexOf(c.slug) + 1}</span>` : ''}<p class="chips"><span class="chip">${c.topic}</span>${live ? '' : '<span class="chip">Coming soon</span>'}</p>
-    <h3>${c.name}</h3><p>${c.idea}</p>${live && c.blurb ? `<p class="muted">${c.blurb}</p>` : ''}${live ? '<span class="go">Open →</span>' : ''}</div></${live ? 'a' : 'div'}>`;
+    <h3>${c.hook || c.name}</h3>${c.hook ? `<p class="cname">${c.name}</p>` : ''}<p>${c.tagline || c.idea}</p>${live && c.blurb ? `<p class="muted">${c.blurb}</p>` : ''}${live ? '<span class="go">Open →</span>' : ''}</div></${live ? 'a' : 'div'}>`;
 }

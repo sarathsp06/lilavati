@@ -182,3 +182,7 @@ ul.reading li span { display: block; font-size: .88rem; color: var(--ink-2); }
 a.gh { display: inline-flex; align-items: center; gap: .35rem; color: var(--ink-1); text-decoration: none; font-size: .9rem; }
 a.gh:hover { color: var(--accent); }
 .topbar a.gh { margin-left: auto; flex-shrink: 0; padding-left: .5rem; }
+
+/* concept name shown under the real-world heading */
+.chip.concept { background: var(--ink-1); color: #fff; }
+.ccard .cname { font-size: .78rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); margin: -.1rem 0 .4rem; }

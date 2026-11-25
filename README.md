@@ -32,10 +32,10 @@ centuries. This project borrows its idea: **maths as play**.
 
 | Concept | What you do |
 |---|---|
-| [Fourier series](https://lilavati.pages.dev/fourier-series/) | Draw any closed shape and get its equation; a chain of spinning circles draws it back |
-| [Derivatives and integrals](https://lilavati.pages.dev/derivatives/) | Draw how something moves and watch velocity and acceleration appear, as slopes and areas |
-| [Superposition of waves](https://lilavati.pages.dev/superposition/) | Mix three waves, hear them, and see cancelling, beats, chords and square waves appear |
-| [Orbits and escape velocity](https://lilavati.pages.dev/orbits/) | Launch a satellite, fire its engine, escape the Earth, build a tower into space |
+| [How to draw anything with circles](https://lilavati.pages.dev/fourier-series/) (Fourier series) | Draw any closed shape and get its equation; a chain of spinning circles draws it back |
+| [What your speedometer actually measures](https://lilavati.pages.dev/derivatives/) (derivatives and integrals) | Draw how something moves and watch velocity and acceleration appear, as slopes and areas |
+| [How noise-cancelling headphones make silence](https://lilavati.pages.dev/superposition/) (superposition of waves) | Mix three waves, hear them, and see cancelling, beats, chords and square waves appear |
+| [Why the space station never falls down](https://lilavati.pages.dev/orbits/) (orbits and escape velocity) | Launch a satellite, fire its engine, and escape the Earth |
 
 **Chapter: Linear algebra for AI**, the matrix maths every neural network is made of:
 
