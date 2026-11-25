@@ -27,7 +27,13 @@ Notes for anyone (person or AI agent) adding to or changing this site.
 - **Phones:** controls that change the picture sit right next to it; on phones the picture and its key
   controls stay at the top of the screen while the rest scrolls.
 - **Registering a page:** add it to `web/concepts.js` (single concepts or a chapter `series`); the home
-  page cards, top bar and previous/next links are built from that list.
+  page cards, top bar and previous/next links are built from that list. A page's animated home-page card
+  lives in `web/<slug>/preview.js` (default export `(c, w, h, sec) => void`, a 560×260 canvas 2D context)
+  with `previewFile: true` on its entry; page-specific styles go in `web/<slug>/page.css`, linked from the
+  page, so pages never edit `web/home.js` or `web/style.css`.
+- **Planned concepts (the person's list, 2026-11-25):** the `soon` entries in `web/concepts.js` are the
+  queue, in the person's order: Monty Hall, brachistochrone, chaos, three-body, topology, fourth dimension,
+  double slit, then Riemann sums and Taylor series.
 - **Together (shared sessions, 2026-11-25):** people can invite others with a link and explore a page together
   (chat, and one person's changes show for everyone). Every page must work with it; see
   [docs/TOGETHER.md](docs/TOGETHER.md). Controls in `<main>` and its buttons are shared automatically. State
