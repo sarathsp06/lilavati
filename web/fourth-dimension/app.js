@@ -28,8 +28,8 @@ const S = () => ({ xw: ($('spin').checked && spinXw !== null ? spinXw : +$('xw')
 function labels() { for (const k of ANG) $(k + 'Val').textContent = `${$(k).value}°`; $('dVal').textContent = (+$('d').value).toFixed(1); $('hVal').textContent = f2(+$('h').value); }
 
 // 4D points (four numbers each) → turned, shadow in 3D (zoomed so w = 0 keeps its size), screen (zoomed so z = 0 keeps its size)
-function chain(pts, a, d, only4 = true) {
-  const m = only4 ? rot4_all(0, a.xz, TILT, a.xw, a.yw, a.zw) : rot4_all(0, a.xz, TILT, 0, 0, 0);
+function chain(pts, a, d, only4 = true, flat = false) {
+  const m = flat ? rot4_all(0, 0, 0, 0, 0, 0) : only4 ? rot4_all(0, a.xz, TILT, a.xw, a.yw, a.zw) : rot4_all(0, a.xz, TILT, 0, 0, 0);
   const r = apply4(m, pts);
   const p3 = project_4d_to_3d(r, d).map(v => v * d);
   const p2 = project_3d_to_2d(p3, D3).map((v, i) => (i % 3 < 2 ? v * D3 : v));
@@ -77,7 +77,8 @@ function built(n, t) {
   return v;
 }
 function shapeFig(c, n, t, a, cx, cy, s, colourOf, widthOf) {
-  const v = built(n, t), { r, p2 } = chain(v, n === 4 ? a : { ...a, xw: 0, yw: 0, zw: 0 }, a.d);
+  // the cube keeps one clear view whatever Play is set to; a point, segment or square lies flat in x and y, so it faces the reader untilted; turning it would squash it
+  const v = built(n, t), { r, p2 } = chain(v, n === 4 ? a : { ...a, xz: 25 * RAD, xw: 0, yw: 0, zw: 0 }, a.d, true, n <= 2);
   const E = ncube_edges(n), A = ncube_edge_axes(n), out = [];
   for (let e = 0; e < E.length / 2; e++) {
     const i = E[2 * e], j = E[2 * e + 1], group = A[e] === n - 1 ? 'new' : ((i >> (n - 1)) & 1 ? 'copy' : 'old');
