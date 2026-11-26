@@ -20,6 +20,7 @@ function check(file, url, image) {
   assert.equal(tag('name', 'twitter:card'), 'summary_large_image', `${file}: twitter:card`);
   for (const n of ['twitter:title', 'twitter:description', 'twitter:image']) assert.ok(tag('name', n), `${file}: ${n}`);
   assert.ok(tag('property', 'og:description').length >= 40, `${file}: a real description`);
+  for (const l of ['rel="icon" href="/favicon.svg"', 'rel="apple-touch-icon"', 'rel="manifest"']) assert.ok(html.includes(l), `${file}: ${l}`);
   const png = web + image.slice(SITE.length + 1);
   assert.ok(existsSync(png), `${png} exists`);
   const [w, h, bytes] = pngSize(png);
@@ -30,3 +31,11 @@ function check(file, url, image) {
 test('there are live pages to check', () => assert.ok(live.length >= 10, String(live.length)));
 test('the home page has its link preview', () => check(web + 'index.html', `${SITE}/`, `${SITE}/og/home.png`));
 for (const slug of live) test(`${slug} has its link preview`, () => check(web + slug + '/index.html', `${SITE}/${slug}/`, `${SITE}/og/${slug}.png`));
+
+test('the logo, icons, robots.txt and sitemap are there', () => {
+  for (const f of ['logo.svg', 'favicon.svg', 'favicon-32.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'site.webmanifest', 'robots.txt', 'sitemap.xml']) assert.ok(existsSync(web + f), f);
+  assert.deepEqual(pngSize(web + 'icon-512.png').slice(0, 2), [512, 512]);
+  assert.match(readFileSync(web + 'robots.txt', 'utf8'), /Allow: \//);
+  const map = readFileSync(web + 'sitemap.xml', 'utf8');
+  for (const slug of live) assert.ok(map.includes(`${SITE}/${slug}/`), `sitemap has ${slug}`);
+});

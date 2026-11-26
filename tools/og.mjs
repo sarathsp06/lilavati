@@ -27,7 +27,7 @@ async function card(file, slugs, big, small, chip, accent) {
     d.id = 'og-card';
     d.style.cssText = `position:fixed;inset:0;z-index:99999;width:1200px;height:630px;background:#f8f6f1;display:flex;flex-direction:column;padding:52px 60px 0;box-sizing:border-box;font-family:system-ui;border-top:14px solid ${accent}`;
     const esc = s => s.replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]));
-    d.innerHTML = `<div style="display:flex;align-items:center;gap:14px;font:700 30px var(--serif);color:#1c1917"><span class="logo" style="width:30px;height:30px"></span>Lilavati${chip ? `<span style="margin-left:14px;font:700 17px system-ui;letter-spacing:.08em;text-transform:uppercase;background:#1c1917;color:#fff;border-radius:999px;padding:6px 16px">${esc(chip)}</span>` : ''}</div>
+    d.innerHTML = `<div style="display:flex;align-items:center;gap:14px;font:700 38px var(--serif);color:#1c1917"><span class="logo" style="width:48px;height:48px"></span>Lilavati${chip ? `<span style="margin-left:14px;font:700 17px system-ui;letter-spacing:.08em;text-transform:uppercase;background:#1c1917;color:#fff;border-radius:999px;padding:6px 16px">${esc(chip)}</span>` : ''}</div>
       <div style="font:700 ${slugs.length > 1 ? 92 : big.length > 40 ? 54 : 64}px/1.08 var(--serif);color:#1c1917;margin-top:26px;max-width:1080px">${esc(big)}</div>
       <div style="font:italic ${slugs.length > 1 ? 36 : 30}px/1.3 var(--serif);color:#57534e;margin-top:16px;max-width:1080px">${esc(small)}</div>
       <div id="og-pics" style="display:flex;gap:24px;margin-top:auto;justify-content:center;align-items:flex-end"></div>`;
@@ -68,6 +68,12 @@ function tags(html, url, image, alt) {
   <meta name="twitter:description" content="${desc}">
   <meta name="twitter:image" content="${image}">
   <meta name="twitter:image:alt" content="${esc(alt)}">
+  <meta property="og:logo" content="${SITE}/icon-512.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#faf8f4">
   <!-- /share -->`;
   const old = /<!-- share -->[\s\S]*?<!-- \/share -->/;
   if (old.test(html)) return html.replace(old, block);
@@ -85,4 +91,20 @@ const n = all.filter(c => c.status === 'live').length;
 await card(join(web, 'og', 'home.png'), ['fourier-series', 'chaos', 'three-body-problem'], 'Maths you can touch', `${n} interactive pages: play with each idea, then see it worked out step by step.`, '', '#15803d');
 writeFileSync(join(web, 'index.html'), tags(readFileSync(join(web, 'index.html'), 'utf8'), `${SITE}/`, `${SITE}/og/home.png`, 'Lilavati: maths you can touch'));
 console.log('og home');
+
+// the logo as icons: browser tab, phone home screen, app manifest
+const logo = readFileSync(join(web, 'logo.svg'), 'utf8');
+for (const [file, size, pad] of [['favicon-32.png', 32, 0], ['apple-touch-icon.png', 180, 0.14], ['icon-192.png', 192, 0.14], ['icon-512.png', 512, 0.14]]) {
+  const ip = await browser.newPage({ viewport: { width: size, height: size }, deviceScaleFactor: 1 });
+  const inner = Math.round(size * (1 - 2 * pad));
+  await ip.setContent(`<body style="margin:0;width:${size}px;height:${size}px;display:grid;place-items:center;background:${pad ? '#faf8f4' : 'transparent'}"><div style="width:${inner}px;height:${inner}px">${logo.replace('<svg ', `<svg width="${inner}" height="${inner}" `)}</div></body>`);
+  await ip.screenshot({ path: join(web, file), omitBackground: !pad });
+  await ip.close();
+}
+writeFileSync(join(web, 'site.webmanifest'), JSON.stringify({ name: 'Lilavati', short_name: 'Lilavati', description: 'Maths you can touch: interactive pages, each idea worked out step by step.', start_url: '/', display: 'standalone', background_color: '#faf8f4', theme_color: '#faf8f4', icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }, { src: '/icon-512.png', sizes: '512x512', type: 'image/png' }, { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' }] }, null, 2) + '\n');
+// crawlers: everything may be read, and here is every page
+writeFileSync(join(web, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
+writeFileSync(join(web, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+  [`${SITE}/`, ...all.filter(c => c.status === 'live' && existsSync(join(web, c.slug, 'index.html'))).map(c => `${SITE}/${c.slug}/`)].map(u => `  <url><loc>${u}</loc></url>`).join('\n') + '\n</urlset>\n');
+console.log('icons, manifest, robots.txt, sitemap.xml');
 await browser.close();
