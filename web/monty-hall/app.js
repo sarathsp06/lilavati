@@ -41,7 +41,12 @@ function record() {
   if (hist.length > 400) hist = hist.filter((_, k) => k % 2 === 0 || k === hist.length - 1);
   panel();
 }
-const opening = () => (n === 3 ? 0.7 : n === 10 ? 0.9 : 1.3) * speed();
+const opening = () => (n === 3 ? 0.7 : n === 10 ? 1.1 : 2.4) * speed();
+// the order the host opens doors in: scattered, the same in every browser for the same game, so the door left
+// shut is never given away by a gap in a sweep
+let rankFor = null, ranks = [];
+function openRank(k, len) { const key = g.i + ':' + len; if (rankFor !== key) { rankFor = key; ranks = order(len); } return ranks[k]; }
+function order(len) { let h = (g.i * 2654435761 + 97) >>> 0; const keys = Array.from({ length: len }, (_, j) => { h = Math.imul(h ^ (h >>> 15), 2246822519) >>> 0; h = (h + j * 40503) >>> 0; return [h, j]; }); keys.sort((a, b) => a[0] - b[0]); const r = []; keys.forEach((q, pos) => { r[q[1]] = pos; }); return r; }
 const speed = () => (g?.hand || still ? 1 : Math.max(0.12, Math.pow(0.88, autoGames)));
 
 function step(dt) {
@@ -71,8 +76,8 @@ function layout(count, x0, y0, w, h, cols) {
 function door(g2, [x, y, w, h], o, isCar, label, big) {
   g2.fillStyle = isCar ? '#fef9c3' : '#f1f5f9'; g2.fillRect(x, y, w, h);
   if (o > 0.3 && w > 14) {
-    g2.globalAlpha = clamp((o - 0.3) / 0.4); g2.font = `${Math.round(Math.min(w * 0.7, h * 0.5))}px system-ui`; g2.textAlign = 'center'; g2.textBaseline = 'middle';
-    g2.fillText(isCar ? '🚗' : '🐐', x + w / 2, y + h * 0.55); g2.globalAlpha = 1; g2.textBaseline = 'alphabetic';
+    const a0 = g2.globalAlpha; g2.globalAlpha = a0 * clamp((o - 0.3) / 0.4); g2.font = `${Math.round(Math.min(w * 0.7, h * 0.5))}px system-ui`; g2.textAlign = 'center'; g2.textBaseline = 'middle';
+    g2.fillText(isCar ? '🚗' : '🐐', x + w / 2, y + h * 0.55); g2.globalAlpha = a0; g2.textBaseline = 'alphabetic';
   } else if (o > 0.3) { g2.fillStyle = isCar ? CAR : '#cbd5e1'; g2.fillRect(x + w * 0.2, y + h * 0.4, w * 0.6, h * 0.3); }
   const pw = w * (1 - 0.85 * o);   // the door panel swings open towards the left
   g2.fillStyle = o > 0 ? '#d6a46a' : WOOD; g2.fillRect(x, y, pw, h);
@@ -87,7 +92,7 @@ const rects = () => layout(n, 20, 34, W - 40, 300);
 // how far open each door is right now
 function openness(d) {
   if (g.pick < 0) return 0;
-  if (g.phase === 'opening') { const k = g.open.indexOf(d); if (k < 0) return 0; const T = opening(), delay = T * 0.6 * k / Math.max(1, g.open.length); return clamp((g.t - delay) / (T * 0.4)); }
+  if (g.phase === 'opening') { const k = g.open.indexOf(d); if (k < 0) return 0; const T = opening(), delay = T * 0.6 * (n > 3 ? openRank(k, g.open.length) : k) / Math.max(1, g.open.length); return clamp((g.t - delay) / (T * 0.4)); }
   if (g.open.includes(d)) return 1;
   if (g.phase === 'reveal') return clamp(g.t / (0.5 * speed()));
   return g.phase === 'done' ? 1 : 0;
@@ -95,15 +100,21 @@ function openness(d) {
 function drawStage() {
   c.clearRect(0, 0, W, H);
   const rs = rects(), big = n <= 10;
-  rs.forEach((r, d) => door(c, r, openness(d), d === g.car, String(d + 1), big));
+  // with many doors, opened goats fade once the host is done, so the two shut doors stand out
+  const fade = n > 3 && g.pick >= 0 && g.phase !== 'opening' && g.phase !== 'pick';
+  rs.forEach((r, d) => { const o = openness(d); c.globalAlpha = fade && g.open.includes(d) ? 0.35 : 1; door(c, r, o, d === g.car, String(d + 1), big); });
+  c.globalAlpha = 1;
   if (g.pick >= 0) {
     const lw = n === 100 ? 2.5 : 4;
     ring(c, rs[g.pick], ST, lw);
     if (g.phase !== 'opening') ring(c, rs[g.kept], SW, lw, [8, 5]);
     if (g.phase === 'done' && g.choice) ring(c, rs[g.choice === 'stay' ? g.pick : g.kept], '#111', lw + 1);
-    c.font = '600 19px system-ui'; c.textAlign = 'center';
-    const [x, y, w] = rs[g.pick]; c.fillStyle = ST; c.fillText(n === 100 ? 'you' : 'your pick', x + w / 2, y - 8);
-    if (g.phase !== 'opening') { const [x2, y2, w2] = rs[g.kept]; c.fillStyle = SW; c.fillText(n === 100 ? 'shut' : 'left shut', x2 + w2 / 2, y2 - 8); }
+    // labels on a white patch, drawn last so they sit over the doors around them
+    const label = (r, s2, col) => { const [x, y, w] = r; c.font = `600 ${n === 100 ? 14 : 19}px system-ui`; c.textAlign = 'center';
+      const tw = c.measureText(s2).width, ly = y - (n === 100 ? 6 : 8); c.fillStyle = 'rgba(255,255,255,.95)'; c.fillRect(x + w / 2 - tw / 2 - 4, ly - (n === 100 ? 13 : 17), tw + 8, n === 100 ? 17 : 22);
+      c.fillStyle = col; c.fillText(s2, x + w / 2, ly); };
+    label(rs[g.pick], n === 100 ? 'you' : 'your pick', ST);
+    if (g.phase !== 'opening') label(rs[g.kept], n === 100 ? 'shut' : 'left shut', SW);
     c.textAlign = 'left';
   }
   chart();
