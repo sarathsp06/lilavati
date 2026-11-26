@@ -8,6 +8,9 @@ await init();
 const $ = id => document.getElementById(id);
 const EPS = 1e-4;                     // softening: a close pass of 0.0001 is as close as the maths looks
 const NUDGE = 1e-6;                   // the twin: body 1 a millionth faster
+const FRAME_STEPS = 60000;
+const FIG_STEPS = 2e6;                 // the most small steps one figure may take to work out (a close pass takes millions)            // the most small steps worked out in one frame (about 4 ms of work)
+let slowmo = -1e9;                     // when a close pass last slowed the picture down
 const CHUNK = 0.005;                  // the toy moves time on in pieces of this length, the same on every screen
 const COL = ['#fbbf24', '#38bdf8', '#f472b6'];     // the bodies on the dark sky
 const INK = ['#d97706', '#0284c7', '#db2777'];     // the same bodies on white figures
@@ -169,6 +172,7 @@ function say(now) {
   let s;
   if (stalled) s = 'Two bodies came closer than this computation can follow. Press Back to the start, or drag a body to start again.';
   else if (gone >= 0) { const [j, k] = [0, 1, 2].filter(q => q !== gone); s = `Body ${gone + 1} has been thrown out for good: it is moving away faster than the others can pull it back. Bodies ${j + 1} and ${k + 1} are left circling each other.`; }
+  else if (now - slowmo < 600) s = `Time ${sys.time().toFixed(3)}. Two bodies are passing very close, so the picture slows down while the computer takes tiny steps.`;
   else s = `Time ${sys.time().toFixed(1)}. Total energy ${t[0].toFixed(4)}, steady to ${drift < 1e-4 ? 'better than 0.0001' : fmt(drift, 2)}%.`;
   if ($('twin').checked && !stalled) {
     const gap = sys.distance_to(twin);
@@ -212,8 +216,16 @@ function frame(now) {
     // in fixed pieces of time, so a run comes out the same on every screen and frame rate
     owed = Math.min(owed + dt * rate(), 200 * CHUNK);
     const near = 1.5 / scale();
-    for (; owed >= CHUNK; owed -= CHUNK) {
-      sys.advance(CHUNK); twin.advance(CHUNK);
+    // at most about FRAME_STEPS small steps a frame: in a very close pass the bodies go into slow motion instead
+    // of freezing the page
+    const work0 = sys.steps() + twin.steps();
+    while (owed >= CHUNK) {
+      const left = FRAME_STEPS - (sys.steps() + twin.steps() - work0);
+      const h = Math.min(sys.next_step(), twin.next_step());
+      // a whole piece would take too many small steps: move on only as far as this frame's work allows
+      const d = 2 * CHUNK / h > left ? Math.max(h, 0.5 * left * h) : CHUNK;
+      sys.advance(d); twin.advance(d);
+      if (d < CHUNK) { owed = 0; slowmo = now; } else owed -= CHUNK;
       if (sys.stalled()) { stalled = true; play(false); break; }
       const p = sys.positions(), q = twin.positions();
       // a trail point only once the body has moved a pixel or two since the last one
@@ -294,7 +306,7 @@ function prep2() {
   for (let k = 0; k < 2; k++) { const c = (q.m[0] * q.p[k] + q.m[1] * q.p[2 + k]) / M, w = (q.m[0] * q.v[k] + q.m[1] * q.v[2 + k]) / M; q.p[k] -= c; q.p[2 + k] -= c; q.v[k] -= w; q.v[2 + k] -= w; }
   const k = Array.from(kepler(q.m[0], q.m[1], q.p[0], q.p[1], q.p[2], q.p[3], q.v[0], q.v[1], q.v[2], q.v[3]));
   const curve = Array.from(kepler_paths(q.m[0], q.m[1], q.p[0], q.p[1], q.p[2], q.p[3], q.v[0], q.v[1], q.v[2], q.v[3], 240, 10));
-  const T = k[5], rows = Array.from(run(q.m, q.p, q.v, EPS, 2 * T, T / 200));
+  const T = k[5], rows = Array.from(run(q.m, q.p, q.v, EPS, 2 * T, T / 200));   // run() stops early if the pair is too slow to follow
   const comp = [[], []]; for (let r = 0; r + 7 <= rows.length; r += 7) { comp[0].push(rows[r + 1], rows[r + 2]); comp[1].push(rows[r + 3], rows[r + 4]); }
   // where the computed path ended up after exactly one lap of the formula's period, against the start
   const back = comp[0].length > 401 ? Math.hypot(comp[0][400] - comp[0][0], comp[0][401] - comp[0][1]) : NaN;
@@ -323,7 +335,7 @@ function prep3() {
   }
   s.free();
   const t = new System(st.m, st.p, st.v, EPS), truth = [st.p[2 * i], st.p[2 * i + 1]];
-  for (let n = 0; n < 120; n++) { t.advance(N * h / 120); const q = t.positions(); truth.push(q[2 * i], q[2 * i + 1]); }
+  for (let n = 0; n < 120 && t.steps() < FIG_STEPS; n++) { t.advance(N * h / 120); const q = t.positions(); truth.push(q[2 * i], q[2 * i + 1]); }
   t.free();
   const end = steps[N - 1].p1, miss = Math.hypot(end[0] - truth[truth.length - 2], end[1] - truth[truth.length - 1]);
   return { steps, truth, miss, i, N, h };
@@ -417,7 +429,7 @@ function prep6() {
     const ke = [0, 1, 2].map(i => 0.5 * m[i] * (v[2 * i] ** 2 + v[2 * i + 1] ** 2));
     const pe = pairs.map(([i, j]) => -m[i] * m[j] / Math.sqrt((p[2 * j] - p[2 * i]) ** 2 + (p[2 * j + 1] - p[2 * i + 1]) ** 2 + EPS * EPS));
     rows.push({ t: s.time(), ke, pe, K: sum(ke), P: sum(pe) });
-    if (s.stalled()) break;
+    if (s.stalled() || s.steps() > FIG_STEPS) break;
   }
   s.free();
   const E = rows[0].K + rows[0].P, med = rows.map(r => -r.P).sort((a, b) => a - b)[rows.length >> 1];

@@ -110,7 +110,7 @@ fn step_size(m: &[f64], p: &[f64], eps: f64) -> f64 {
 
 /// The system, stepped forward. `advance` takes the adaptive leapfrog steps needed to cover dt.
 #[wasm_bindgen]
-pub struct System { m: Vec<f64>, p: Vec<f64>, v: Vec<f64>, a: Vec<f64>, eps: f64, t: f64, stalled: bool }
+pub struct System { m: Vec<f64>, p: Vec<f64>, v: Vec<f64>, a: Vec<f64>, eps: f64, t: f64, stalled: bool, steps: f64 }
 
 #[wasm_bindgen]
 impl System {
@@ -118,12 +118,12 @@ impl System {
     #[wasm_bindgen(constructor)]
     pub fn new(m: &[f64], p: &[f64], v: &[f64], eps: f64) -> System {
         let n = check(m, p, v);
-        let mut s = System { m: m.to_vec(), p: p.to_vec(), v: v.to_vec(), a: vec![0.0; 2 * n], eps: eps.abs(), t: 0.0, stalled: false };
+        let mut s = System { m: m.to_vec(), p: p.to_vec(), v: v.to_vec(), a: vec![0.0; 2 * n], eps: eps.abs(), t: 0.0, stalled: false, steps: 0.0 };
         s.refresh();
         s
     }
     /// A copy that runs on its own (for the ghost).
-    pub fn copy(&self) -> System { System { m: self.m.clone(), p: self.p.clone(), v: self.v.clone(), a: self.a.clone(), eps: self.eps, t: self.t, stalled: false } }
+    pub fn copy(&self) -> System { System { m: self.m.clone(), p: self.p.clone(), v: self.v.clone(), a: self.a.clone(), eps: self.eps, t: self.t, stalled: false, steps: 0.0 } }
 
     fn refresh(&mut self) { accel_into(&self.m, &self.p, self.eps, &mut self.a); }
 
@@ -135,6 +135,7 @@ impl System {
         self.refresh();
         for k in 0..self.v.len() { self.v[k] += 0.5 * h * self.a[k]; }
         self.t += h;
+        self.steps += 1.0;
     }
 
     /// Move dt forward with adaptive steps (never larger than H_MAX nor what is left). Gives up
@@ -172,6 +173,10 @@ impl System {
     /// [energy, px, py, angular momentum, kinetic, potential].
     pub fn totals(&self) -> Vec<f64> { totals(&self.m, &self.p, &self.v, self.eps) }
     pub fn time(&self) -> f64 { self.t }
+    /// The size of the next small step (smaller the closer two bodies are).
+    pub fn next_step(&self) -> f64 { step_size(&self.m, &self.p, self.eps) }
+    /// How many small steps this system has taken so far (the work done: a close pass takes millions).
+    pub fn steps(&self) -> f64 { self.steps }
     pub fn set_time(&mut self, t: f64) { self.t = t; }
     pub fn softening(&self) -> f64 { self.eps }
     pub fn set_softening(&mut self, eps: f64) { self.eps = eps.abs(); self.refresh(); }
@@ -241,16 +246,21 @@ pub fn run_fixed(m: &[f64], p: &[f64], v: &[f64], eps: f64, t_end: f64, stride: 
 fn sample(m: &[f64], p: &[f64], v: &[f64], eps: f64, t_end: f64, stride: f64, h: Option<f64>) -> Vec<f64> {
     let mut sys = System::new(m, p, v, eps);
     let stride = stride.max(1e-6);
-    let n = (t_end / stride).round().max(0.0) as usize;
+    // at most 20 000 rows, and at most SAMPLE_STEPS small steps: a wide, slow pair or a close pass must not
+    // freeze the page while a figure is worked out
+    let n = ((t_end / stride).round().max(0.0) as usize).min(20_000);
     let mut out = Vec::with_capacity((2 * m.len() + 3) * (n + 1));
     row(&mut out, &sys);
     for _ in 1..=n {
         match h { Some(h) => sys.advance_fixed(stride, h), None => sys.advance(stride) }
         row(&mut out, &sys);
-        if sys.stalled { break; }
+        if sys.stalled || sys.steps > SAMPLE_STEPS { break; }
     }
     out
 }
+
+/// The most small steps one sampled run may take (a few tenths of a second of work).
+pub const SAMPLE_STEPS: f64 = 3e6;
 
 /// Two runs, one from the given state and one with body i's velocity multiplied by (1 + f):
 /// rows of [t, gap], where gap is the distance between the two copies (all bodies), every `stride`.
@@ -260,14 +270,16 @@ pub fn diverge(m: &[f64], p: &[f64], v: &[f64], eps: f64, i: usize, f: f64, t_en
     let mut b = a.copy();
     b.nudge_velocity(i, f);
     let stride = stride.max(1e-6);
-    let n = (t_end / stride).round().max(0.0) as usize;
+    // at most 20 000 rows, and at most SAMPLE_STEPS small steps: a wide, slow pair or a close pass must not
+    // freeze the page while a figure is worked out
+    let n = ((t_end / stride).round().max(0.0) as usize).min(20_000);
     let mut out = vec![0.0, a.distance_to(&b)];
     for k in 1..=n {
         a.advance(stride);
         b.advance(stride);
         out.push(k as f64 * stride);
         out.push(a.distance_to(&b));
-        if a.stalled || b.stalled { break; }
+        if a.stalled || b.stalled || a.steps + b.steps > SAMPLE_STEPS { break; }
     }
     out
 }
@@ -619,5 +631,23 @@ mod tests {
         for i in 0..4 { assert!(q[2 * i].abs() < 1.0 && (q[2 * i].abs() - q[2 * i + 1].abs()).abs() < 1e-9); }
         assert_eq!(forces(&m, &p, 0.0).len(), 8);
         assert_eq!(pulls(&m, &p, 0.0, 2).len(), 9);
+    }
+
+    #[test]
+    fn slow_or_tight_runs_stop_early_instead_of_freezing() {
+        use std::time::Instant;
+        // a light, slow, wide pair: bound, with a period of thousands of time units
+        let (m, p, v) = ([0.002, 0.002, 1.0], [-4.0, 0.0, 4.0, 0.0, 0.0, 3.0], [0.0, 0.0045, 0.0, -0.0045, 0.3, 0.0]);
+        let t0 = Instant::now();
+        let rows = run(&m, &p, &v, 1e-4, 1e7, 1e7 / 200.0);
+        assert!(rows.len() >= 9, "at least the start");
+        let gap = diverge(&m, &p, &v, 1e-4, 0, 1e-6, 1e7, 1e5);
+        assert!(gap.len() >= 2);
+        // two bodies passing a thousandth apart
+        let tight = run(&[1.0, 1.0, 1.0], &[-0.001, 0.0, 0.001, 0.0, 3.0, 0.0], &[0.0, 3.0, 0.0, -3.0, 0.0, 0.2], 1e-4, 50.0, 0.25);
+        assert!(tight.len() >= 9);
+        assert!(t0.elapsed().as_secs_f64() < 5.0, "took {:?}", t0.elapsed());
+        // a huge t_end with a tiny stride does not ask for billions of rows
+        assert!(run(&m, &p, &v, 1e-4, 1e9, 1e-6).len() <= 9 * 20_001);
     }
 }
