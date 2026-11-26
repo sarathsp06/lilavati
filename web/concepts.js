@@ -52,8 +52,10 @@ export const CONCEPTS = [
   // the person's list of 2026-11-25, in their order; each page gets its preview from web/<slug>/preview.js
   { slug: 'monty-hall', hook: 'Why you should always switch doors', tagline: 'Three doors, one car, one goat revealed. Switching wins twice as often, and you can prove it by playing.', name: 'The Monty Hall problem', status: 'soon', topic: 'Probability', level: 'Starter', color: '#b45309', previewFile: true,
     idea: 'Your first pick is right one time in three; the host\u2019s reveal moves the other two-thirds onto one door.', related: ['nash-equilibrium'] },
-  { slug: 'brachistochrone', hook: 'The fastest slide is not the straight one', tagline: 'Drop steeply first, then coast: the curve that beats the straight line every time.', name: 'The brachistochrone', status: 'soon', topic: 'Calculus', level: 'Curious', color: '#0e7490', previewFile: true,
-    idea: 'The quickest path between two points under gravity is a cycloid, found by comparing whole paths, not points.', related: ['derivatives', 'orbits'] },
+  { slug: 'brachistochrone', hook: 'The fastest slide is not the straight one', tagline: 'Drop steeply first, then coast: the curve that beats the straight line every time.', name: 'The brachistochrone', status: 'live', topic: 'Calculus', level: 'Curious', color: '#0e7490', previewFile: true,
+    idea: 'The quickest path between two points under gravity is a cycloid, found by comparing whole paths, not points.',
+    blurb: 'Race balls down a straight line, a circle arc and a cycloid, draw your own track, and see why the curve that drops first wins.',
+    related: ['derivatives', 'orbits'] },
   { slug: 'chaos', hook: 'Why the weather forecast stops at ten days', tagline: 'Two almost identical starts, two completely different futures. Deterministic, yet unpredictable.', name: 'Chaos and the butterfly effect', status: 'soon', topic: 'Dynamics', level: 'Curious', color: '#7c2d12', previewFile: true,
     idea: 'Simple rules can amplify a tiny difference until the future is unknowable in practice.', related: ['three-body-problem', 'derivatives'] },
   { slug: 'three-body-problem', hook: 'Why three planets can\u2019t be predicted forever', tagline: 'Two bodies dance in ellipses. Add a third and the dance turns to chaos.', name: 'The three-body problem', status: 'soon', topic: 'Gravity and space', level: 'Curious', color: '#1d4ed8', previewFile: true,
