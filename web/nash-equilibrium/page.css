@@ -1,0 +1,8 @@
+/* The idea: a 2×2 game with arrows showing who would switch from each cell */
+.idea-controls { display: flex; flex-wrap: wrap; gap: .6rem 1.6rem; align-items: center; margin: .4rem 0; }
+.idea-controls label { display: flex; gap: .5rem; align-items: center; margin: 0; }
+.idea-controls select { width: auto; margin: 0; }
+.idea-story { max-width: 68ch; margin: .4rem 0; }
+.idea-fig { margin: .6rem 0 .4rem; border: 1px solid var(--line); border-radius: 14px; background: #fff; overflow: hidden; max-width: 760px; }
+.idea-fig canvas { display: block; width: 100%; cursor: pointer; touch-action: manipulation; }
+.idea-fig figcaption { padding: .4rem .8rem .6rem; }

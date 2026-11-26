@@ -1,7 +1,8 @@
 // The Nash equilibrium page: guess two-thirds of the average. A table of you, computer players and
 // (with Together) friends; hidden guesses until the reveal (game.js); the maths from Rust
-// (pkg/lilavati.js, games module); six step-by-step figures drawn from the last round.
-import init, { average, target, winners, computer_guesses, level_guess, iterate_replies } from '../pkg/lilavati.js';
+// (pkg/lilavati.js, games module); six step-by-step figures drawn from the last round. Before the game,
+// "The idea": a game of two players with two choices each, with arrows for who would switch (switch_gains).
+import init, { average, target, winners, computer_guesses, level_guess, iterate_replies, switch_gains } from '../pkg/lilavati.js';
 import { createGame, P } from './game.js';
 import { share, room } from '../together/share.js';
 
@@ -333,11 +334,129 @@ const TRY = [
 ];
 for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('click', () => { TRY[+b.dataset.try](); $('play').scrollIntoView({ behavior: 'smooth' }); });
 
+// ---------- The idea: a 2×2 game, and who would switch from each cell ----------
+// you pick the row, they pick the column; points per cell row by row: [row 1 col 1, row 1 col 2, row 2 col 1, row 2 col 2]
+const GAMES = [
+  { names: ['High price', 'Low price'], you: [3, 0, 5, 1], them: [3, 5, 0, 1],
+    story: 'You and the shop across the street sell the same thing and each pick a price. Both high: 3 points of profit each. If one goes low, it takes the customers: 5 points for it, 0 for the one still high. Both low: 1 point each.',
+    end: 'Both shops would make 3 at high prices, yet from there each one gains by going low alone. The only cell nobody leaves is both low, with 1 point each: an equilibrium that is worse for both of them. (Game theorists call this shape the prisoner\'s dilemma.)' },
+  { names: ['Café', 'Cinema'], you: [2, 0, 0, 1], them: [2, 0, 0, 1],
+    story: 'You and a friend meant to meet, but both phones are dead. Each of you goes to the café or the cinema. Meeting at the café: 2 points each (you both like it more). Meeting at the cinema: 1 point each. Missing each other: 0.',
+    end: 'Two cells have no arrow out: a game can have more than one equilibrium. Meeting at the café is better for both, but once you are both at the cinema, neither gains by leaving alone either.' },
+  { names: ['Left', 'Right'], you: [0, 1, 1, 0], them: [1, 0, 0, 1],
+    story: 'You take a penalty kick and they keep goal. You kick left or right; they dive left or right (the same sides of the goal). If they dive the way you kick, they save it: 1 point to them. If not, you score: 1 point to you.',
+    end: 'The arrows go round in a circle: in every cell someone wants to switch, so there is no equilibrium in plain choices. Nash proved there always is one if players may choose at random: kick each side half the time and dive each side half the time, and then neither of you can do better by changing.' },
+];
+const ideaCv = $('ideaCanvas'), ideaC = ideaCv.getContext('2d');
+const GOLD_BG = '#fef3c7', GOLD_INK = '#92400e';
+let ideaCell = 0, ideaGrow = 1, ideaLast = 0, ideaBox = null, ideaSeen = false;
+const ideaGame = () => Math.min(2, Math.max(0, +$('ideaGame').value | 0));
+const otherRow = i => (1 - (i >> 1)) * 2 + (i & 1), otherCol = i => (i & 2) + (1 - (i & 1));
+
+function arrow(c, x0, y0, x1, y1, col, w) {
+  const a = Math.atan2(y1 - y0, x1 - x0), h = 4 + 2.6 * w;
+  c.strokeStyle = c.fillStyle = col; c.lineWidth = w; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1 - Math.cos(a) * h * 0.7, y1 - Math.sin(a) * h * 0.7); c.stroke();
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - h * Math.cos(a - 0.45), y1 - h * Math.sin(a - 0.45)); c.lineTo(x1 - h * Math.cos(a + 0.45), y1 - h * Math.sin(a + 0.45)); c.closePath(); c.fill();
+}
+
+function drawIdea() {
+  const g = GAMES[ideaGame()], gains = Array.from(switch_gains(F(g.you), F(g.them)));
+  const W = Math.round(ideaCv.clientWidth || 700), narrow = W < 560, dpr = devicePixelRatio || 1;
+  const pad = 12, LW = narrow ? 92 : 140, legendH = 66, HH = 46, ch = narrow ? 118 : 132;
+  const cw = (W - LW - pad) / 2, gx = LW, gy = pad + legendH + HH, H = Math.round(gy + 2 * ch + pad);
+  if (ideaCv.width !== Math.round(W * dpr) || ideaCv.height !== Math.round(H * dpr)) { ideaCv.width = Math.round(W * dpr); ideaCv.height = Math.round(H * dpr); ideaCv.style.height = H + 'px'; }
+  const c = ideaC; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
+  ideaBox = { gx, gy, cw, ch };
+  // the legend
+  c.font = `${narrow ? 13 : 14}px system-ui`; c.textBaseline = 'middle'; c.textAlign = 'left';
+  const legend = [[ACC, 'red arrow: you would gain by switching row'], [BLUE, 'blue arrow: they would gain by switching column'], [GOLD_BG, 'gold cell: nobody would, a Nash equilibrium']];
+  const lx = pad; let ly = pad + 10;
+  for (const [col, text] of legend) {
+    c.fillStyle = col; c.fillRect(lx, ly - 5, 14, 10); if (col === GOLD_BG) { c.strokeStyle = GOLD; c.lineWidth = 1; c.strokeRect(lx + 0.5, ly - 4.5, 13, 9); } c.fillStyle = INK; c.fillText(text, lx + 20, ly);
+    ly += 21;
+  }
+  // headers: their choices across the top, yours down the side
+  c.textAlign = 'center';
+  for (let k = 0; k < 2; k++) {
+    const x = gx + cw * (k + 0.5);
+    c.fillStyle = BLUE; c.font = `${narrow ? 12 : 13}px system-ui`; c.fillText('they pick', x, gy - HH + 13);
+    c.font = `600 ${narrow ? 14 : 15}px system-ui`; c.fillText(g.names[k], x, gy - 13);
+    const y = gy + ch * (k + 0.5);
+    c.textAlign = 'right'; c.fillStyle = ACC; c.font = `${narrow ? 12 : 13}px system-ui`; c.fillText('you pick', gx - 10, y - 10);
+    c.font = `600 ${narrow ? 14 : 15}px system-ui`; c.fillText(g.names[k], gx - 10, y + 10); c.textAlign = 'center';
+  }
+  // the four cells
+  for (let i = 0; i < 4; i++) {
+    const r = i >> 1, k = i & 1, x = gx + k * cw, y = gy + r * ch, eq = gains[i] === 0;
+    c.fillStyle = eq ? GOLD_BG : '#fafaf9'; c.fillRect(x, y, cw, ch);
+    c.strokeStyle = 'rgba(28,25,23,.25)'; c.lineWidth = 1; c.strokeRect(x + 0.5, y + 0.5, cw - 1, ch - 1);
+    const cx = x + cw / 2, cy = y + ch / 2;
+    c.font = `700 ${narrow ? 15 : 17}px system-ui`;
+    c.fillStyle = ACC; c.fillText(`you ${g.you[i]}`, cx, cy - 11);
+    c.fillStyle = BLUE; c.fillText(`them ${g.them[i]}`, cx, cy + 11);
+    if (eq) { c.fillStyle = GOLD_INK; c.font = `600 ${narrow ? 12 : 13}px system-ui`; c.fillText(narrow ? 'equilibrium' : 'Nash equilibrium', cx, r ? y + ch - 13 : y + 13); }
+  }
+  // the cell being read: a dark frame, and rings round the two numbers it is compared with
+  const s = ideaCell, sx = gx + (s & 1) * cw, sy = gy + (s >> 1) * ch;
+  c.strokeStyle = INK; c.lineWidth = 3; c.strokeRect(sx + 2, sy + 2, cw - 4, ch - 4);
+  const ring = (i, dy, col) => { const x = gx + ((i & 1) + 0.5) * cw, y = gy + ((i >> 1) + 0.5) * ch + dy; c.strokeStyle = col; c.lineWidth = 1.5; c.setLineDash([4, 3]); c.beginPath(); c.ellipse(x, y, narrow ? 36 : 44, 12, 0, 0, 2 * Math.PI); c.stroke(); c.setLineDash([]); };
+  ring(s, -11, ACC); ring(otherRow(s), -11, ACC); ring(s, 11, BLUE); ring(otherCol(s), 11, BLUE);
+  // the arrows, growing in after a change of game
+  const t = ideaGrow < 0 ? 0 : 1 - (1 - ideaGrow) ** 3;
+  for (let i = 0; i < 4; i++) {
+    const r = i >> 1, k = i & 1;
+    if (gains[i] & 1) {   // you would switch row: a vertical arrow across the middle line, in this column
+      const x = gx + (k + 0.5) * cw, yb = gy + ch, a = Math.min(0.24 * ch, 32), d = r ? -1 : 1;
+      arrow(c, x, yb - d * a, x, yb - d * a + d * 2 * a * Math.max(t, 0.05), ACC, i === s ? 5 : 3.5);
+    }
+    if (gains[i] & 2) {   // they would switch column: a horizontal arrow across the middle line, in this row
+      const y = gy + (r + 0.5) * ch, xb = gx + cw, a = Math.min(0.2 * cw, 34), d = k ? -1 : 1;
+      arrow(c, xb - d * a, y, xb - d * a + d * 2 * a * Math.max(t, 0.05), y, BLUE, i === s ? 5 : 3.5);
+    }
+  }
+}
+
+function ideaWords() {
+  const g = GAMES[ideaGame()], gains = Array.from(switch_gains(F(g.you), F(g.them))), s = ideaCell;
+  const r = s >> 1, k = s & 1, n = g.names, yo = g.you[otherRow(s)], to = g.them[otherCol(s)];
+  $('ideaStory').textContent = g.story;
+  const eqs = gains.map((v, i) => (v === 0 ? `(${n[i >> 1]}, ${n[i & 1]})` : null)).filter(Boolean);
+  $('ideaCap').textContent = `Tap a cell to read it. ${eqs.length ? `Nash equilibri${eqs.length > 1 ? 'a' : 'um'} (your choice, theirs): ${eqs.join(' and ')}.` : 'No cell without an arrow out: no equilibrium in plain choices.'}`;
+  const yes = (a, b) => (a >= b ? `${a} ≥ ${b} ✓` : `${a} ≥ ${b} ✗`);
+  $('ideaFormula').textContent = `(${n[r]}, ${n[k]}):  you ${yes(g.you[s], yo)}   them ${yes(g.them[s], to)}   ⇒  ${gains[s] ? 'not an equilibrium' : 'Nash equilibrium'}`;
+  const youPart = g.you[s] >= yo ? `If you switched to ${n[1 - r]} on your own you would get ${yo}, no more, so you stay.` : `If you switched to ${n[1 - r]} on your own you would get ${yo}, more, so you would switch: the red arrow.`;
+  const themPart = g.them[s] >= to ? `If they switched to ${n[1 - k]} they would get ${to}, no more, so they stay.` : `If they switched to ${n[1 - k]} they would get ${to}, more, so they would switch: the blue arrow.`;
+  $('ideaSay').innerHTML = `Read the line above as: in the cell where you pick <strong>${n[r]}</strong> and they pick <strong>${n[k]}</strong>, are your points at least what you would get in the other row (same column), and are theirs at least what they would get in the other column (same row)? `
+    + `Here you get ${g.you[s]}. ${youPart} They get ${g.them[s]}. ${themPart} ${gains[s] ? 'Somebody gains by moving alone, so this is not an equilibrium.' : 'Nobody gains by moving alone: this cell is a Nash equilibrium.'}<br><br>${g.end}`;
+}
+function ideaShow() { ideaWords(); drawIdea(); }
+function ideaPick(e) {
+  if (!ideaBox) return;
+  const rc = ideaCv.getBoundingClientRect(), x = e.clientX - rc.left - ideaBox.gx, y = e.clientY - rc.top - ideaBox.gy;
+  if (x < 0 || y < 0 || x >= 2 * ideaBox.cw || y >= 2 * ideaBox.ch) return;
+  ideaCell = (y >= ideaBox.ch ? 2 : 0) + (x >= ideaBox.cw ? 1 : 0); ideaShow();
+}
+ideaCv.addEventListener('click', ideaPick);
+$('ideaGame').addEventListener('change', () => { ideaCell = 0; ideaGrow = 0; ideaShow(); });
+new IntersectionObserver(es => { for (const e of es) ideaSeen = e.isIntersecting; }).observe(ideaCv);
+(function ideaFrame(now) {
+  if (ideaSeen && ideaGrow < 1) { ideaGrow = Math.min(1, ideaGrow + (now - ideaLast) / 700); drawIdea(); }
+  ideaLast = now; requestAnimationFrame(ideaFrame);
+})(performance.now());
+// the shared part (see share() below): which game and which cell is being read
+function ideaAdopt(v) {
+  if (!Array.isArray(v) || v.length !== 2 || !v.every(Number.isInteger) || v[0] < 0 || v[0] > 2 || v[1] < 0 || v[1] > 3) return;
+  if (String(v[0]) !== $('ideaGame').value) { $('ideaGame').value = String(v[0]); ideaGrow = 0; }
+  ideaCell = v[1]; ideaShow();
+}
+
 // ---------- start ----------
-seat(); panel(); draw(); requestAnimationFrame(frame);
-addEventListener('resize', draw);
+seat(); panel(); draw(); ideaShow(); requestAnimationFrame(frame);
+addEventListener('resize', () => { draw(); drawIdea(); });
 // Together (together/share.js): the rounds so far, for someone who joins; never a hidden guess
-share(() => ({ ...game.snapshot(), cpu: +$('cpu').value }), s => {
+share(() => ({ ...game.snapshot(), cpu: +$('cpu').value, idea: [ideaGame(), ideaCell] }), s => {
+  if (s && 'idea' in s) ideaAdopt(s.idea);
   if (s && 'cpu' in s) setCpu(s.cpu);
   if (game.adopt(s)) { shownRounds = game.state.history.length; revealT = 1; panel(); draw(); }
 });

@@ -7,6 +7,7 @@
   <meta name="description" content="Everyone picks a number from 0 to 100; whoever is closest to two-thirds of the average wins. Levels of thinking, best replies and the Nash equilibrium.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
 </head>
 <body data-concept="nash-equilibrium">
   <main class="container">
@@ -19,7 +20,28 @@
 
     <section id="what" data-label="What it is" class="block what reveal">
       <h2>What a Nash equilibrium is</h2>
-      <p>A <strong>Nash equilibrium</strong> is a situation in a game where nobody can do better by changing their own choice alone, given what everyone else is doing. It is not necessarily the best outcome for the group; it is simply the point where every player's choice is the best reply to everyone else's, so nobody has a reason to move.</p><p>On this page the game is guess two-thirds of the average. The equilibrium is 0, because 0 is the only guess that is its own best reply, and you watch real players, and computer players, walk towards it round by round.</p>
+      <p>A <strong>Nash equilibrium</strong> is a set of choices, one per player, where nobody can do better by changing only their own choice.</p>
+      <ul>
+        <li><strong>The players</strong> each pick a move, and what each one gets depends on what the others pick too.</li>
+        <li><strong>A best reply</strong> is the move that gets you the most, given what the others are doing.</li>
+        <li><strong>At an equilibrium</strong> everyone is already playing a best reply, so nobody has a reason to move on their own.</li>
+        <li><strong>It need not be good for the group.</strong> Everyone together could be better off somewhere else, yet nobody gets there by moving alone.</li>
+      </ul>
+      <p>Just below, the idea on a game of two players with two choices each. Then the big game: everyone guesses two-thirds of the average, and the equilibrium is 0.</p>
+    </section>
+
+    <section id="idea" data-label="The idea" class="block reveal">
+      <h2>The idea on a game of two choices</h2>
+      <p class="lead">Two players, two choices each, so four possible outcomes: the four cells of the table. You pick the row, they pick the column. Each cell says how many points each of you gets. From each cell an arrow shows who would switch, on their own, to get more. A cell with no arrow leaving it is a Nash equilibrium.</p>
+      <div class="idea-controls">
+        <label>Game <select id="ideaGame"><option value="0" selected>two shops set a price</option><option value="1">meeting up, phones dead</option><option value="2">a penalty kick</option></select></label>
+      </div>
+      <p id="ideaStory" class="idea-story"></p>
+      <figure class="idea-fig"><canvas id="ideaCanvas" aria-label="A table of two choices for you and two for them, with arrows showing who would switch from each cell"></canvas>
+        <figcaption id="ideaCap"></figcaption></figure>
+      <p class="formula" id="ideaFormula"></p>
+      <p id="ideaSay"></p>
+      <p>The guessing game below works the same way, only with many players and every number from 0 to 100 as a choice: there the only cell with no arrow out is everyone guessing 0.</p>
     </section>
 
     <section id="play" data-label="Play">
