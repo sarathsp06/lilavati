@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why three planets can’t be predicted forever · The three-body problem · Lilavati</title>
+  <meta name="description" content="Two bodies under gravity follow an ellipse for ever. Add a third and there is no formula: drag three suns, watch the figure eight and the Pythagorean problem, and see two almost identical starts drift apart.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body data-concept="three-body-problem">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Why three planets can’t be predicted forever</h1>
+      <p class="idea">Two bodies dance in ellipses. Add a third and the dance turns to chaos.</p>
+      <p>Below, three bodies pull on each other by gravity, and the computer works out their paths a tiny step at a time. Pick a famous starting position, drag the bodies around, change their masses, and switch on a twin that starts a millionth away to see how far ahead anyone can really predict.</p>
+    </header>
+
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What the three-body problem is</h2>
+      <p>The <strong>three-body problem</strong> asks: if you know where three bodies are and how they are moving, and each pulls on the other two by gravity, where will they be later? For two bodies the answer is a formula: each moves on an ellipse (or flies off on an open curve) for ever, and you can write down where it will be at any time. For three there is no such formula in general. Their paths can only be computed step by step, and in general they are <strong>chaotic</strong>: a tiny change in the start grows until the prediction is worthless.</p>
+      <p>On this page the three bodies are suns, planets or moons in a flat plane. The computer applies Newton's law of gravity over and over in very small time steps; that is exactly how astronomers and space agencies predict real orbits, too.</p>
+    </section>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="sky" width="900" height="640" aria-label="Three bodies moving under gravity"></canvas>
+          <div class="under">
+            <div class="ctl">
+              <button id="playBtn">Pause</button>
+              <button id="restart" class="outline">Back to the start</button>
+              <select id="setup" aria-label="Pick a starting setup">
+                <option value="eight">Figure eight</option>
+                <option value="lagrange">Triangle (Lagrange)</option>
+                <option value="sun-planet-moon">Sun, planet and moon</option>
+                <option value="two-suns">Planet round two suns</option>
+                <option value="pythagorean">Pythagorean: 3, 4, 5 at rest</option>
+                <option value="custom" hidden>Your own</option>
+              </select>
+            </div>
+            <p class="say" id="say"></p>
+          </div>
+        </div>
+        <aside class="panel">
+          <h4>Masses</h4>
+          <div id="masses"></div>
+          <h4>Show</h4>
+          <fieldset class="row shows">
+            <label><input type="checkbox" id="twin"> twin, a millionth off</label>
+            <label><input type="checkbox" id="pullsOn"> pulls</label>
+            <label><input type="checkbox" id="trailsOn" checked> trails</label>
+          </fieldset>
+          <label>Time speed <strong id="rateVal"></strong>
+            <input type="range" id="rate" min="-2" max="3" step="0.05" value="0.6">
+          </label>
+          <p class="hint-s" id="note"></p>
+          <p class="hint-s">Drag a body to move it. Drag the round handle at the end of its arrow to change its speed and direction. Any change starts a new run from there.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Watch the figure eight, then switch on the twin.</strong> <span>Three equal suns chase each other round one figure-eight curve. The twin, started a millionth away, stays on top of it for a long time: this orbit is stable, so small errors grow only slowly.</span><button class="outline" data-try="eight">Show me</button></li>
+        <li><strong>Pick the Pythagorean setup with the twin on.</strong> <span>Masses 3, 4 and 5 start at rest on a 3-4-5 triangle. They tangle in close passes, and at one of them the twin suddenly goes its own way. In the end one body is thrown out for good.</span><button class="outline" data-try="pyth">Show me</button></li>
+        <li><strong>Pick the triangle and wait.</strong> <span>Three equal suns at the corners of a turning triangle are perfectly balanced, but only on a knife edge. Rounding errors of a millionth of a millionth grow until the triangle breaks apart.</span><button class="outline" data-try="tri">Show me</button></li>
+        <li><strong>Pick the sun, planet and moon, then make the moon heavier.</strong> <span>With a tiny moon it is nearly two separate two-body problems, and both are ellipses. Raise the moon's mass towards the planet's and the pair start pushing each other off course.</span><button class="outline" data-try="moon">Show me</button></li>
+        <li><strong>Drag one sun of the figure eight a little.</strong> <span>A small push and it still loops, roughly. A bigger one and the dance falls apart, often with one body flung away and the other two left circling each other.</span></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>From one pull to chaos, step by step</h2>
+      <p class="lead">These pictures follow what is in the toy above: the bodies, masses and starting setup you have there now.</p>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">1</span>Each body feels two pulls, and they add like arrows</h3>
+          <p>Newton's law says any two bodies pull on each other along the line between them, with a strength of G·m₁·m₂ / r²: the two masses multiplied together, divided by the distance r times itself. G is the gravitational constant; on this page the units are chosen so that G = 1. Twice as far away means a quarter of the pull.</p>
+          <p>A body in a three-body system feels two such pulls at once, one from each of the others. Put the second arrow on the tip of the first and the arrow from the start to the end is the total pull. That total, divided by the body's own mass, is how fast its velocity is changing right now.</p>
+          <div class="row figctl" role="group" aria-label="Choose the body">
+            <span class="muted">Pulls on:</span>
+            <button class="outline on" data-f1="0">body 1</button><button class="outline" data-f1="1">body 2</button><button class="outline" data-f1="2">body 3</button>
+          </div>
+        </div>
+        <figure><canvas id="ex1" width="600" height="420"></canvas><figcaption id="cap1">The two pulls on one body, from the toy as it is now, added tip to tail.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">2</span>With only two bodies there is a formula</h3>
+          <p>Take away the third body and the problem can be solved on paper, as Newton did in 1687. Both bodies swing round their shared centre of mass on ellipses (or, if they are fast enough, on open curves and never meet again). From the start alone, the formula gives the ellipse's size and shape and the time for one lap.</p>
+          <p>The dashed curves here come from that formula. The solid lines are the computer's step-by-step paths for the same two bodies. They land on the dashed curves and stay there, lap after lap. This is what a "solved" problem looks like, and it is exactly what three bodies don't have.</p>
+        </div>
+        <figure><canvas id="ex2" width="600" height="420"></canvas><figcaption id="cap2">Bodies 1 and 2 from the toy, with body 3 taken away.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">3</span>Without a formula: kick, drift, kick</h3>
+          <p>For three bodies the computer moves time forward in small steps of length h. In each step it gives the velocity half a step's worth of the pull (a <em>kick</em>: velocity changes by h/2 times the acceleration), moves the body in a straight line along that velocity for time h (a <em>drift</em>), then measures the pull at the new place and gives the second half kick.</p>
+          <p>In the picture, the green arrow is where the body would go in one step if nothing pulled it, the pink arrow is what the pulls add, and the blue arrow is the move it makes. The grey line is the true path, from steps a thousand times smaller. Large steps cut the corners.</p>
+          <div class="row figctl" role="group" aria-label="Choose the step size">
+            <span class="muted">Step size h:</span>
+            <button class="outline" data-h="0.1">0.1</button><button class="outline on" data-h="0.3">0.3</button><button class="outline" data-h="0.6">0.6</button>
+          </div>
+        </div>
+        <figure><canvas id="ex3" width="600" height="420"></canvas><figcaption id="cap3">Steps of one body, starting from the toy as it is now.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">4</span>Smaller steps, smaller errors</h3>
+          <p>Every step makes a small error, and the errors add up. Halve the step and the error per lap drops to about a quarter, but you need twice as many steps. Run your setup with three fixed step sizes and the paths fan out; the biggest step is the first to go wrong, usually at a close pass, where the pull changes fastest.</p>
+          <p>That is why the toy uses <em>adaptive</em> steps: very short when two bodies are close, longer when they are far apart. Even so, every computed path is an approximation, and step 5 shows why that matters so much for three bodies.</p>
+        </div>
+        <figure><canvas id="ex4" width="600" height="420"></canvas><figcaption id="cap4">Body 1 from your starting setup, computed with three fixed step sizes.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">5</span>Two starts a millionth apart</h3>
+          <p>Start your setup twice: once as it is, once with body 1 moving a millionth faster. At every moment, measure the gap between the two copies (all three bodies' distances combined). The lower graph plots that gap, on a scale where each line up is ten times bigger.</p>
+          <p>In a stable setup like the figure eight the gap creeps up slowly, roughly in proportion to the time. In a chaotic one it multiplies again and again, often jumping a hundredfold at a single close pass, until the two copies have nothing to do with each other. Any error, in a measurement or in a computer's step, behaves the same way. That is what stops long-range prediction.</p>
+        </div>
+        <figure><canvas id="ex5" width="600" height="470"></canvas><figcaption id="cap5">Top: body 1 in both copies, with the gap drawn in red. Bottom: the gap over time.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">6</span>What never changes: the total energy</h3>
+          <p>Some things stay fixed however wild the dance. Each body carries movement energy ½·m·v² (half its mass times its speed squared). Each pair has a store of gravity energy −G·m₁·m₂ / r, negative and deeper the closer they are. Add all of them and the total never changes: when bodies fall together, the movement energy rises by exactly what the gravity energy drops.</p>
+          <p>The bars show both parts and their sum at the moment marked on the graph. The total's line stays flat even through close passes; that is how you check a computation is honest. Two other totals stay fixed too: the momentum, and the spin about the centre of mass.</p>
+        </div>
+        <figure><canvas id="ex6" width="600" height="420"></canvas><figcaption id="cap6">Your starting setup: movement energy, gravity energy and their total over time.</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: the bodies are numbered 1, 2, 3, and a small number under a letter says which body it belongs to. <strong>mᵢ</strong> ("m sub i") is the mass of body i, <strong>rᵢ</strong> its position (an arrow from the origin), <strong>vᵢ</strong> its velocity, <strong>aᵢ</strong> its acceleration. <strong>rᵢⱼ</strong> is the distance between bodies i and j. <strong>G</strong> is the gravitational constant (1 on this page), <strong>h</strong> the length of one time step, and <strong>Σ</strong> means "add these up". A dot · means "times".</p>
+      <div class="symbols">
+        <div><code class="formula">F = G · m₁ · m₂ / r²</code><p>In words: the pull between two bodies is the gravitational constant times both masses, divided by the square of the distance between them.</p></div>
+        <div><code class="formula">mᵢ · aᵢ = Σ (j ≠ i)  G · mᵢ · mⱼ · (rⱼ − rᵢ) / rᵢⱼ³</code><p>In words: body i's mass times its acceleration is the sum of the pulls from every other body j, each pointing from i towards j. (Dividing the arrow rⱼ − rᵢ by rᵢⱼ³ gives it length 1/rᵢⱼ².)</p></div>
+        <div><code class="formula">v ← v + (h/2) · a,   r ← r + h · v,   v ← v + (h/2) · a</code><p>In words: one step of the computation: half a kick to the velocity, a straight drift for time h, then the other half kick with the pull at the new place. The arrow ← means "replace with".</p></div>
+        <div><code class="formula">E = Σ ½ · mᵢ · vᵢ² − Σ (pairs) G · mᵢ · mⱼ / rᵢⱼ</code><p>In words: the total energy, all the movement energy minus all the pairs' gravity energy, stays the same at every moment.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Space telescopes parked in the sky.</strong> The James Webb Space Telescope circles a point about 1.5 million km beyond the Earth, where the Sun's and the Earth's pulls balance its motion: a Lagrange point, a special solution of the three-body problem.</li>
+        <li><strong>Getting to other planets.</strong> Spacecraft steal speed from a planet by swinging close past it (a gravity assist). Mission planners compute these paths step by step, exactly like the toy.</li>
+        <li><strong>Asteroids that share Jupiter's orbit.</strong> Thousands of Trojan asteroids gather 60° ahead of and behind Jupiter, at the corners of the Sun–Jupiter triangle. NASA's Lucy spacecraft is on its way to visit some of them.</li>
+        <li><strong>Eclipses and the Moon's wobbles.</strong> The Moon is pulled by the Earth and by the Sun. Its path is not a fixed ellipse, and predicting eclipses to the minute means following the Sun's pull on it too.</li>
+        <li><strong>Planets with two suns.</strong> Telescopes have found planets circling pairs of stars, like Tatooine in Star Wars. Whether such a planet can stay for billions of years is a three-body question, answered by computation.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>The prize that had to be pulped</h4><p>In 1889 Henri Poincaré won King Oscar II of Sweden's prize for work on the three-body problem. Then the editor's assistant, Lars Edvard Phragmén, found a gap, and Poincaré found a serious error. The printed copies were destroyed; Poincaré paid for the printing, over 3,500 crowns, more than the 2,500 crowns he had won. The corrected version (1890) contained the first glimpse of chaos.</p></article>
+        <article><h4>A formula that is useless</h4><p>In 1912 Karl Sundman found an infinite series that does solve the three-body problem. But it adds up so slowly that, by Beloriszky's 1930 estimate, astronomers would need about 10<sup>8,000,000</sup> terms for useful accuracy.</p></article>
+        <article><h4>Newton's headache</h4><p>Newton worked out the two-body problem in 1687, but the Moon, pulled by both the Earth and the Sun, defeated him. John Conduitt recorded John Machin's report that Newton said "his head never ached but with his studies on the moon".</p></article>
+        <article><h4>The figure eight</h4><p>The figure-eight orbit in the toy was found by computer by Cris Moore in 1993. Alain Chenciner and Richard Montgomery proved in 2000 that it really exists: three equal masses chasing each other round one curve, for ever.</p></article>
+        <article><h4>The Pythagorean problem</h4><p>Carl Burrau posed it in 1913: masses 3, 4 and 5 let go at rest on a 3-4-5 right triangle. Only in 1967 could Victor Szebehely and Frederick Peters compute the ending: the lightest body is thrown out, and the other two leave the other way as a pair.</p></article>
+        <article><h4>Thousands of new loops</h4><p>Closed, repeating three-body orbits are rare. In 2013 Milovan Šuvakov and Veljko Dmitrašinović found 13 new ones. By 2017 Xiaoming Li and Shijun Liao, searching with a supercomputer, had catalogued 695 families of them, more than 600 of them new.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "Chaotic means random." <strong>But:</strong> the toy has no randomness at all. The same start always gives the same future; it's just that almost the same start gives a completely different one.</li>
+        <li><strong>Not:</strong> "Nobody can solve the three-body problem, so we can't fly to the Moon." <strong>But:</strong> "no formula" isn't "no answer". Computers follow the paths step by step very accurately, for as long as the errors stay small enough.</li>
+        <li><strong>Not:</strong> "Three bodies are always chaotic." <strong>But:</strong> some setups are orderly for a very long time, like the figure eight, a sun with a small planet and moon, or the Earth, Moon and Sun. Chaos takes over when the bodies come close to each other.</li>
+        <li><strong>Not:</strong> "A better computer would fix it." <strong>But:</strong> in a chaotic setup each extra stretch of prediction needs many times more precision in the start, and real measurements are never exact.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://en.wikipedia.org/wiki/Three-body_problem" target="_blank" rel="noopener">Three-body problem</a><span>Wikipedia: the history, the special solutions, Sundman's series and the many-body problem.</span></li>
+        <li><a href="https://www.actamathematica.org/library/prize-competition/" target="_blank" rel="noopener">From Order to Chaos: the prize competition in honour of King Oscar II</a><span>Acta Mathematica: the story of Poincaré's prize and the edition that was destroyed.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Lagrange_point" target="_blank" rel="noopener">Lagrange point</a><span>Wikipedia: the five balance points of two bodies, and the spacecraft and asteroids that sit there.</span></li>
+        <li><a href="https://arxiv.org/abs/math/0011268" target="_blank" rel="noopener">Chenciner and Montgomery: A remarkable periodic solution of the three-body problem</a><span>The 2000 paper proving the figure eight exists (university-level mathematics).</span></li>
+        <li><a href="https://numericaltank.sjtu.edu.cn/three-body/three-body.htm" target="_blank" rel="noopener">Periodic orbits of the three-body problem</a><span>Shijun Liao's group: a catalogue of thousands of repeating orbits, with pictures.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>
