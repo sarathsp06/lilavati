@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why the weather forecast stops at ten days · Chaos and the butterfly effect · Lilavati</title>
+  <meta name="description" content="Two almost identical starts, two completely different futures. Run Lorenz's three equations, nudge the start by a millionth, and watch the two paths part: deterministic, yet unpredictable.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body data-concept="chaos">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Why the weather forecast stops at ten days</h1>
+      <p class="idea">Two almost identical starts, two completely different futures. Deterministic, yet unpredictable.</p>
+      <p>Below, two points follow the same three simple rules, Edward Lorenz's model of air rolling in a heated box. They start a millionth apart. For a while you can't tell them apart; then they part, and never meet again. Drag to turn the picture, change how far apart they start, and run a whole "weather forecast" of twenty starts.</p>
+    </header>
+
+    <section id="what" data-label="What it is" class="block what">
+      <h2>What chaos is</h2>
+      <p>Chaos is what happens when a system follows fixed rules with no randomness in them, yet a tiny change at the start grows so fast that the future soon becomes impossible to predict. The rules decide everything; the trouble is that no measurement of the start is exact, and the rules multiply that tiny error over and over until it is as big as the whole thing. The <em>butterfly effect</em> is the nickname for this: a flap of a wing today can decide which of many possible weathers you get in a fortnight. Chaos answers the question "if the laws are known, why can't we forecast?": because knowing the laws is not the same as knowing the start. On this page the rules are Lorenz's three equations for air rolling in a heated layer, the simplest famous example; the two paths below start a hair apart and follow those rules exactly.</p>
+    </section>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <div class="stage dark">
+            <canvas id="space" width="900" height="640" aria-label="Two paths through Lorenz's butterfly-shaped attractor, drawn in 3D"></canvas>
+          </div>
+          <div class="under">
+            <div class="ctl">
+              <button id="playBtn">Pause</button>
+              <button id="reset" class="outline">Reset</button>
+              <button id="forecast" class="outline">Weather forecast</button>
+              <label>Speed <strong id="speedVal"></strong><input type="range" id="speed" min="0" max="100" step="1" value="56"></label>
+            </div>
+            <p class="say" id="say"></p>
+          </div>
+        </div>
+        <aside class="panel">
+          <h4>The two starts</h4>
+          <label>Difference at the start <strong id="epsVal"></strong>
+            <input type="range" id="eps" min="0" max="60" step="1" value="0">
+          </label>
+          <p class="hint-s">From a millionth to 1 (the butterfly is about 40 across). Moving it starts the run again.</p>
+          <h4>Distance between the two</h4>
+          <canvas id="chart" width="400" height="230" aria-label="Distance between the two paths over time, on a log scale"></canvas>
+          <p class="hint-s" id="chartNote">Each grid line is 10 times the one below. A straight climb on this chart means the gap multiplies by the same amount every time unit.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Set the difference to a millionth and wait.</strong> <span>For about twelve time units the two dots sit on top of each other. Then they split, one to each wing, and from then on they have nothing to do with each other.</span><button class="outline" data-try="tiny">Show me</button></li>
+        <li><strong>Now set it to 1, ten thousand times bigger.</strong> <span>They part almost at once. But look at the chart: the gap of 1 only reaches the size of the butterfly about 15 time units sooner than the millionth did. Each 10× better start buys only about 2½ time units.</span><button class="outline" data-try="big">Show me</button></li>
+        <li><strong>Press "Weather forecast".</strong> <span>Twenty starts inside a ball a thousandth across, too small to see. The ball stretches into a thread, the thread folds, and soon the twenty are everywhere on the butterfly. A forecast that says "somewhere on here" is all that is left.</span><button class="outline" data-try="cloud">Show me</button></li>
+        <li><strong>Press Reset twice and watch the first few seconds each time.</strong> <span>Exactly the same path, twice. Nothing here is random: the same start always gives the same future. The problem is only that you never know the start exactly.</span><button class="outline" data-try="again">Show me</button></li>
+        <li><strong>Pause and drag the picture round.</strong> <span>Both paths lie on the same thin, folded surface. However far apart they are, neither ever leaves it. That shape is the attractor, and it is the same for every start.</span><button class="outline" data-try="turn">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>How a tiny difference becomes the whole future, step by step</h2>
+      <p class="lead">These pictures follow the run above: your starting gap, your two paths, right now.</p>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">1</span>The rules are simple and never change</h3>
+          <p>A point has three numbers, x, y and z (in Lorenz's model: how hard the air is rolling, and two measures of how the temperature is spread). The rules say how fast each one changes. Write dx/dt for "how fast x is changing", and they are three short lines: dx/dt = 10·(y − x), dy/dt = x·(28 − z) − y, dz/dt = x·y − (8/3)·z. Put in where the point is and out comes an arrow: which way it moves next, and how fast.</p>
+          <p>That's all. No dice, no noise, nothing hidden. The figure takes the orange point from your run, right now, and works out its arrow from the three lines.</p>
+        </div>
+        <figure><canvas id="ex1" width="640" height="400"></canvas><figcaption>Left: the orange point and the arrow the rules give it, built from its x-part (red), y-part (green) and z-part (blue). Right: the three lines with the point's numbers filled in; the three results are those parts.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">2</span>Following the arrows, one small step at a time</h3>
+          <p>There is no formula for where the point will be at time 10. The only way to find out is to take a small step along the arrow, ask the rules again, step again. The computer does that 200 times for each time unit (a step of 0.005).</p>
+          <p>A good step (Runge–Kutta) is a bit cleverer: it peeks at the arrow four times, once at the start (k₁), twice half a step along (k₂, k₃) and once at the end (k₄), and moves by their average, counting the middle two twice. h is the length of the step in time. Watch three steps being built at the orange point's next sharp turn, where the four peeks differ most. The figure uses a step of 0.08, sixteen times longer than the page's, so you can see them.</p>
+          <code class="formula">new point = point + h·(k₁ + 2·k₂ + 2·k₃ + k₄) / 6</code>
+          <p class="hint-s">In words: move for a time h along the average arrow, where the two middle peeks count double.</p>
+        </div>
+        <figure><canvas id="ex2" width="640" height="400"></canvas><figcaption>Three steps at the orange point's next sharp turn: four peeks at the arrow (thin, k₁ to k₄), their average (thick orange), then the point moves. Grey: the true path.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">3</span>The gap doubles about every 0.8 time units</h3>
+          <p>On an ordinary chart the gap between your two paths looks like nothing, then suddenly everything. On a log chart, where each grid line is 10× the one below, the same curve is a straight line: the gap is being multiplied by the same amount over and over.</p>
+          <p>The figure fits a line to the straight part and reads its slope: the rise in ln(gap) per time unit, where ln is the natural logarithm, so a rise of 1 means the gap has multiplied by e = 2.718…. That slope, about 0.9, is called λ (lambda), the Lyapunov exponent. The gap doubles when ln(gap) has risen by ln 2 = 0.693, so the doubling time is T = ln 2 / λ, about 0.8.</p>
+        </div>
+        <figure><canvas id="ex3" width="640" height="400"></canvas><figcaption id="cap3">The gap from your starting difference, on a log scale. Dashed: the fitted line; the triangle reads its slope.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">4</span>The same thing from a rule you can do by hand</h3>
+          <p>You don't need three equations. Take a number x between 0 and 1, replace it by r·x·(1 − x), where r is a fixed number you choose between 0 and 4, and repeat. The cobweb drawing does it for you: go up to the curve (the new x), across to the diagonal (make it the input), up to the curve again.</p>
+          <p>At r = 2.8 two starts a thousandth apart settle on the same point. At r = 3.9 the hump is steep: each bounce stretches their gap, and after twenty steps they are in different places entirely. Slide r to see where the stretching begins.</p>
+          <div class="figctl"><label for="rr">r for the right-hand picture <strong id="rrVal"></strong></label><input type="range" id="rr" min="2.5" max="4" step="0.01" value="3.9"></div>
+        </div>
+        <figure><canvas id="ex4" width="640" height="400"></canvas><figcaption id="cap4">Left: two starts, 0.300 and 0.301, bouncing between the curve and the diagonal. Right, top: the same two runs step by step, and their gap. Right, bottom: where x ends up for each r; the orange line is your r.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">5</span>Why forecasts have a horizon</h3>
+          <p>Say you measure the start with an error ε (epsilon, the slider above), and the gap doubles every T time units (step 3). Doubling, doubling, doubling: after k doublings the error is ε·2ᵏ, that is ε multiplied by 2 k times. It stops meaning anything once it is as big as the butterfly itself, call that size L, about 40 across. The number of doublings that takes is log₂(L/ε): "how many times must you double ε to reach L". So the forecast lasts about T·log₂(L/ε).</p>
+          <p>The steps below start at your ε and double, one every T, until they reach L. Count them. Now the catch: measuring 10 times better only adds log₂(10) ≈ 3.3 doublings, less than 3 time units. The weather doubles its errors every couple of days, so ten days is about what the best measurements buy.</p>
+        </div>
+        <figure><canvas id="ex5" width="640" height="400"></canvas><figcaption id="cap5">Starting from your ε, the error doubles every T until it reaches L, the size of the attractor. Grey: the same with ε ten times smaller.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">6</span>Chaos is not randomness: every start draws the same butterfly</h3>
+          <p>Unpredictable is not the same as "anything can happen". Start three points far apart, in corners of the box, and let them run. Each falls onto the same thin folded surface within a time unit or two and stays there for ever.</p>
+          <p>What you can't say is <em>where</em> on the surface a point will be at time 30. What you can say is a lot: it will be on the butterfly, it will circle one wing a few times then hop to the other, and its z will never pass 50. Climate is this kind of knowledge; a ten-day forecast is the other kind.</p>
+        </div>
+        <figure><canvas id="ex6" width="640" height="400"></canvas><figcaption>Three starts far apart (the squares), traced forward in time. All three land on the same shape.</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <div class="symbols">
+        <div><code class="formula">dx/dt = σ·(y − x),   dy/dt = x·(ρ − z) − y,   dz/dt = x·y − β·z</code><p>In words: Lorenz's three rules. dx/dt is how fast x is changing (and the same for y and z); each line gives that rate from the three numbers x, y, z. The Greek letters are fixed settings: σ (sigma) = 10, ρ (rho) = 28, β (beta) = 8/3, the values Lorenz used.</p></div>
+        <div><code class="formula">d(t) ≈ d₀ · e^(λ·t)</code><p>In words: d(t) is the gap between the two paths at time t and d₀ ("d at time zero") the gap at the start. The gap grows by the factor e^(λ·t): e = 2.718… raised to λ times t, so it multiplies by e every 1/λ time units. λ (lambda, about 0.9 here) is the Lyapunov exponent, the slope read off in step 3.</p></div>
+        <div><code class="formula">T = ln(2) / λ ≈ 0.77</code><p>In words: T is the doubling time. ln(2) = 0.693 is the rise in ln(gap) that means "twice as big"; dividing by the rise per time unit, λ, gives how long that takes.</p></div>
+        <div><code class="formula">t_horizon ≈ T · log₂(L / ε)</code><p>In words: t_horizon is how long the forecast stays useful. ε (epsilon) is the error in the start, L the size of the whole system (about 40 here), and log₂(L / ε) counts how many doublings turn ε into L. Multiply by the doubling time T. Measuring ε ten times better adds only log₂(10) ≈ 3.3 doublings.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>The weather forecast.</strong> Forecast centres run the same model 50 times from slightly different starts, exactly like the "Weather forecast" button. While the runs agree, the forecast is confident; where they spread out, it says "60% chance of rain". Past ten days or so they have spread over everything.</li>
+        <li><strong>A double pendulum.</strong> Two rods hinged together, let go from almost the same angle twice: the swings look alike for a second and then go their own ways. Science museums love them for this.</li>
+        <li><strong>A dripping tap.</strong> Open it a little and the drips are regular; a little more and the gaps between drips fall into a pattern that never repeats. The same doubling route to chaos as the logistic map in step 4.</li>
+        <li><strong>Heart rhythms.</strong> A healthy heartbeat varies in a slightly irregular way; some dangerous rhythms are chaotic spirals of electrical waves across the heart. Finding order in that irregularity is a whole field.</li>
+        <li><strong>The planets.</strong> The solar system is chaotic too, with a doubling time of a few million years: you can't say where the Earth will be in its orbit 100 million years from now, though it stays in its orbit.</li>
+        <li><strong>Populations.</strong> Insects that breed once a year follow a rule like step 4. Some real populations boom and crash with no outside cause at all.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>The rerun that started it</h4><p>In the winter of 1961 Edward Lorenz restarted a weather simulation on his Royal McBee LGP-30 by typing in numbers from a printout. The printout showed 0.506; the computer had been holding 0.506127. He went for a coffee, and when he came back, about two months of simulated weather later, the two runs had nothing in common.</p></article>
+        <article><h4>"Deterministic Nonperiodic Flow"</h4><p>Lorenz published the three equations on this page in 1963 in the <em>Journal of the Atmospheric Sciences</em> (volume 20, pages 130–141). The numbers 10, 28 and 8/3 on this page are the ones in that paper, chosen to make a toy model of air rolling in a heated layer.</p></article>
+        <article><h4>The butterfly was a last-minute title</h4><p>Lorenz didn't send a title for his talk at the AAAS meeting on 29 December 1972, so the session organiser, Philip Merilees, made one up: "Does the flap of a butterfly's wings in Brazil set off a tornado in Texas?" Lorenz had been using a seagull until then.</p></article>
+        <article><h4>Ten days now, two weeks at most</h4><p>In 2019 Fuqing Zhang and colleagues ran the European (ECMWF) and American (GFDL) weather models from nearly perfect starts and found that day-to-day forecasts of the mid-latitudes lose all skill at about two weeks, however good the measurements. Reliable forecasts today reach about 9 to 10 days.</p></article>
+        <article><h4>One line, all of chaos</h4><p>Robert May, an ecologist, showed in <em>Nature</em> in 1976 ("Simple mathematical models with very complicated dynamics") that the one-line rule in step 4 has steady states, cycles of 2, 4, 8… and full chaos, depending only on r.</p></article>
+        <article><h4>Not quite a surface</h4><p>The Lorenz attractor looks like two sheets, but it is infinitely many layers packed together: its dimension is about 2.06, a little more than a surface and much less than a solid.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "Chaos means random." <strong>But:</strong> every step here is fixed by the one before; press Reset and you get the identical path. Chaos is the fixed rules amplifying what you didn't know about the start.</li>
+        <li><strong>Not:</strong> "A faster computer would fix the forecast." <strong>But:</strong> the limit is the measurement, not the arithmetic, and it is a log: ten times better data buys about three more doubling times, not ten times longer forecasts.</li>
+        <li><strong>Not:</strong> "The butterfly causes the tornado." <strong>But:</strong> it changes which of many possible futures happens; the energy of the tornado comes from the weather, not the wings. Lorenz pointed out the flap could just as well prevent one.</li>
+        <li><strong>Not:</strong> "If it's chaotic, we can't say anything." <strong>But:</strong> the shape, the ranges and the averages are perfectly predictable. We can't say the weather on 1 August; we can say it will be summer.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://en.wikipedia.org/wiki/Lorenz_system" target="_blank" rel="noopener">Lorenz system</a><span>Wikipedia: the equations, the fixed points, what changes as ρ grows, and the attractor's dimension.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Butterfly_effect" target="_blank" rel="noopener">Butterfly effect</a><span>Wikipedia: the history of the phrase, from Lorenz's 1961 rerun to the 1972 talk.</span></li>
+        <li><a href="https://www.aps.org/publications/apsnews/200301/history.cfm" target="_blank" rel="noopener">APS News: Lorenz and the butterfly effect, circa January 1961</a><span>The rerun story told short, with the printout and the coffee break.</span></li>
+        <li><a href="https://carretero.sdsu.edu/teaching/M-538/lectures/references/May/May.pdf" target="_blank" rel="noopener">May (1976), Simple mathematical models with very complicated dynamics</a><span>The original Nature paper on the logistic map of step 4 (PDF). Readable and short.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Chaos:_Making_a_New_Science" target="_blank" rel="noopener">James Gleick, Chaos: Making a New Science (1987)</a><span>The book that told the story of Lorenz, May, Feigenbaum and the rest to everyone.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>
