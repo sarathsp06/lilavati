@@ -60,8 +60,9 @@ export const CONCEPTS = [
     idea: 'Gravity between three bodies has no formula for the future; only step-by-step computation, and tiny errors grow.', related: ['orbits', 'chaos'] },
   { slug: 'topology', hook: 'Why a coffee cup is a doughnut', tagline: 'Stretch, bend and squeeze all you like, never tear or glue: only the holes count.', name: 'Topology', status: 'soon', topic: 'Shapes', level: 'Starter', color: '#15803d', previewFile: true,
     idea: 'Shapes that can be deformed into each other without tearing are the same; the number of holes tells them apart.', related: ['linear-transformations'] },
-  { slug: 'fourth-dimension', hook: 'What a four-dimensional cube looks like from here', tagline: 'A cube\u2019s shadow is flat. A tesseract\u2019s shadow is a cube. Turn it and watch the shadow change.', name: 'Four-dimensional geometry', status: 'soon', topic: 'Geometry', level: 'Curious', color: '#6d28d9', previewFile: true,
-    idea: 'A fourth direction at right angles to all three; we see it only as projections that shift as it turns.', related: ['linear-transformations', 'topology'] },
+  { slug: 'fourth-dimension', hook: 'What a four-dimensional cube looks like from here', tagline: 'A cube\u2019s shadow is flat. A tesseract\u2019s shadow is a cube. Turn it and watch the shadow change.', name: 'Four-dimensional geometry', status: 'live', topic: 'Geometry', level: 'Curious', color: '#6d28d9', previewFile: true,
+    idea: 'A fourth direction at right angles to all three; we see it only as projections that shift as it turns.',
+    blurb: 'Turn a tesseract through the fourth direction, build it from a point by dragging copies, and see why its shadow is a cube inside a cube.', related: ['linear-transformations', 'topology'] },
   { slug: 'double-slit', hook: 'Why one electron goes through both slits', tagline: 'Fire them one at a time and the stripes still build up. Look which slit, and they vanish.', name: 'The double-slit experiment', status: 'soon', topic: 'Quantum', level: 'Curious', color: '#be185d', previewFile: true,
     idea: 'Add the two paths\u2019 amplitudes before squaring; the cross term is the interference pattern.', related: ['superposition', 'fourier-series'] },
 ];
