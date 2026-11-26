@@ -1,0 +1,21 @@
+/* Chaos: a dark 3D stage for the butterfly, the distance chart in the panel */
+.stage.dark { background: #0b1020; border-color: #1e293b; }
+#space { display: block; width: 100%; height: auto; cursor: grab; touch-action: none; border-radius: 14px; }
+#space.dragging { cursor: grabbing; }
+.toy .viewer .stage canvas { width: 100%; border: 0; background: transparent; }
+.under .ctl { display: flex; gap: .5rem .9rem; flex-wrap: wrap; align-items: center; width: 100%; }
+.under button { margin: 0; width: auto; padding: .35rem .8rem; font-size: .88rem; }
+.under label { font-size: .82rem; margin: 0; display: flex; gap: .4rem; align-items: center; }
+.under input[type=range] { margin: 0; width: 8rem; }
+.under .say b { font-size: .95rem; }
+.panel label { font-size: .9rem; }
+.panel input[type=range] { margin: .2rem 0 .4rem; }
+#chart { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.figctl { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-top: .5rem; font-size: .85rem; }
+.figctl input { margin: 0; max-width: 14rem; }
+@media (max-width: 900px) {
+  .toy .viewer .stage { width: min(100%, 60vh); margin: 0 auto; }
+  .under .ctl { gap: .3rem .6rem; }
+  .under button { padding: .3rem .6rem; font-size: .8rem; }
+}
+.what p { max-width: 70ch; color: #3f3a36; }
