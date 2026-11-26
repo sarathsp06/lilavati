@@ -30,7 +30,7 @@
     <header id="hero" class="hero">
       <h1>Why a coffee cup is a doughnut</h1>
       <p class="idea">Stretch, bend and squeeze all you like, never tear or glue: only the holes count.</p>
-      <p>Below is a rubber sheet made of little squares. Morph a doughnut into a mug, drag the sheet about, and watch lengths and areas change while the number of holes, and one simple count of dots, edges and squares, never moves. Then cut it or punch a hole and see that count jump.</p>
+      <p>Below is a rubber doughnut with a sheet of little squares drawn on its front. Morph it into a coffee mug, turn it and pull it about, and watch areas and lengths change while the number of holes, and one simple count of dots, edges and squares, never moves. Then cut it or punch a hole and see that count jump.</p>
     </header>
 
     <section id="what" data-label="What it is" class="block what reveal">
@@ -42,7 +42,7 @@
         <li><strong>What it looks at:</strong> what the allowed moves can't change, such as how many separate pieces there are and how many holes go right through.</li>
         <li><strong>Same shape:</strong> two shapes are the same to a topologist if allowed moves turn one into the other.</li>
       </ul>
-      <p>A doughnut and a coffee mug are the same shape: both are one piece with one hole (in the mug, the handle). The picture below shows this on a flat rubber ring. The sheet after it adds a way to count holes, V&nbsp;−&nbsp;E&nbsp;+&nbsp;F (dots, take away edges, add squares), which doesn't change when you stretch.</p>
+      <p>A doughnut and a coffee mug are the same shape: both are one piece with one hole (in the mug, the handle). The picture below shows this on a flat rubber ring. The 3D doughnut after it is that ring made thick, and adds a way to count holes, V&nbsp;−&nbsp;E&nbsp;+&nbsp;F (dots, take away edges, add squares), which doesn't change when you stretch.</p>
     </section>
 
     <section id="idea" data-label="The idea" class="block reveal">
@@ -56,13 +56,13 @@
       </div>
       <p class="formula" id="ideaFormula"></p>
       <p id="ideaSay"></p>
-      <p>So topology ignores sizes and corners and keeps only pieces and holes. A mug is this ring made thick, with the cup pushed into one side. Below you can mould a sheet with 0 to 3 holes, and count the holes with dots, edges and squares instead of looking for them.</p>
+      <p>So topology ignores sizes and corners and keeps only pieces and holes. A mug is this ring made thick, with the cup pushed into one side. Below, the ring is made thick into a doughnut and moulded into a mug; you can also pick shapes with 0, 2 or 3 holes, and count the holes with the dots, edges and squares drawn on their front instead of looking for them.</p>
     </section>
 
     <section id="play" data-label="Play">
       <div class="toy">
         <div class="viewer">
-          <canvas id="sheet" width="900" height="600" aria-label="A rubber sheet of squares with holes, which you can morph and drag"></canvas>
+          <canvas id="sheet" width="900" height="600" aria-label="A thick rubber shape in 3D, a doughnut that morphs into a coffee mug, with a sheet of squares drawn on its front. Drag to turn it or pull it"></canvas>
           <div class="under">
             <p class="say" id="keep"></p>
             <p class="say" id="change"></p>
@@ -77,7 +77,7 @@
           </select></label>
           <label><span id="ends">Doughnut ↔ mug</span> <strong id="tVal">0%</strong><input type="range" id="morph" min="0" max="1" step="0.01" value="0"></label>
           <div class="row"><button id="playMorph">Play the morph</button><button id="smooth" class="outline">Smooth out my pulls</button></div>
-          <p class="key">Drag anywhere on the sheet to pull it like rubber.</p>
+          <div class="row kpick drag" role="group" aria-label="What dragging does" data-local><span>Drag to</span><button data-drag="turn" class="on" data-local>turn it</button><button data-drag="pull" data-local>pull it like rubber</button></div>
           <h4>Now break the rules</h4>
           <div class="row"><button id="cut" class="secondary outline">Cut it</button><button id="punch" class="secondary outline">Punch a hole</button></div>
           <p class="key" id="breakNote">Cutting and punching are not stretching. Watch V − E + F when you do them.</p>
@@ -90,7 +90,7 @@
       <h2>Try this</h2>
       <ol class="try">
         <li><strong>Play the doughnut into a mug.</strong> <span>The outline gets longer and the area changes, but V − E + F stays at 0 and there is still one hole.</span><button class="outline" data-try="mug">Show me</button></li>
-        <li><strong>Pull the sheet hard in a few places.</strong> <span>Squares get long and thin and angles change. No dot, edge or square appears or disappears, so the count cannot change.</span><button class="outline" data-try="pull">Show me</button></li>
+        <li><strong>Pull the rubber hard in a few places.</strong> <span>Squares get long and thin and angles change. No dot, edge or square appears or disappears, so the count cannot change.</span><button class="outline" data-try="pull">Show me</button></li>
         <li><strong>Cut the mug's handle.</strong> <span>V − E + F goes from 0 to 1 and the hole is gone: the mug has become a lump. A cut is not a stretch.</span><button class="outline" data-try="cut">Show me</button></li>
         <li><strong>Punch a hole in the pretzel.</strong> <span>V − E + F drops from −2 to −3: each new hole takes exactly 1 off.</span><button class="outline" data-try="punch">Show me</button></li>
         <li><strong>Cut the lump of clay right across.</strong> <span>Now there are two pieces and V − E + F is 2. Pieces count +1 each, holes −1 each.</span><button class="outline" data-try="split">Show me</button></li>
@@ -99,7 +99,7 @@
 
     <section id="steps" data-label="Step by step" class="block">
       <h2>Why V − E + F counts holes, step by step</h2>
-      <p class="lead">The first, third and fourth pictures use the shape you set up above: change it and they change.</p>
+      <p class="lead">The first, third and fourth pictures use the shape you set up above, with the sheet on its front laid out flat: change it and they change.</p>
 
       <div class="step reveal">
         <div><h3><span class="num">1</span>Count the dots, the edges and the squares</h3><p>The sheet is made of <strong>vertices</strong> (the dots, V of them), <strong>edges</strong> (the lines between neighbouring dots, E of them) and <strong>faces</strong> (the squares, F of them). Count each kind once.</p><p>Then work out V − E + F: the number of dots, take away the number of edges, add the number of squares. This number has a name, the <strong>Euler characteristic</strong>, written χ (the Greek letter chi, said "kye").</p></div>

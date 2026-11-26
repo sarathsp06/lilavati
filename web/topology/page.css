@@ -30,3 +30,7 @@
   .idea-controls input[type=range] { width: 100%; flex: 1 1 10rem; }
 }
 #ideaCanvas { touch-action: pan-y; }
+#sheet { touch-action: none; }
+.toy .panel .kpick.drag { justify-content: flex-start; align-items: center; margin: .2rem 0 .6rem; }
+.toy .panel .kpick.drag span { font-size: .85rem; color: var(--ink-1); }
+.toy .panel .kpick.drag span { flex: 0 0 auto; margin-right: .2rem; }

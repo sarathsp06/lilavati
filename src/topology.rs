@@ -192,8 +192,10 @@ impl Sheet {
         out
     }
     /// Where every vertex id sits in the plane (x right, y up, roughly within ±1.5) at morph t (0 to 1).
-    pub fn positions(&self, t: f64) -> Vec<f64> {
-        let g = self.grid();
+    pub fn positions(&self, t: f64) -> Vec<f64> { self.place(t, &self.grid()) }
+    /// Where any grid points [x0, y0, x1, y1, …] (not only the corners) sit in the plane at morph t: the
+    /// same map as `positions`, used for the finer mesh the page draws over each square.
+    pub fn place(&self, t: f64, g: &[f64]) -> Vec<f64> {
         let t = smooth(t.clamp(0.0, 1.0));
         let mut out = Vec::with_capacity(g.len());
         for p in g.chunks_exact(2) {
@@ -485,6 +487,21 @@ mod tests {
         }
         // directions from the hole's centre (6, 3) are kept: (8, 3) is straight right
         assert!(angle(a[2 * id(8, 3)], a[2 * id(8, 3) + 1]).abs() < 1e-9);
+    }
+
+    #[test]
+    fn placing_points_inside_the_squares() {
+        for s in 0..4 {
+            let sh = Sheet::new(s);
+            for t in [0.0, 0.4, 1.0] {
+                assert_eq!(sh.place(t, &sh.grid()), sh.positions(t));
+                // a point half way along an edge lands between its two ends (the map is smooth, not wild)
+                let p = sh.place(t, &[0.5, 0.0, 0.0, 0.0, 1.0, 0.0]);
+                assert!(p.iter().all(|v| v.is_finite()));
+                let (d, e) = ((p[0] - p[2]).hypot(p[1] - p[3]), (p[4] - p[2]).hypot(p[5] - p[3]));
+                assert!(d < e, "shape {s}, t {t}");
+            }
+        }
     }
 
     #[test]
