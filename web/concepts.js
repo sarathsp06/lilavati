@@ -37,7 +37,7 @@ export const CONCEPTS = [
     idea: 'Every matrix is a turn, then a stretch along two directions, then another turn.',
     blurb: 'Take any matrix apart into three simple moves, compress a picture, and find the main direction in data (PCA).',
     related: ['eigenvectors', 'fourier-series'] },
-  { slug: 'nash-equilibrium', hook: 'Why the stock market is a guessing game about guesses', tagline: 'Everyone picks a number from 0 to 100. Whoever is closest to two-thirds of the average wins.', name: 'Nash equilibrium', status: 'live', topic: 'Games and decisions', level: 'Starter', color: '#be123c',
+  { slug: 'nash-equilibrium', title: 'Nash equilibrium', hook: 'Why the stock market is a guessing game about guesses', tagline: 'Everyone picks a number from 0 to 100. Whoever is closest to two-thirds of the average wins.', name: 'Nash equilibrium', status: 'live', topic: 'Games and decisions', level: 'Starter', color: '#be123c',
     idea: 'When everyone guesses what everyone else will guess, the group settles where nobody gains by changing alone.',
     blurb: 'Play guess two-thirds of the average against computer players or friends, and watch levels of thinking lead to the equilibrium.',
     related: ['eigenvectors', 'derivatives'] },
@@ -50,7 +50,7 @@ export const CONCEPTS = [
   { slug: 'taylor-series', name: 'Taylor series', status: 'soon', topic: 'Calculus', level: 'Curious', color: '#db2777',
     idea: 'A curve near one point, rebuilt from its derivatives there.', related: ['derivatives'] },
   // the person's list of 2026-11-25, in their order; each page gets its preview from web/<slug>/preview.js
-  { slug: 'monty-hall', hook: 'Why you should always switch doors', tagline: 'Three doors, one car, one goat revealed. Switching wins twice as often, and you can prove it by playing.', name: 'The Monty Hall problem', status: 'live', topic: 'Probability', level: 'Starter', color: '#b45309', previewFile: true,
+  { slug: 'monty-hall', title: 'The Monty Hall problem', hook: 'Why you should always switch doors', tagline: 'Three doors, one car, one goat revealed. Switching wins twice as often, and you can prove it by playing.', name: 'The Monty Hall problem', status: 'live', topic: 'Probability', level: 'Starter', color: '#b45309', previewFile: true,
     idea: 'Your first pick is right one time in three; the host\u2019s reveal moves the other two-thirds onto one door.',
     blurb: 'Play the game show by hand or watch thousands of games, open 98 of 100 doors, and see why a guessing host changes the answer.',
     related: ['nash-equilibrium', 'chaos'] },
@@ -58,10 +58,10 @@ export const CONCEPTS = [
     idea: 'The quickest path between two points under gravity is a cycloid, found by comparing whole paths, not points.',
     blurb: 'Race balls down a straight line, a circle arc and a cycloid, draw your own track, and see why the curve that drops first wins.',
     related: ['derivatives', 'orbits'] },
-  { slug: 'chaos', hook: 'Why the weather forecast stops at ten days', tagline: 'Two almost identical starts, two completely different futures. Deterministic, yet unpredictable.', name: 'Chaos and the butterfly effect', status: 'live', topic: 'Dynamics', level: 'Curious', color: '#7c2d12', previewFile: true,
+  { slug: 'chaos', title: 'The butterfly effect', hook: 'Why the weather forecast stops at ten days', tagline: 'Two almost identical starts, two completely different futures. Deterministic, yet unpredictable.', name: 'Chaos and the butterfly effect', status: 'live', topic: 'Dynamics', level: 'Curious', color: '#7c2d12', previewFile: true,
     idea: 'Simple rules can amplify a tiny difference until the future is unknowable in practice.',
     blurb: 'Start two points a millionth apart on Lorenz\u2019s butterfly, watch the gap double and double, and see why forecasts have a horizon.', related: ['three-body-problem', 'derivatives'] },
-  { slug: 'three-body-problem', hook: 'Why three planets can\u2019t be predicted forever', tagline: 'Two bodies dance in ellipses. Add a third and the dance turns to chaos.', name: 'The three-body problem', status: 'live', topic: 'Gravity and space', level: 'Curious', color: '#1d4ed8', previewFile: true,
+  { slug: 'three-body-problem', title: 'The three-body problem', hook: 'Why three planets can\u2019t be predicted forever', tagline: 'Two bodies dance in ellipses. Add a third and the dance turns to chaos.', name: 'The three-body problem', status: 'live', topic: 'Gravity and space', level: 'Curious', color: '#1d4ed8', previewFile: true,
     idea: 'Gravity between three bodies has no formula for the future; only step-by-step computation, and tiny errors grow.',
     blurb: 'Drag three suns, watch the figure eight and the Pythagorean problem, and see two starts a millionth apart drift away from each other.',
     related: ['orbits', 'chaos'] },
@@ -69,10 +69,10 @@ export const CONCEPTS = [
     idea: 'Shapes that can be deformed into each other without tearing are the same; the number of holes tells them apart.',
     blurb: 'Morph a doughnut into a mug, pull a rubber sheet about, then cut it and punch holes, and watch V − E + F count the holes.',
     related: ['linear-transformations', 'fourth-dimension'] },
-  { slug: 'fourth-dimension', hook: 'What a four-dimensional cube looks like from here', tagline: 'A cube\u2019s shadow is flat. A tesseract\u2019s shadow is a cube. Turn it and watch the shadow change.', name: 'Four-dimensional geometry', status: 'live', topic: 'Geometry', level: 'Curious', color: '#6d28d9', previewFile: true,
+  { slug: 'fourth-dimension', title: 'The fourth dimension', hook: 'What a four-dimensional cube looks like from here', tagline: 'A cube\u2019s shadow is flat. A tesseract\u2019s shadow is a cube. Turn it and watch the shadow change.', name: 'Four-dimensional geometry', status: 'live', topic: 'Geometry', level: 'Curious', color: '#6d28d9', previewFile: true,
     idea: 'A fourth direction at right angles to all three; we see it only as projections that shift as it turns.',
     blurb: 'Turn a tesseract through the fourth direction, build it from a point by dragging copies, and see why its shadow is a cube inside a cube.', related: ['linear-transformations', 'topology'] },
-  { slug: 'double-slit', hook: 'Why one electron goes through both slits', tagline: 'Fire them one at a time and the stripes still build up. Look which slit, and they vanish.', name: 'The double-slit experiment', status: 'live', topic: 'Quantum', level: 'Curious', color: '#be185d', previewFile: true,
+  { slug: 'double-slit', title: 'The double-slit experiment', hook: 'Why one electron goes through both slits', tagline: 'Fire them one at a time and the stripes still build up. Look which slit, and they vanish.', name: 'The double-slit experiment', status: 'live', topic: 'Quantum', level: 'Curious', color: '#be185d', previewFile: true,
     idea: 'Add the two paths\u2019 amplitudes before squaring; the cross term is the interference pattern.', related: ['superposition', 'fourier-series'] },
 ];
 export const bySlug = Object.fromEntries(CONCEPTS.map(c => [c.slug, c]));
@@ -92,7 +92,7 @@ if (me) {
   // chips under the name
   const h1 = document.querySelector('#hero h1');
   const part = me.series ? `<span class="chip">${me.series.name} · ${me.series.slugs.indexOf(slug) + 1} of ${me.series.slugs.length}</span>` : '';
-  h1.insertAdjacentHTML('beforebegin', `<p class="chips"><span class="chip concept">${me.name}</span><span class="chip">${me.topic}</span>${part}<span class="chip">${me.level}</span></p>`);
+  h1.insertAdjacentHTML('beforebegin', `<p class="chips">${me.title ? '' : `<span class="chip concept">${me.name}</span>`}<span class="chip">${me.topic}</span>${part}<span class="chip">${me.level}</span></p>`);
   // "On this page", with the current section marked while scrolling
   const toc = bar.querySelector('.toc'), secs = [...document.querySelectorAll('section[data-label]')];
   for (const s of secs) toc.insertAdjacentHTML('beforeend', `<a href="#${s.id}">${s.dataset.label}</a>`);
@@ -122,7 +122,7 @@ export function card(c) {
   return `<${live ? 'a' : 'div'} class="ccard${live ? '' : ' soon'}" ${live ? `href="${slug ? '../' : ''}${c.slug}/"` : ''} style="--accent:${c.color}">
     ${live && !slug ? `<canvas class="preview" data-preview="${c.slug}" width="560" height="260" aria-hidden="true"></canvas>` : ''}
     <div class="body">${c.series ? `<span class="num">Part ${c.series.slugs.indexOf(c.slug) + 1}</span>` : ''}<p class="chips"><span class="chip">${c.topic}</span>${live ? '' : '<span class="chip">Coming soon</span>'}</p>
-    <h3>${c.hook || c.name}</h3>${c.hook ? `<p class="cname">${c.name}</p>` : ''}<p>${c.tagline || c.idea}</p>${live && c.blurb ? `<p class="muted">${c.blurb}</p>` : ''}${live ? '<span class="go">Open →</span>' : ''}</div></${live ? 'a' : 'div'}>`;
+    <h3>${c.title || c.hook || c.name}</h3>${c.title ? `<p class="chook">${c.hook}</p>` : c.hook ? `<p class="cname">${c.name}</p>` : ''}<p>${c.tagline || c.idea}</p>${live && c.blurb ? `<p class="muted">${c.blurb}</p>` : ''}${live ? '<span class="go">Open →</span>' : ''}</div></${live ? 'a' : 'div'}>`;
 }
 
 // Together: invite people to explore a page with you (together/index.js)

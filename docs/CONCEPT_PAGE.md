@@ -9,7 +9,7 @@ to build the "On this page" bar, so a section only shows up there if it follows 
 
 | # | Section | id | What goes in it | Size |
 |---|---|---|---|---|
-| 1 | **Hero** | `hero` | A real-world heading (h1, the `hook` in `concepts.js`), e.g. "How noise-cancelling headphones make silence", then a one-line tagline (`.idea`, the `tagline`), then two or three sentences of what you can do here. The concept name, topic and level appear as chips above the heading (from `concepts.js`). | 3 sentences |
+| 1 | **Hero** | `hero` | A real-world heading (h1, the `hook` in `concepts.js`), e.g. "How noise-cancelling headphones make silence", then a one-line tagline (`.idea`, the `tagline`), then two or three sentences of what you can do here. The concept name, topic and level appear as chips above the heading (from `concepts.js`). If the concept's name is itself well known, set `title`: the h1 is that name and the hook follows as `<p class="hook">` (see AGENTS.md). | 3 sentences |
 | 1b | **What it is** | `what` | Three to five plain sentences that define the concept itself, at a high level, before any demo: what it is, what question it answers, and how the example on this page is an instance of it ("A Fourier series writes any repeating curve as a sum of simple waves. Here the curve is the outline you draw, and the waves become spinning circles"). A reader who only reads this block should be able to say what the concept is. | 3–5 sentences |
 | 2 | **Play** | `play` | The interactive toy: the thing to poke at. Starts already showing something alive (a preset), never a blank canvas. | — |
 | 3 | **Try this** | `try` | Three to five small experiments, each "do X, notice Y". Each one makes one point of the concept visible. Buttons may set the toy up. | 3–5 items |
