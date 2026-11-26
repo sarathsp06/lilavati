@@ -34,7 +34,14 @@
 
     <section id="what" data-label="What it is" class="block what reveal">
       <h2>What the determinant is</h2>
-      <p>The <strong>determinant</strong> of a matrix is one number that says how much the matrix's move changes areas (or volumes): 2 means every area doubles, ½ means it halves, 0 means everything is squashed flat, and a negative sign means space has been flipped over like a mirror image.</p><p>On this page you watch a unit square turn into a parallelogram as you drag the arrows; the parallelogram's area, with its sign, is the determinant.</p>
+      <p>The <strong>determinant</strong> of a matrix is one number that says by how much the matrix's move scales every area (every volume, in space), with a minus sign when the move flips space over.</p>
+      <ul>
+        <li><strong>Its size:</strong> 2 means every area doubles, ½ means every area halves, 1 means areas stay the same (as in a turn or a shear).</li>
+        <li><strong>Its sign:</strong> negative means space has been turned over like a mirror image: going from î to ĵ is now clockwise instead of anticlockwise.</li>
+        <li><strong>Zero</strong> means the plane is squashed onto a line (or a point): every area becomes 0, and the move can't be undone.</li>
+        <li><strong>The recipe</strong> for a 2×2 matrix with top row a, b and bottom row c, d: det = a·d − b·c, read "a times d minus b times c".</li>
+      </ul>
+      <p>Below, the shaded square of area 1 is moved by the matrix into a parallelogram. The parallelogram's area, with its sign, is the determinant, and the line under the picture works out a·d − b·c with your numbers.</p>
     </section>
 
     <section id="play" data-label="Play">

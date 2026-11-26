@@ -29,6 +29,7 @@ function ball(p, r, n, color) {
   const pts = n === '1' ? [r, 0, 0, r, -r, 0, 0, -r] : n === 'inf' ? [r, r, -r, r, -r, -r, r, -r] : null;
   if (pts) p.poly(pts, undefined, null, color, 2); else p.poly(Array.from({ length: 96 }, (_, k) => [r * Math.cos(k * Math.PI / 48), r * Math.sin(k * Math.PI / 48)]).flat(), undefined, null, color, 2);
 }
+const fp = v => { const t = fmt(v, 1); return t[0] === "-" ? `(${t})` : t; };   // negatives in brackets: 2×(−1), not 2×-1
 const deg = v => (v * 180 / Math.PI).toFixed(0);
 
 // ---------- the neuron: two kinds of points, a line that sorts them ----------
@@ -93,7 +94,7 @@ function draw(hit) {
     P.dot(a[0], a[1], 7, COL.v).dot(b[0], b[1], 7, COL.w);
     const cs = cosine(F(...a), F(...b)), ang = Math.acos(Math.max(-1, Math.min(1, cs)));
     const nm = norm === '1' ? '‖a‖₁' : norm === 'inf' ? '‖a‖∞' : '|a|';
-    $('say').innerHTML = `a·b = ${fmt(a[0], 1)}×${fmt(b[0], 1)} + ${fmt(a[1], 1)}×${fmt(b[1], 1)} = <b>${fmt(d)}</b> · angle <b>${deg(ang)}°</b> · cos θ = <b>${fmt(cs)}</b> · ${nm} = <b>${fmt(len(a))}</b>, |b| = <b>${fmt(Math.hypot(...b))}</b>`;
+    $('say').innerHTML = `a·b = ${fp(a[0])}×${fp(b[0])} + ${fp(a[1])}×${fp(b[1])} = <b>${fmt(d)}</b>. Angle θ (theta) between them: <b>${deg(ang)}°</b>, cos θ = <b>${fmt(cs)}</b>. Lengths: ${nm} = <b>${fmt(len(a))}</b>, |b| = <b>${fmt(Math.hypot(...b))}</b>.`;
   } else {
     neuronShade(P, w, bias); points(P, hit);
     P.arrow(w[0], w[1], COL.w, { label: 'w' }).dot(w[0], w[1], 7, COL.w);

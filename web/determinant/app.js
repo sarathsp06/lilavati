@@ -10,6 +10,7 @@ const P = new Plane($('plane'), 4);
 const SQ = [0, 0, 1, 0, 1, 1, 0, 1];
 const fill = d => (d > 1e-9 ? 'rgba(22,163,74,.3)' : d < -1e-9 ? 'rgba(220,38,38,.3)' : 'rgba(0,0,0,.2)');
 const edge = d => (d > 1e-9 ? '#15803d' : d < -1e-9 ? '#b91c1c' : '#444');
+const fp = v => { const t = fmt(v, 1); return t[0] === "-" ? `(${t})` : t; };   // negatives in brackets: 0.6×(−0.4), not 0.6×-0.4
 const st = matrixToy(P, { start: 9, change: draw });
 $('showCircle').addEventListener('change', () => draw(st));
 
@@ -22,7 +23,7 @@ function draw(s) {
   const [cx, cy] = apply(m, 0.5, 0.5); P.label(fmt(d), cx - 0.3, cy - 0.1, edge(d), 26);
   basis(P, m);
   const D = det2(...s.m);
-  $('say').innerHTML = `det = ad − bc = ${fmt(s.m[0], 1)}×${fmt(s.m[3], 1)} − ${fmt(s.m[1], 1)}×${fmt(s.m[2], 1)} = <b>${fmt(D)}</b>. ` +
+  $('say').innerHTML = `det = a·d − b·c = ${fp(s.m[0])}×${fp(s.m[3])} − ${fp(s.m[1])}×${fp(s.m[2])} = <b>${fmt(D)}</b>. ` +
     (Math.abs(D) < 1e-9 ? 'Every area becomes <b>0</b>: space is squashed flat.' : `Every area × <b>${fmt(Math.abs(D))}</b>${D < 0 ? ', and space is <b>flipped</b> over.' : '.'}`);
   explain(s.m);
 }

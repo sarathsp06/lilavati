@@ -34,7 +34,14 @@
 
     <section id="what" data-label="What it is" class="block what reveal">
       <h2>What eigenvectors and eigenvalues are</h2>
-      <p>An <strong>eigenvector</strong> of a matrix is a direction the matrix does not turn: an arrow pointing that way comes out longer, shorter or flipped, but on the same line. The <strong>eigenvalue</strong> is the factor it was stretched by. Most matrices have a few such directions, and they are the matrix's natural axes: applying the move again and again, everything swings towards the direction with the biggest stretch.</p><p>On this page you hunt for those directions by dragging an arrow, and see why repeating a move finds the strongest one by itself, the idea behind Google's first ranking of web pages.</p>
+      <p>An <strong>eigenvector</strong> of a matrix is an arrow whose direction the matrix's move leaves unchanged, and its <strong>eigenvalue</strong> is the number the arrow gets multiplied by.</p>
+      <ul>
+        <li><strong>Most arrows get turned:</strong> after the move, the arrow A v (the move A applied to the arrow v) points somewhere else than v did.</li>
+        <li><strong>An eigenvector stays on its own line</strong> through the origin: A v = λ·v, read "A applied to v equals λ times v". λ (lambda) is the eigenvalue.</li>
+        <li><strong>The eigenvalue</strong> says what happens along that line: 3 means three times longer, ½ half as long, −1 flipped round, 0 squashed to the origin.</li>
+        <li><strong>How many:</strong> a 2×2 matrix has at most two such lines (unless it stretches every direction equally), and a pure turn has none.</li>
+      </ul>
+      <p>Below, drag the orange arrow v round until A v lands on v's own line. The matrix it starts with stretches the direction (1, 1) by 3 and leaves the direction (1, −1) as it is (eigenvalue 1). Then press <b>Apply again</b>: repeating the move swings almost any arrow towards the direction with the biggest stretch, the trick behind Google's first ranking of web pages.</p>
     </section>
 
     <section id="play" data-label="Play">

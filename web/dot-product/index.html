@@ -34,7 +34,13 @@
 
     <section id="what" data-label="What it is" class="block what reveal">
       <h2>What a vector and the dot product are</h2>
-      <p>A <strong>vector</strong> is a list of numbers, drawn as an arrow: two numbers make an arrow on a page, three an arrow in space, and a thousand an arrow in a space you can't picture but can still calculate with. The <strong>dot product</strong> takes two vectors and gives back one number that says how much they point the same way: large when they agree, zero when they are at right angles, negative when they oppose.</p><p>On this page you drag two arrows and watch that number. A neuron in a neural network is a dot product between its inputs and its weights, followed by a yes-or-no decision, which is why this is the first page of the AI chapter.</p>
+      <p>A <strong>vector</strong> is a list of numbers, drawn as an arrow, and the <strong>dot product</strong> of two vectors is one number that says how much they point the same way.</p>
+      <ul>
+        <li><strong>A vector:</strong> [3, 1] means 3 across and 1 up. Two numbers make an arrow on a page, three an arrow in space, a thousand an arrow you can't picture but can still calculate with.</li>
+        <li><strong>The recipe:</strong> multiply the matching numbers and add them up. For a = [3, 1] and b = [1, 2]: a·b = 3×1 + 1×2 = 5. The dot between a and b is the name of this operation, read "a dot b".</li>
+        <li><strong>What the number means:</strong> positive when the arrows point roughly the same way, zero when they are at right angles, negative when they point apart. Longer arrows make the number bigger.</li>
+      </ul>
+      <p>The two arrows below start as exactly these, a = [3, 1] and b = [1, 2]: drag their tips and watch the sum change. Then switch to <em>A neuron</em>: a neuron in a neural network is a dot product of its inputs with its weights, followed by a yes-or-no decision, which is why this is the first page of the AI chapter.</p>
     </section>
 
     <section id="play" data-label="Play">
