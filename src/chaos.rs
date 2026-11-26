@@ -1,5 +1,6 @@
 //! Chaos: the Lorenz system, nearby starts drifting apart, the growth of a tiny difference, and the
 //! logistic map as a simpler chaotic rule. Fixed-step RK4; time in Lorenz's dimensionless units.
+//! The doubling rule (x → 2·x, minus 1 if 1 or more) is the plainest case, worked in exact decimals.
 //!
 //! dx/dt = σ(y − x), dy/dt = x(ρ − z) − y, dz/dt = xy − βz, with Lorenz's σ = 10, β = 8/3 and ρ = 28.
 use wasm_bindgen::prelude::*;
@@ -264,6 +265,22 @@ pub fn logistic_lyapunov(r: f64, n: usize) -> f64 {
     sum / n.max(1) as f64
 }
 
+// ---------- the doubling rule: x → 2·x, minus 1 if that is 1 or more. The plainest chaos there is ----------
+
+/// x_0, x_1, …, x_n from x0 under "double it; if that is 1 or more, take 1 off" (n + 1 values), worked in exact
+/// decimals with `digits` places (1 to 15), as you would by hand: x0 is rounded to that many places first.
+/// Each step doubles the gap between two starts exactly, until the taking-off splits them.
+#[wasm_bindgen]
+pub fn doubling_iterate(x0: f64, digits: u32, n: usize) -> Vec<f64> {
+    let d = digits.clamp(1, 15);
+    let one = 10u64.pow(d);
+    let mut a = ((x0.clamp(0.0, 1.0) * one as f64).round() as u64) % one;
+    let mut out = Vec::with_capacity(n + 1);
+    out.push(a as f64 / one as f64);
+    for _ in 0..n { a = (2 * a) % one; out.push(a as f64 / one as f64); }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -396,5 +413,21 @@ mod tests {
         assert!(hz[3] < 100.0);
         assert!((fit_slope(&[0.0, 1.0, 2.0], &[1.0, 3.0, 5.0]) - 2.0).abs() < 1e-12);
         assert!(fit_slope(&[1.0], &[1.0]).is_nan());
+    }
+
+    #[test]
+    fn doubling_rule_is_exact_and_doubles_the_gap() {
+        // 0.3 → 0.6 → 0.2 → 0.4 → 0.8 → 0.6 …, exactly, for as long as you like
+        let a = doubling_iterate(0.3, 5, 60);
+        assert_eq!(&a[..6], &[0.3, 0.6, 0.2, 0.4, 0.8, 0.6]);
+        assert_eq!(a[57], 0.6);
+        // a start 0.00001 higher: the gap is 0.00001·2ⁿ while it stays small …
+        let b = doubling_iterate(0.30001, 5, 60);
+        for n in 0..=12 { assert!((b[n] - a[n] - 1e-5 * 2f64.powi(n as i32)).abs() < 1e-12, "step {n}"); }
+        // … and after 17 doublings (2¹⁷ = 131 072) it is as big as anything
+        assert!((b[17] - a[17]).abs() > 0.1);
+        assert!(a.iter().chain(&b).all(|x| (0.0..1.0).contains(x)));
+        assert_eq!(doubling_iterate(0.75, 2, 2), vec![0.75, 0.5, 0.0]);
+        assert_eq!(doubling_iterate(1.0, 3, 1), vec![0.0, 0.0]);
     }
 }
