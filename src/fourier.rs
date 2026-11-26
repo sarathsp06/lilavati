@@ -221,8 +221,67 @@ impl Fourier {
     }
 }
 
+/// The simplest Fourier series, for the page's first picture: three textbook repeating waves on one
+/// lap t ∈ [−π, π), each a sum of sine waves only. kind 0: square wave (−1 then +1), 1: sawtooth
+/// (rises from −1 to 1, then drops), 2: triangle. Returns the first `n` non-zero terms as
+/// [k, amount, k, amount, …], so the wave ≈ Σ amount · sin(k·t).
+#[wasm_bindgen]
+pub fn wave_terms(kind: u8, n: usize) -> Vec<f64> {
+    let mut out = Vec::with_capacity(2 * n);
+    let mut k = 1usize;
+    while out.len() < 2 * n {
+        let kf = k as f64;
+        let b = match kind {
+            0 => if k % 2 == 1 { 4.0 / (PI * kf) } else { 0.0 },
+            1 => 2.0 / (PI * kf) * if k % 2 == 1 { 1.0 } else { -1.0 },
+            _ => if k % 2 == 1 { 8.0 / (PI * PI * kf * kf) * if (k / 2) % 2 == 0 { 1.0 } else { -1.0 } } else { 0.0 },
+        };
+        if b != 0.0 { out.push(kf); out.push(b); }
+        k += 1;
+    }
+    out
+}
+
+/// The wave itself at t (any t: it repeats every 2π).
+#[wasm_bindgen]
+pub fn wave_target(kind: u8, t: f64) -> f64 {
+    let u = (t + PI).rem_euclid(2.0 * PI) - PI;   // back into [−π, π)
+    match kind {
+        0 => if u < 0.0 { -1.0 } else { 1.0 },
+        1 => u / PI,
+        // up from 0 to 1 at t = π/2, down to −1 at t = −π/2, straight in between
+        _ => 2.0 / PI * if u > PI / 2.0 { PI - u } else if u < -PI / 2.0 { -PI - u } else { u },
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn simple_waves_are_their_sine_sums() {
+        for kind in 0..3u8 {
+            let terms = wave_terms(kind, 400);
+            let sum = |t: f64| terms.chunks(2).map(|c| c[1] * (c[0] * t).sin()).sum::<f64>();
+            // away from the jumps, 400 terms land on the wave
+            for t in [-2.5, -1.0, 0.4, 1.3, 2.2] {
+                assert!((sum(t) - wave_target(kind, t)).abs() < 0.02, "kind {kind} at t={t}: {} vs {}", sum(t), wave_target(kind, t));
+            }
+            // each amount is twice the average of wave × sin(k·t), the scan of step 3
+            let m = 20000;
+            for c in terms.chunks(2).take(4) {
+                let avg = (0..m).map(|i| { let t = -PI + 2.0 * PI * (i as f64 + 0.5) / m as f64; wave_target(kind, t) * (c[0] * t).sin() }).sum::<f64>() / m as f64;
+                assert!((2.0 * avg - c[1]).abs() < 1e-3, "kind {kind} k={}: {} vs {}", c[0], 2.0 * avg, c[1]);
+            }
+        }
+        // the square wave: 4/π, then only odd k with 1/k
+        let sq = wave_terms(0, 3);
+        assert_eq!((sq[0], sq[2], sq[4]), (1.0, 3.0, 5.0));
+        assert!((sq[1] - 4.0 / PI).abs() < 1e-12 && (sq[3] - sq[1] / 3.0).abs() < 1e-12);
+        // Gibbs: near the jump the sum overshoots by about 9% of the jump (2), however many terms
+        let terms = wave_terms(0, 300);
+        let peak = (1..2000).map(|i| { let t = 0.05 * i as f64 / 2000.0; terms.chunks(2).map(|c| c[1] * (c[0] * t).sin()).sum::<f64>() }).fold(0.0, f64::max);
+        assert!((peak - 1.0 - 0.0895 * 2.0).abs() < 0.01, "{peak}");
+    }
+
     use super::*;
 
     fn circle(r: f64, n: usize) -> Vec<f64> {

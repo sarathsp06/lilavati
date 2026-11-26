@@ -19,6 +19,13 @@ Notes for anyone (person or AI agent) adding to or changing this site.
   **What it is** block (`id="what"`) that defines the concept itself in plain words, at a high level, and says
   how the page's example is an instance of it. The demo never replaces the definition: the Fourier page must say
   what a Fourier series is, not only draw with circles.
+- **Show the bare concept before the application (the person's rule, 2026-11-26):** when the page's main demo is an
+  application of the concept (drawing with circles is an application of Fourier series), the reader must first
+  see the concept itself on its simplest example. Right after "What it is", add a small **The idea** section
+  (`id="idea"`, `data-label="The idea"`): one interactive figure of the plainest case (for Fourier, a square wave
+  built from sine waves), with the formula written out with its actual numbers and one line leading into the main
+  demo. Pages whose demo already is the plain concept don't need it. "What it is" itself stays short and plain:
+  one sentence, then a few bullets for the parts, not one dense paragraph.
 - **Symbols the reader can read (same rule):** the first use of every symbol says what it is; products are written
   so they cannot be misread (`cos(3·t)`, read "three times t", never a bare `3t` that could be "the third t");
   subscripts and indices are explained; every formula has a one-line plain reading under it. See docs/CONCEPT_PAGE.md.

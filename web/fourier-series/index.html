@@ -7,7 +7,7 @@
   <meta name="description" content="Any closed shape is a sum of circles spinning at different speeds. Draw a shape and get its Fourier series and the circles that draw it back.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="../style.css">
-  <style>.kpick button{padding:.25rem .6rem;font-size:.85rem}.kpick button.on{background:var(--accent);color:#fff}.kpick select{width:auto;margin:0;padding:.25rem 2rem .25rem .6rem;font-size:.85rem}</style>
+  <style>.kpick button{padding:.25rem .6rem;font-size:.85rem}.kpick button.on{background:var(--accent);color:#fff}.idea-fig{margin:.8rem 0 .4rem;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}.idea-fig figcaption{padding:.4rem .8rem .6rem}.idea-controls{display:flex;flex-wrap:wrap;gap:.6rem 1.6rem;align-items:center}.idea-controls label{display:flex;gap:.5rem;align-items:center;margin:0}.idea-controls select{width:auto;margin:0}.idea-controls input[type=range]{width:min(320px,60vw);margin:0}.kpick select{width:auto;margin:0;padding:.25rem 2rem .25rem .6rem;font-size:.85rem}</style>
 </head>
 <body data-concept="fourier-series">
   <main class="container">
@@ -19,7 +19,27 @@
 
     <section id="what" data-label="What it is" class="block what reveal">
       <h2>What a Fourier series is</h2>
-      <p>A <strong>Fourier series</strong> writes any repeating curve as a sum of simple waves: sines and cosines that repeat 1, 2, 3, … times per cycle, each in its own amount. The list of amounts is the recipe of the curve, and working them out is called Fourier analysis. The <strong>Fourier transform</strong> is the same idea for curves that don't repeat: it tells you how much of every frequency is inside a signal.</p><p>On this page the repeating curve is the outline you draw (you go round it once and start again). Its left-right and up-down positions are each written as such a sum, and every sine-and-cosine pair becomes one spinning circle: the amount is the circle's size, the frequency is how fast it turns. Keep more waves, and the circles follow your drawing more closely.</p>
+      <p>A <strong>Fourier series</strong> is a recipe for a curve that repeats, written as a sum of plain waves.</p>
+      <ul>
+        <li><strong>The ingredients</strong> are sine and cosine waves that repeat exactly 1, 2, 3, … times in each cycle of the curve: a slow wave, one twice as fast, one three times as fast, and so on.</li>
+        <li><strong>The recipe</strong> is one number per wave: how much of it to add. Those numbers are called the coefficients.</li>
+        <li><strong>Fourier's claim</strong> is that almost any repeating curve can be made this way, even one with sharp corners or sudden jumps. The more waves you add, the closer the sum gets.</li>
+      </ul>
+      <p>Working out the numbers is called Fourier analysis. The <em>Fourier transform</em> is the same idea for signals that don't repeat: it says how much of every frequency is inside them. The picture just below shows the idea on a single wave; the drawing after it uses the same idea twice to draw any shape with spinning circles.</p>
+    </section>
+
+    <section id="idea" data-label="The idea" class="block reveal">
+      <h2>The idea on one wave</h2>
+      <p class="lead">A square wave jumps between −1 and +1, all corners. It looks nothing like a smooth sine wave, yet it is a sum of them. Add the waves one at a time and watch the sum (blue) close in on the square wave (grey).</p>
+      <figure class="idea-fig"><canvas id="ideaCanvas" width="900" height="470" aria-label="A repeating wave and the sum of its first sine waves, with each wave drawn underneath"></canvas>
+        <figcaption id="ideaCap"></figcaption></figure>
+      <div class="idea-controls">
+        <label>Wave <select id="ideaShape"><option value="0">square</option><option value="1">sawtooth</option><option value="2">triangle</option></select></label>
+        <label>Waves added: <b id="ideaNVal">3</b><input id="ideaN" type="range" min="1" max="30" value="3"></label>
+      </div>
+      <p class="formula" id="ideaFormula"></p>
+      <p id="ideaSay"></p>
+      <p>Each wave on its own is smooth, yet together they make corners and jumps. Where do the numbers come from? Step 3 below shows the trick: hold each test wave against the curve, multiply, and average. The drawing below uses exactly this: walking round your outline, its left-right and up-down positions are two repeating curves like this one, and each gets its own recipe.</p>
     </section>
 
     <section id="play" data-label="Play">
@@ -191,6 +211,7 @@
     <section id="next" data-label="Next" class="block"></section>
   </main>
   <script type="module" src="app.js"></script>
+  <script type="module" src="idea.js"></script>
   <script type="module" src="../concepts.js"></script>
 </body>
 </html>
