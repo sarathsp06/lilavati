@@ -193,6 +193,15 @@ pub fn scene(n: u32, t: f64, xy: f64, xz: f64, yz: f64, xw: f64, yw: f64, zw: f6
     out
 }
 
+/// The distance from the origin to a point, built up one direction at a time: after x alone, after x and y,
+/// after x, y and z, and after all four. Each new direction is at right angles to all the earlier ones,
+/// so each step is Pythagoras on a right triangle: new distance² = old distance² + new number².
+#[wasm_bindgen]
+pub fn running_distance(p: &[f64]) -> Vec<f64> {
+    let mut s = 0.0;
+    p.iter().take(4).map(|v| { s += v * v; s.sqrt() }).collect()
+}
+
 /// Length of one edge after any 4×4 move: the distance between two 4D points.
 #[wasm_bindgen]
 pub fn dist4(a: &[f64], b: &[f64]) -> f64 {
@@ -239,6 +248,16 @@ mod tests {
     fn as_set(v: &[f64], idx: &[u32]) -> Vec<[i64; 4]> {
         let mut s: Vec<[i64; 4]> = idx.iter().map(|&i| pt(v, i as usize).map(|x| (x * 1000.0).round() as i64)).collect();
         s.sort(); s
+    }
+
+    #[test]
+    fn distance_adds_one_square_per_direction() {
+        assert_eq!(running_distance(&[1.0, 2.0, 2.0, 4.0]), vec![1.0, 5f64.sqrt(), 3.0, 5.0]);
+        assert_eq!(running_distance(&[-3.0, 4.0, 0.0, 0.0]), vec![3.0, 5.0, 5.0, 5.0]);
+        // a tesseract corner is 1 from the centre, the same as dist4 says
+        let c = [0.5, 0.5, 0.5, 0.5];
+        assert!(close(running_distance(&c)[3], 1.0));
+        assert!(close(running_distance(&c)[3], dist4(&c, &[0.0; 4])));
     }
 
     #[test]
