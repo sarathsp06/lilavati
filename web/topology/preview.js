@@ -1,38 +1,35 @@
-// Home page card for topology: a ring of squares (a doughnut seen from above) morphs into a mug seen
-// from the side and back, while V − E + F stays 0. The same two maps as src/topology.rs, on its
-// 8 × 6 grid with the hole in cells 5–6 across and 1–4 down.
-const C = 8, R = 6, HOLE = [5, 1, 7, 5];
-function ring(x, y) {
-  const hx = 6, hy = 3, dx = x - hx, dy = y - hy, d = Math.hypot(dx, dy);
-  if (d < 1e-9) return [0, 0];
-  const cx = dx / d, cy = dy / d;
-  const hit = (x0, x1, y0, y1) => Math.min(Math.abs(cx) > 1e-9 ? ((cx > 0 ? x1 : x0) - hx) / cx : Infinity, Math.abs(cy) > 1e-9 ? ((cy > 0 ? y1 : y0) - hy) / cy : Infinity);
-  const din = hit(HOLE[0], HOLE[2], HOLE[1], HOLE[3]), dout = hit(0, C, 0, R);
-  const s = Math.max(0, Math.min(1, (d - din) / (dout - din))), rad = 0.42 + s * 0.63, a = Math.atan2(cy, cx);
-  return [rad * Math.cos(a), -rad * Math.sin(a)];
+// Home page card for topology: a rubber doughnut morphs into a coffee mug and back, drawn in 3D with the
+// same surface as the page (shape3d.js), on a coarser mesh; the hole and V − E + F = 0 never change.
+import { ONE, DoughnutMug, doughnutUV, buildMesh, draw, smooth } from './shape3d.js';
+
+let mesh = null, uv, pos, ao;
+const dm = new DoughnutMug();
+function build() {
+  // the one-hole sheet of src/topology.rs: 8 × 6 squares, vertex id y·9 + x, the hole in squares 5–6 across and 1–4 down
+  const { cols, rows, hole } = ONE, faces = [], grid = [];
+  for (let y = 0; y <= rows; y++) for (let x = 0; x <= cols; x++) grid.push(x, y);
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+    if (x >= hole[0] && x < hole[2] && y >= hole[1] && y < hole[3]) continue;
+    const id = (a, b) => b * (cols + 1) + a;
+    faces.push(id(x, y), id(x + 1, y), id(x + 1, y + 1), id(x, y + 1));
+  }
+  mesh = buildMesh({ faces, grid, ncol: [6, 6, 3, 3, 3, 2, 2, 7], nrow: [6, 7, 7, 7, 5, 6] });
+  uv = doughnutUV(mesh, 40); pos = new Float64Array(6 * mesh.nv); ao = new Float32Array(mesh.nv);
 }
-function mug(x, y) {
-  const v = (R / 2 - y) / (R / 2);
-  if (x <= 5) return [-1.15 + x * 0.31, v * 1.05];
-  const u = (x - 5) / 3, e = Math.min(1, u / 0.35), s = 1 - 0.4 * e * e * (3 - 2 * e);
-  return [0.4 + u * 0.75 - 0.25 * u * u * v * v, v * s * 1.05];
-}
-const inHole = (x, y) => x >= HOLE[0] && x < HOLE[2] && y >= HOLE[1] && y < HOLE[3];
 
 export default function preview(c, w, h, sec) {
-  const k = 0.5 - 0.5 * Math.cos(sec * 0.7), t = k * k * (3 - 2 * k), S = h * 0.36, ox = w * 0.38, oy = h * 0.5;
-  const P = (x, y) => { const a = ring(x, y), b = mug(x, y); return [ox + S * (a[0] + (b[0] - a[0]) * t), oy - S * (a[1] + (b[1] - a[1]) * t)]; };
-  c.lineJoin = 'round';
-  for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) {
-    if (inHole(x, y)) continue;
-    const q = [P(x, y), P(x + 1, y), P(x + 1, y + 1), P(x, y + 1)];
-    c.beginPath(); q.forEach(([a, b], i) => i ? c.lineTo(a, b) : c.moveTo(a, b)); c.closePath();
-    c.fillStyle = '#bbf7d0'; c.fill(); c.strokeStyle = '#15803d'; c.lineWidth = 1; c.stroke();
+  if (!mesh) build();
+  const k = 0.5 - 0.5 * Math.cos(sec * 0.55), t = smooth(1.5 * k - 0.25), nv = mesh.nv;
+  dm.set(t);
+  for (let i = 0; i < nv; i++) {
+    const [x, y, z] = dm.at(uv[2 * i], uv[2 * i + 1]); ao[i] = dm.ao;
+    pos[3 * i] = pos[3 * (nv + i)] = x; pos[3 * i + 2] = pos[3 * (nv + i) + 2] = z; pos[3 * i + 1] = y; pos[3 * (nv + i) + 1] = -y;
   }
+  draw(c, pos, mesh, { yaw: -0.42 + 0.22 * Math.sin(sec * 0.35), pitch: 0.36, S: h * 0.39, cx: w * 0.36, cy: h * 0.5, dist: 7 }, { lines: true, lw: 0.6, ao });
   c.fillStyle = '#14532d'; c.font = '600 22px system-ui'; c.textAlign = 'left';
   c.fillText('1 hole', w * 0.7, h * 0.42);
   c.font = '18px system-ui'; c.fillStyle = '#15803d';
   c.fillText('V − E + F = 0', w * 0.7, h * 0.56);
   c.fillStyle = '#6b7280'; c.font = '14px system-ui';
-  c.fillText(t < 0.5 ? 'doughnut' : 'mug', w * 0.7, h * 0.68);
+  c.fillText(t < 0.25 ? 'a doughnut' : t > 0.75 ? 'a mug' : 'stretching…', w * 0.7, h * 0.68);
 }

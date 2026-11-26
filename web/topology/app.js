@@ -1,27 +1,33 @@
-// The topology page: a rubber sheet of squares (Rust/WebAssembly: src/topology.rs) that morphs, can be
-// pulled about, cut and punched, with V − E + F counted from its faces; and the step-by-step figures.
-import init, { Sheet, count_mesh, running_euler, measure, cube_faces, torus_faces, euler } from '../pkg/lilavati.js';
+// The topology page: a rubber sheet of squares (Rust/WebAssembly: src/topology.rs) made thick and drawn in 3D
+// (shape3d.js): it morphs (a doughnut into a mug), can be turned, pulled about, cut and punched, with V − E + F
+// counted from the sheet's faces, which are drawn on the front of the rubber; and the step-by-step figures.
+import init, { Sheet, count_mesh, running_euler, cube_faces, torus_faces, euler } from '../pkg/lilavati.js';
 import { share, nums } from '../together/share.js';
+import { DoughnutMug, ringUS, doughnutUV, buildMesh, inflate, outlineSegs, draw as draw3d, measure3d } from './shape3d.js';
 
 await init();
 const $ = id => document.getElementById(id);
 const cv = $('sheet'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
 const S = 235, OX = W / 2, OY = H / 2;          // plane units to canvas pixels
 const PX_PER_CM = W / 30;                        // the picture is 30 cm wide
+const CM = S / PX_PER_CM;                        // centimetres per unit of the 3D shape
 const ENDS = ['Lump ↔ arch', 'Doughnut ↔ mug', 'Flat ↔ glasses', 'Flat ↔ wavy'];
 const COL = { face: '#bbf7d0', faceEdge: '#86c79f', line: '#15803d', dot: '#14532d', hot: '#dc2626', warm: '#ea580c', ink: '#1d4ed8', grey: '#9ca3af' };
+const MAXPULL = 1.5;                             // how far (in units of the 3D shape) a dot may be pulled
 
 let sheet = new Sheet(1);
 let t = 0;                                       // the morph, 0 to 1
-let offs = new Float64Array(2 * sheet.vertex_count());   // the reader's pulls, in canvas pixels per vertex id
+let offs = new Float64Array(3 * sheet.vertex_count());   // the reader's pulls, in 3D, per vertex id
 let playing = false, dir = 1, last = 0;
 let startChi = sheet.counts()[3];                // V − E + F before any cut or punch
+const view = { yaw: -0.42, pitch: 0.38, S, cx: W / 2, cy: H / 2 + 8, dist: 7 };   // personal: not shared
+let dragMode = 'turn';
 
-// ---------- the sheet ----------
-// canvas positions of every vertex id of a sheet (same ids as the reader's sheet, so the pulls apply)
+// ---------- the sheet, flat (for the step-by-step figures) ----------
+// canvas positions of every vertex id of a sheet, laid flat
 function pointsOf(sh, tt = t) {
   const p = sh.positions(tt), out = new Float64Array(p.length);
-  for (let i = 0; i < p.length; i += 2) { out[i] = OX + S * p[i] + (offs[i] || 0); out[i + 1] = OY - S * p[i + 1] + (offs[i + 1] || 0); }
+  for (let i = 0; i < p.length; i += 2) { out[i] = OX + S * p[i]; out[i + 1] = OY - S * p[i + 1]; }
   return out;
 }
 // the distinct edges of a list of quads, and how many faces each touches
@@ -52,15 +58,88 @@ function drawSheet(c, faces, map, o = {}) {
   if (dots && lines) { c.fillStyle = COL.dot; for (const i of usedIds(faces)) { const [x, y] = map(i); c.beginPath(); c.arc(x, y, 2.6 * scale, 0, 7); c.fill(); } }
 }
 const m = v => (v < 0 ? '−' + -v : String(v));   // a number with a real minus sign
-const cm = v => (v / PX_PER_CM).toFixed(1);
 
+// ---------- the sheet made thick, in 3D ----------
+// The sheet's squares are split into smaller pieces and laid on a closed rubber skin: the front skin carries
+// the sheet (its dots and edges are drawn there), the back skin is its mirror copy, and the two meet along
+// the sheet's outline. The one-hole sheet becomes a doughnut and a mug (shape3d.js); the others are the
+// flat sheet of src/topology.rs puffed up, round along every edge.
+const ROUND = [1.2, 0, 0.5, 0.5];                // how far in from the edge points are gathered for the round rim (squares)
+const SUB = [[5, 5], null, [6, 6], [5, 5]];      // pieces per square, across and down
+const PUFF = [1, 1, 1.2, 1.2];                   // thickness, as a share of a round tube
+const dm = new DoughnutMug();
+let mesh, uv, pos, ao, puff, corner;                       // the fine mesh, its (u, v) on the doughnut, positions, dot → point
+
+// pieces per column and per row for the doughnut and mug: enough that none is longer than about 0.085 units
+// at either end of the morph (measured along the middle of each square)
+function subOne(faces, grid) {
+  const ncol = new Array(8).fill(2), nrow = new Array(6).fill(2), at = (x, y, tt) => { const [u, s] = ringUS(x, y); return dm.set(tt).at(u, Math.PI * (1 - s)); };
+  for (let f = 0; f < faces.length; f += 4) {
+    const x = Math.floor(grid[2 * faces[f]] + 1e-9), y = Math.floor(grid[2 * faces[f] + 1] + 1e-9);
+    for (const tt of [0, 0.5, 1]) {
+      let lx = 0, ly = 0;
+      for (let k = 0; k < 8; k++) {
+        const a = at(x + k / 8, y + 0.5, tt), b = at(x + (k + 1) / 8, y + 0.5, tt), c = at(x + 0.5, y + k / 8, tt), d = at(x + 0.5, y + (k + 1) / 8, tt);
+        lx += Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]); ly += Math.hypot(d[0] - c[0], d[1] - c[1], d[2] - c[2]);
+      }
+      ncol[x] = Math.max(ncol[x], Math.min(12, Math.ceil(lx / 0.1))); nrow[y] = Math.max(nrow[y], Math.min(12, Math.ceil(ly / 0.1)));
+    }
+  }
+  dm.set(t);
+  return [ncol, nrow];
+}
+const segKey = s => (s[0] < s[2] || (s[0] === s[2] && s[1] < s[3]) ? s : [s[2], s[3], s[0], s[1]]).map(v => v.toFixed(3)).join();
+let SUB1 = null;
+function rebuild() {
+  const faces = sheet.faces(), grid = sheet.grid(), sh = sheet.shape();
+  let segs = outlineSegs(faces, grid), D = ROUND[sh], sub;
+  if (sh === 1) {
+    // the doughnut's own outline is already round: only new edges (a cut, a punched square) are pinched shut
+    const plain = new Sheet(1), keep = new Set(outlineSegs(plain.faces(), plain.grid()).map(segKey));
+    if (!SUB1) SUB1 = subOne(plain.faces(), plain.grid());
+    plain.free();
+    segs = segs.filter(s => !keep.has(segKey(s))); D = 0.4; sub = SUB1;
+  } else sub = [new Array(sheet.cols()).fill(SUB[sh][0]), new Array(sheet.rows()).fill(SUB[sh][1])];
+  mesh = buildMesh({ faces, grid, ncol: sub[0], nrow: sub[1], segs, D });
+  if (sh === 1) uv = doughnutUV(mesh);
+  puff = sh === 1 ? null : inflate(mesh, 1 / SUB[sh][0], D);
+  pos = new Float64Array(6 * mesh.nv); ao = sh === 1 ? new Float32Array(mesh.nv) : null;
+  corner = new Map();   // each dot of the sheet: its point on the front
+  for (let i = 0; i < mesh.nv; i++) for (let k = 0; k < 4; k++) if (mesh.wts[4 * i + k] === 1) corner.set(mesh.cid[4 * i + k], i);
+}
+// the 3D positions of every point at the current morph and pulls: the nv front points, then the nv back ones
+function place3d() {
+  const { nv, gq, g, cid, wts } = mesh, sh = sheet.shape();
+  if (sh === 1) {
+    dm.set(t);
+    for (let i = 0; i < nv; i++) {
+      const [x, y, z] = dm.at(uv[2 * i], uv[2 * i + 1]); ao[i] = dm.ao;
+      pos[3 * i] = pos[3 * (nv + i)] = x; pos[3 * i + 2] = pos[3 * (nv + i) + 2] = z;
+      pos[3 * i + 1] = y * g[i]; pos[3 * (nv + i) + 1] = -y * g[i];
+    }
+  } else {
+    const L = sheet.place(t, gq), k = 2.8 / sheet.cols() * PUFF[sh];
+    for (let i = 0; i < nv; i++) {
+      pos[3 * i] = pos[3 * (nv + i)] = L[2 * i]; pos[3 * i + 2] = pos[3 * (nv + i) + 2] = L[2 * i + 1];
+      pos[3 * i + 1] = -k * puff[i]; pos[3 * (nv + i) + 1] = k * puff[i];
+    }
+  }
+  // the reader's pulls move both skins together, spread over each square from its four corners
+  for (let i = 0; i < nv; i++) for (let j = 0; j < 3; j++) {
+    let d = 0; for (let k = 0; k < 4; k++) d += wts[4 * i + k] * offs[3 * cid[4 * i + k] + j];
+    pos[3 * i + j] += d; pos[3 * (nv + i) + j] += d;
+  }
+}
+
+let shown = null;   // the last drawn picture's screen points, for picking a dot to pull
 function draw() {
   ctx.clearRect(0, 0, W, H);
-  const faces = sheet.faces(), P = pointsOf(sheet);
-  drawSheet(ctx, faces, i => [P[2 * i], P[2 * i + 1]], { dots: $('showDots').checked, lines: $('showDots').checked, scale: 1.3 });
-  const [V, E, F, chi, pieces, holes] = sheet.counts(), [len, area] = measure(faces, 4, P);
+  place3d();
+  const dots = $('showDots').checked;
+  shown = draw3d(ctx, pos, mesh, view, { lines: dots, dots, lw: W / 600, ao });
+  const [V, E, F, chi, pieces, holes] = sheet.counts(), me = measure3d(pos, mesh);
   $('keep').innerHTML = `<strong class="keep">Counts:</strong> ${holes} hole${holes === 1 ? '' : 's'} · ${pieces} piece${pieces === 1 ? '' : 's'} · V − E + F = ${V} − ${E} + ${F} = <b>${m(chi)}</b>`;
-  $('change').innerHTML = `<strong class="change">Measures:</strong> outline ${cm(len)} cm · area ${(area / PX_PER_CM ** 2).toFixed(0)} cm² <small class="muted">(the picture is 30 cm wide)</small>`;
+  $('change').innerHTML = `<strong class="change">Measures:</strong> surface ${(me.area * CM * CM).toFixed(0)} cm² · volume ${(me.volume * CM ** 3).toFixed(0)} cm³ · outline ${(me.edge * CM).toFixed(1)} cm`;
   $('tVal').textContent = `${Math.round(t * 100)}%`;
   const note = chi === startChi ? 'Cutting and punching are not stretching. Watch V − E + F when you do them.'
     : `You broke the rules: V − E + F went from ${m(startChi)} to ${m(chi)}. No amount of stretching does that.`;
@@ -72,9 +151,9 @@ function draw() {
 
 function setShape(s) {
   sheet.free(); sheet = new Sheet(s); t = 0; playing = false; $('playMorph').textContent = 'Play the morph';
-  offs = new Float64Array(2 * sheet.vertex_count()); startChi = sheet.counts()[3];
+  offs = new Float64Array(3 * sheet.vertex_count()); startChi = sheet.counts()[3];
   $('shape').value = String(s); $('morph').value = '0'; $('ends').textContent = ENDS[s];
-  changed();
+  rebuild(); changed();
 }
 function changed() { draw(); explain(); }
 
@@ -86,37 +165,58 @@ $('playMorph').addEventListener('click', () => {
   $('playMorph').textContent = playing ? 'Pause' : 'Play the morph';
 });
 $('smooth').addEventListener('click', () => { offs.fill(0); changed(); });
-$('cut').addEventListener('click', () => { sheet.set_cut(!sheet.is_cut()); changed(); });
-$('punch').addEventListener('click', () => { sheet.set_punched(!sheet.is_punched()); changed(); });
+$('cut').addEventListener('click', () => { sheet.set_cut(!sheet.is_cut()); rebuild(); changed(); });
+$('punch').addEventListener('click', () => { sheet.set_punched(!sheet.is_punched()); rebuild(); changed(); });
+for (const b of document.querySelectorAll('[data-drag]')) b.addEventListener('click', () => {
+  dragMode = b.dataset.drag; for (const x of document.querySelectorAll('[data-drag]')) x.classList.toggle('on', x === b);
+});
 
-// pulling the sheet like rubber: everything near the pointer follows it, less and less further away
-let drag = null;
-const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; };
-function pull(x0, y0, dx, dy, radius = 70) {
-  const P = pointsOf(sheet);
-  for (let i = 0; i < P.length; i += 2) {
-    const d2 = (P[i] - x0) ** 2 + (P[i + 1] - y0) ** 2, w = Math.exp(-d2 / (2 * radius * radius));
-    offs[i] = Math.max(-400, Math.min(400, offs[i] + dx * w)); offs[i + 1] = Math.max(-400, Math.min(400, offs[i + 1] + dy * w));
+// pulling like rubber: the dots near the one you grab follow it (near along the sheet, not on screen), less
+// and less further away; both skins move together
+function pullAt(id, d, spread = 1.3) {
+  const g = sheet.grid(), gx = g[2 * id], gy = g[2 * id + 1];
+  for (let i = 0; i < offs.length / 3; i++) {
+    const w = Math.exp(-((g[2 * i] - gx) ** 2 + (g[2 * i + 1] - gy) ** 2) / (2 * spread * spread));
+    for (let j = 0; j < 3; j++) offs[3 * i + j] = Math.max(-MAXPULL, Math.min(MAXPULL, offs[3 * i + j] + d[j] * w));
   }
 }
-cv.addEventListener('pointerdown', e => { e.preventDefault(); cv.setPointerCapture(e.pointerId); drag = pos(e); cv.classList.add('dragging'); });
-cv.addEventListener('pointermove', e => {
-  if (!drag) return; const [x, y] = pos(e);
-  pull(drag[0], drag[1], x - drag[0], y - drag[1]); drag = [x, y]; draw();
+let drag = null;
+const pos2 = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; };
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault(); cv.setPointerCapture(e.pointerId); const [x, y] = pos2(e);
+  drag = { x, y, id: -1 }; cv.classList.add('dragging');
+  if (dragMode === 'pull' && shown) {   // the dot nearest the pointer (the nearer one if two overlap)
+    let best = 60 * 60, bz = Infinity;
+    for (const [id, i] of corner) {
+      const d2 = (shown.sx[i] - x) ** 2 + (shown.sy[i] - y) ** 2;
+      if (d2 < best - 200 || (d2 < best + 200 && shown.Z[i] < bz)) { best = Math.min(best, d2); bz = shown.Z[i]; drag.id = id; }
+    }
+  }
 });
-const endDrag = () => { if (!drag) return; drag = null; cv.classList.remove('dragging'); explain(); };
+cv.addEventListener('pointermove', e => {
+  if (!drag) return; const [x, y] = pos2(e), dx = x - drag.x, dy = y - drag.y; drag.x = x; drag.y = y;
+  if (dragMode === 'turn' || drag.id < 0) {
+    view.yaw += dx * 0.008; view.pitch = Math.max(-1.3, Math.min(1.45, view.pitch + dy * 0.008));
+  } else {   // the screen movement, turned back into the shape's own directions
+    const X = dx / S, Y = -dy / S, cy = Math.cos(view.yaw), sy = Math.sin(view.yaw), cp = Math.cos(view.pitch), sp = Math.sin(view.pitch);
+    const Y0 = Y * sp, z = Y * cp; pullAt(drag.id, [X * cy + Y0 * sy, -X * sy + Y0 * cy, z]);
+  }
+  draw();
+});
+const endDrag = () => { if (!drag) return; const pulled = drag.id >= 0; drag = null; cv.classList.remove('dragging'); if (pulled) explain(); };
 cv.addEventListener('pointerup', endDrag); cv.addEventListener('pointercancel', endDrag);
 
 // ---------- Try this ----------
 const TRY = {
   mug: () => { setShape(1); playing = true; dir = 1; $('playMorph').textContent = 'Pause'; },
   pull: () => { setShape(1); t = 0.5; $('morph').value = '0.5';
-    const P = pointsOf(sheet); // three firm pulls at fixed places, so everyone in a session sees the same
-    for (const [i, dx, dy] of [[0, -90, -60], [Math.floor(P.length / 4), 110, 40], [P.length / 2 - 2, 60, 90]]) pull(P[i], P[i + 1], dx, dy, 90);
+    // three firm pulls at fixed dots, so everyone in a session sees the same
+    const id = (x, y) => y * (sheet.cols() + 1) + x;
+    pullAt(id(0, 0), [-0.45, -0.2, 0.35]); pullAt(id(8, 3), [0.5, -0.3, 0]); pullAt(id(2, 6), [0.1, -0.45, -0.35]);
     changed(); },
-  cut: () => { setShape(1); t = 1; $('morph').value = '1'; sheet.set_cut(true); changed(); },
-  punch: () => { setShape(3); sheet.set_punched(true); changed(); },
-  split: () => { setShape(0); sheet.set_cut(true); changed(); },
+  cut: () => { setShape(1); t = 1; $('morph').value = '1'; sheet.set_cut(true); rebuild(); changed(); },
+  punch: () => { setShape(3); sheet.set_punched(true); rebuild(); changed(); },
+  split: () => { setShape(0); sheet.set_cut(true); rebuild(); changed(); },
 };
 for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('click', () => { TRY[b.dataset.try]?.(); $('play').scrollIntoView({ behavior: 'smooth' }); });
 
@@ -334,7 +434,7 @@ function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   if (playing) {
-    t += dir * dt / 3; if (t >= 1 || t <= 0) { t = Math.max(0, Math.min(1, t)); playing = false; $('playMorph').textContent = 'Play the morph'; explain(); }
+    t += dir * dt / 4; if (t >= 1 || t <= 0) { t = Math.max(0, Math.min(1, t)); playing = false; $('playMorph').textContent = 'Play the morph'; explain(); }
     $('morph').value = String(t); draw();
   }
   const sec = now / 1000;
@@ -343,14 +443,15 @@ function frame(now) {
 setShape(1);
 requestAnimationFrame(frame);
 
-// ---------- together: the shape, the morph, the cut and punch, and the pulls ----------
+// ---------- together: the shape, the morph, the cut and punch, and the pulls (the view's turn is personal) ----------
 share(() => ({ s: sheet.shape(), t, cut: sheet.is_cut(), punch: sheet.is_punched(), offs: [...offs] }), st => {
   const s = Number.isInteger(st?.s) && st.s >= 0 && st.s <= 3 ? st.s : null;
   if (s === null || typeof st.t !== 'number' || !Number.isFinite(st.t)) return;
   if (s !== sheet.shape()) setShape(s);
   t = Math.max(0, Math.min(1, st.t)); $('morph').value = String(t);
-  sheet.set_cut(st.cut === true); sheet.set_punched(st.punch === true);
+  const cut = st.cut === true, punch = st.punch === true, re = cut !== sheet.is_cut() || punch !== sheet.is_punched();
+  sheet.set_cut(cut); sheet.set_punched(punch); if (re) rebuild();
   const o = nums(st.offs, offs.length);
-  if (o && o.length === offs.length) offs = Float64Array.from(o, v => Math.max(-400, Math.min(400, v)));
+  if (o && o.length === offs.length) offs = Float64Array.from(o, v => Math.max(-MAXPULL, Math.min(MAXPULL, v)));
   changed();
 });
