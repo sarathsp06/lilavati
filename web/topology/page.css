@@ -16,3 +16,17 @@
   .under .say { font-size: .78rem; }
 }
 .kpick button:not(.on) { background: transparent; color: var(--accent); border-color: var(--accent); }
+/* The idea: one rubber ring */
+.idea-fig { margin: .8rem 0 .4rem; border: 1px solid var(--line); border-radius: 14px; background: #fff; overflow: hidden; }
+.idea-fig canvas { display: block; width: 100%; height: auto; }
+.idea-fig figcaption { padding: .4rem .8rem .6rem; }
+.idea-controls { display: flex; flex-wrap: wrap; gap: .6rem 1.6rem; align-items: center; }
+.idea-controls label { display: flex; gap: .5rem; align-items: center; margin: 0; }
+.idea-controls input[type=range] { width: min(320px, 60vw); margin: 0; }
+.idea-controls input[type=checkbox] { margin: 0; }
+#ideaFormula { white-space: pre-wrap; }
+@media (max-width: 600px) {
+  .idea-controls label { flex-wrap: wrap; }
+  .idea-controls input[type=range] { width: 100%; flex: 1 1 10rem; }
+}
+#ideaCanvas { touch-action: pan-y; }
