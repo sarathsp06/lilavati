@@ -76,6 +76,22 @@ pub fn computer_guesses(n: usize, round: u32, last_avg: f64, p: f64, seed: u32) 
     }).map(|g| g.clamp(0.0, 100.0)).collect()
 }
 
+/// A game of two players with two choices each, the plainest place to see a Nash equilibrium.
+/// `you` and `them` hold the points for each cell, row by row: [row 1 col 1, row 1 col 2, row 2 col 1,
+/// row 2 col 2]; you pick the row, they pick the column. For each cell: 1 if you would gain by switching
+/// rows on your own, 2 if they would gain by switching columns, 3 if both would, 0 if nobody would.
+/// The cells with 0 are the Nash equilibria.
+#[wasm_bindgen]
+pub fn switch_gains(you: &[f64], them: &[f64]) -> Vec<u8> {
+    if you.len() < 4 || them.len() < 4 { return vec![]; }
+    (0..4).map(|i| {
+        let (r, c) = (i / 2, i % 2);
+        let other_row = (1 - r) * 2 + c;
+        let other_col = r * 2 + (1 - c);
+        (if you[other_row] > you[i] { 1 } else { 0 }) | (if them[other_col] > them[i] { 2 } else { 0 })
+    }).collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -121,5 +137,18 @@ mod tests {
         let mut last = avg1;
         for round in 2..12 { last = average(&computer_guesses(400, round, last, P, 3)); }
         assert!(last < avg1 / 4.0, "after 10 rounds {last}");
+    }
+
+    #[test]
+    fn two_by_two_equilibria() {
+        // two shops pick a price, high or low: both low is the only equilibrium, though both high pays more
+        let (you, them) = ([3.0, 0.0, 5.0, 1.0], [3.0, 5.0, 0.0, 1.0]);
+        assert_eq!(switch_gains(&you, &them), vec![3, 1, 2, 0]);
+        // meeting up: both at the café and both at the cinema are equilibria
+        assert_eq!(switch_gains(&[2.0, 0.0, 0.0, 1.0], &[2.0, 0.0, 0.0, 1.0]), vec![0, 3, 3, 0]);
+        // a penalty kick: someone always wants to switch, so there is no equilibrium in plain choices
+        let g = switch_gains(&[0.0, 1.0, 1.0, 0.0], &[1.0, 0.0, 0.0, 1.0]);
+        assert!(g.iter().all(|&x| x != 0), "{g:?}");
+        assert!(switch_gains(&[1.0], &[1.0]).is_empty());
     }
 }

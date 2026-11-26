@@ -108,6 +108,23 @@ impl Motion {
     pub fn acceleration(&self) -> Vec<f64> { self.a.clone() }
 }
 
+/// The idea on the plainest curve, y = x·x: the slope of the line through x and x + h ("rise over
+/// run"), which is 2·x + h and so settles on 2·x, the derivative, as the gap h shrinks.
+#[wasm_bindgen]
+pub fn square_secant_slope(x: f64, h: f64) -> f64 {
+    if h == 0.0 { return 2.0 * x; }
+    ((x + h) * (x + h) - x * x) / h
+}
+
+/// The area under y = x·x from 0 to x, from n rectangles of equal width, each as tall as the curve
+/// at its left edge (so a little under the curve). As n grows it settles on x·x·x ÷ 3, the integral.
+#[wasm_bindgen]
+pub fn square_left_sum(x: f64, n: usize) -> f64 {
+    let n = n.max(1);
+    let w = x / n as f64;
+    (0..n).map(|i| { let l = i as f64 * w; l * l * w }).sum()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -156,5 +173,18 @@ mod tests {
         assert!(peak(raw.acceleration()) > 50.0);
         assert!(peak(calm.acceleration()) < 2.0, "{}", peak(calm.acceleration()));
         assert!(calm.velocity()[150] > 2.9 && calm.velocity()[150] < 3.1);
+    }
+
+    #[test]
+    fn the_idea_on_x_squared() {
+        // rise over run is 2·x + h, so it lands on the slope 2·x as h shrinks
+        assert!((square_secant_slope(1.5, 0.5) - 3.5).abs() < 1e-12);
+        assert!((square_secant_slope(1.5, 1e-6) - 3.0).abs() < 1e-5);
+        assert_eq!(square_secant_slope(2.0, 0.0), 4.0);
+        // left rectangles: w³·(n−1)·n·(2n−1)/6, under the true area x³/3, closing in as n grows
+        assert!((square_left_sum(3.0, 3) - 5.0).abs() < 1e-12);   // 0 + 1 + 4
+        let exact = 27.0 / 3.0;
+        let (a, b) = (square_left_sum(3.0, 10), square_left_sum(3.0, 1000));
+        assert!(a < b && b < exact && exact - b < 0.02, "{a} {b}");
     }
 }

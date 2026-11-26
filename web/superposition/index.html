@@ -26,6 +26,7 @@
   <!-- /share -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
   <style>
     .wv { display: grid; grid-template-columns: 1.2rem 1fr 1fr 1fr; gap: .1rem .6rem; align-items: end; margin-bottom: .5rem; }
     .wv .dot { width: .9rem; height: .9rem; border-radius: 50%; margin-bottom: .9rem; }
@@ -50,7 +51,31 @@
 
     <section id="what" data-label="What it is" class="block what reveal">
       <h2>What superposition is</h2>
-      <p><strong>Superposition</strong> is the rule that when two waves meet, they simply add: at every moment and every place, the height of the combined wave is the sum of the heights of the separate ones. The waves pass through each other unchanged. Adding a wave to its own mirror image gives nothing at all; adding two nearly equal waves gives a throbbing beat; adding many waves at whole-number frequencies gives a chord, or any shape you like.</p><p>On this page you mix up to three sound waves, see their sum, and hear it.</p>
+      <p><strong>Superposition</strong> is the rule that waves meeting in the same place simply add up.</p>
+      <ul>
+        <li><strong>Heights add.</strong> At every moment and every place, the height of the combined wave is the height of one wave plus the height of the other. A dip counts as a negative height.</li>
+        <li><strong>The waves pass through each other unchanged.</strong> After they meet, each carries on as if the other had never been there.</li>
+        <li><strong>So the sum can be bigger or smaller.</strong> A crest on a crest makes a taller crest; a crest on an equal dip makes nothing at all.</li>
+      </ul>
+      <p>It holds for sound, light, water ripples and radio, as long as the waves are not extremely strong. The picture just below adds two slow waves moment by moment. After it, the waves are sounds that go up and down hundreds of times a second, and you can hear the sum: a sound plus its mirror image is silence, which is how noise-cancelling headphones work.</p>
+    </section>
+
+    <section id="idea" data-label="The idea" class="block reveal">
+      <h2>The idea on two waves</h2>
+      <p class="lead">Two waves, A and B, both 1 high. Drag the moment along: at each moment, take A's height and B's height and stack one on the other. That point is the sum. Do it at every moment and the black wave appears.</p>
+      <figure class="idea-fig"><canvas id="ideaCanvas" width="900" height="430" aria-label="Wave A, wave B and their sum, built up to a chosen moment by stacking B's height on A's"></canvas>
+        <figcaption id="ideaCap"></figcaption></figure>
+      <div class="idea-controls">
+        <label>Moment <b id="ideaTVal">1.10 laps</b><input id="ideaT" type="range" min="0" max="100" step="1" value="55"></label>
+        <label>B goes <select id="ideaSpeed"><option value="1">as fast as A</option><option value="2" selected>twice as fast</option><option value="3">three times as fast</option></select></label>
+        <label>B shifted by <b id="ideaShiftVal">0°</b><input id="ideaShift" type="range" min="0" max="360" step="15" value="0"></label>
+        <button id="ideaCancel" class="outline">B = A upside down</button>
+        <button id="ideaDouble" class="outline">B = A</button>
+      </div>
+      <p class="formula" id="ideaWaves"></p>
+      <p class="formula" id="ideaFormula"></p>
+      <p id="ideaSay"></p>
+      <p>Read the first line as: t is how far along you are, in laps of A; 360°·t means 360 degrees times t, so A goes up and down once per lap, and B goes up and down 1, 2 or 3 times per lap (the number after 360°), started the shift further round. Below, the same adding happens with sound waves, hundreds of laps a second.</p>
     </section>
 
     <section id="play" data-label="Play">
@@ -183,6 +208,7 @@
     <section id="next" data-label="Next" class="block"></section>
   </main>
   <script type="module" src="app.js"></script>
+  <script type="module" src="idea.js"></script>
   <script type="module" src="../concepts.js"></script>
 </body>
 </html>

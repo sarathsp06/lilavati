@@ -29,6 +29,16 @@ pub fn combined_amplitude(a: f64, b: f64, phase_gap: f64) -> f64 { (a * a + b * 
 #[wasm_bindgen]
 pub fn beat_frequency(f1: f64, f2: f64) -> f64 { (f1 - f2).abs() }
 
+/// The heights of several waves at one moment t, and their sum last: [y₁, y₂, …, y₁ + y₂ + …].
+/// This is superposition at a single instant: the combined height is the heights added.
+#[wasm_bindgen]
+pub fn heights_at(freqs: &[f64], amps: &[f64], phases: &[f64], t: f64) -> Vec<f64> {
+    let n = freqs.len().min(amps.len()).min(phases.len());
+    let mut out: Vec<f64> = (0..n).map(|k| amps[k] * (2.0 * PI * freqs[k] * t + phases[k]).sin()).collect();
+    out.push(out.iter().sum());
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -67,5 +77,16 @@ mod tests {
         let a: Vec<f64> = f.iter().map(|k| 1.0 / k).collect();
         let s = superpose(&f, &a, &vec![0.0; n], 0.25, 0.25, 2);
         assert!((s[0] - PI / 4.0).abs() < 0.01, "{}", s[0]);
+    }
+
+    #[test]
+    fn heights_at_one_moment_add() {
+        // a quarter of the way through: A = sin(90°) = 1, B (twice as fast, shifted 90°) = sin(270°) = −1
+        let h = heights_at(&[1.0, 2.0], &[1.0, 1.0], &[0.0, PI / 2.0], 0.25);
+        assert_eq!(h.len(), 3);
+        assert!((h[0] - 1.0).abs() < 1e-12 && (h[1] + 1.0).abs() < 1e-12 && h[2].abs() < 1e-12);
+        // the same as the sampled sum
+        let s = superpose(&[1.0, 3.0], &[1.0, 0.5], &[0.3, 1.0], 0.1, 0.9, 5);
+        assert!((heights_at(&[1.0, 3.0], &[1.0, 0.5], &[0.3, 1.0], 0.3)[2] - s[1]).abs() < 1e-12);
     }
 }
