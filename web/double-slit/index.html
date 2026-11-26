@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why one electron goes through both slits · The double-slit experiment · Lilavati</title>
+  <meta name="description" content="Fire particles one at a time at two slits and stripes build up. Add the two paths' amplitudes before squaring: the cross term is the interference. Put a detector at the slits and the stripes vanish.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body data-concept="double-slit">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Why one electron goes through both slits</h1>
+      <p class="idea">Fire them one at a time and the stripes still build up. Look which slit, and they vanish.</p>
+      <p>Below, a source fires particles one at a time at a wall with two narrow slits. Each one lands on the screen as a single dot. Watch the dots pile up into bright and dark stripes, the pattern a wave would make. Then switch on a detector that tells you which slit each one went through, and watch the stripes go.</p>
+    </header>
+
+    <section id="what" data-label="What it is" class="block what">
+      <h2>What the double-slit experiment is</h2>
+      <p>The <strong>double-slit experiment</strong> sends light, or particles such as electrons, at a wall with two narrow slits side by side, and records where they arrive on a screen behind it. A wave goes through both slits at once, and the two parts meet again on the screen: where crest meets crest they add up to a bright stripe, where crest meets trough they cancel to a dark one. That adding and cancelling is called <strong>interference</strong>, and the stripes are the interference pattern.</p>
+      <p>The surprise comes when the particles are sent one at a time. Each lands whole, as a single dot, yet the dots pile up into the same stripes, as if each one had gone through both slits. The rule that fits is: give each way through a wave-like arrow (an amplitude), add the two arrows, and square the length to get the chance of landing there. Find out which slit each particle used, and the stripes disappear.</p>
+      <p>On this page the particles, the slits and the detector are simulated with exactly that rule, so you can watch the stripes build up dot by dot, and watch them go.</p>
+    </section>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="plane" width="900" height="640" aria-label="Source, two slits, screen, and the dots landing on the screen"></canvas>
+          <div class="under">
+            <div class="ctl">
+              <button id="one">One particle</button>
+              <button id="run">Run</button>
+              <button id="reset" class="secondary outline">Reset</button>
+              <label>Rate <strong id="rateVal"></strong><input type="range" id="rate" min="0" max="3" step="0.01" value="1.3"></label>
+            </div>
+            <p class="say" id="say"></p>
+          </div>
+        </div>
+        <aside class="panel">
+          <h4>The slits</h4>
+          <label>Slit separation d <strong id="dVal"></strong><input type="range" id="d" min="50" max="400" step="5" value="100"></label>
+          <label>Slit width a <strong id="aVal"></strong><input type="range" id="a" min="10" max="100" step="1" value="30"></label>
+          <label>Wavelength λ <strong id="lamVal"></strong><input type="range" id="lam" min="400" max="700" step="5" value="550"></label>
+          <p class="hint-s">The screen is 1 m from the slits and 40 mm tall. Changing a setting clears the screen.</p>
+          <h4>Looking</h4>
+          <label class="inline"><input type="checkbox" id="det"> Which-path detector at the slits</label>
+          <label class="inline"><input type="checkbox" id="curve" checked> Show the predicted curve</label>
+          <p class="hint-s">With the detector on, each dot is coloured by the slit it was seen at. The pink curve is the chance of landing at each height, scaled to the number of dots so far.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Press "One particle" a few times.</strong> <span>Each one lands in one spot, like a bullet. Nothing about a single dot looks wavy.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Run at 1000 a second for a few seconds.</strong> <span>Stripes appear where the dots crowd, with gaps between them that no dot ever reaches. One at a time, they still "know" about both slits.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Switch the detector on and run again.</strong> <span>Now each dot is tagged blue or orange by the slit it was seen at, and the gaps fill in: one smooth bump, the two tagged groups added up.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Halve the slit separation (d from 100 to 50 µm).</strong> <span>The stripes spread twice as far apart. The spacing is λ·L / d (wavelength times screen distance, divided by slit separation): smaller d, wider stripes.</span><button class="outline" data-try="3">Show me</button></li>
+        <li><strong>Go from red (700 nm) to violet (400 nm).</strong> <span>The stripes squeeze together. Shorter waves make finer stripes, so white light, a mix of all colours, makes stripes with coloured edges.</span><button class="outline" data-try="4">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>From two paths to the stripes, step by step</h2>
+      <p class="lead">These pictures use the slits and the wavelength you set above.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>One slit: every point of the slit sends an arrow</h3>
+          <p>Think of each wave as a small arrow that turns once for every wavelength it travels. Cut one slit into strips. From each strip a wave goes to the screen point, and its arrow arrives turned by the number of wavelengths on that path.</p>
+          <p>Straight ahead all the paths are nearly equal, so the arrows line up and the sum is long. Further out, the paths from the two edges of the slit differ by more, the arrows fan out and curl up, and the sum shrinks to nothing. That curve, the sum's length squared as the point moves, is the single-slit envelope.</p></div>
+        <figure><canvas id="ex1" width="640" height="400"></canvas><figcaption id="cap1">Left: one slit (enlarged) cut into 11 strips, a path from each to the moving point. Right: each strip's arrow, turned by its own path length, added head to tail. Bottom: the sum's length squared, traced as the point moves.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>Two paths to one point: two arrows and their sum</h3>
+          <p>Now two slits. Pick a point on the screen. One path comes from the upper slit (slit 1, length r₁), one from the lower (slit 2, length r₂), and they are not quite the same length. The difference r₂ − r₁, divided by the wavelength λ, is how many turns further the second arrow ψ₂ (read "psi two") has turned than the first, ψ₁.</p>
+          <p>Put the second arrow on the tip of the first. If they point the same way, the sum is twice as long: four times the chance of a hit. If they point opposite ways, the sum is zero: that point never gets a hit. Slide the point along the screen and watch the angle between the arrows change.</p>
+          <div class="figctl"><label for="yp">Screen point <strong id="ypVal"></strong></label><input type="range" id="yp" min="-20" max="20" step="0.05" value="2"></div></div>
+        <figure><canvas id="ex2" width="640" height="400"></canvas><figcaption id="cap2">Left: the two paths (slits enlarged) and their real lengths. Right: ψ₁ laid flat, ψ₂ turned by (r₂ − r₁) / λ of a turn on its tip, and the black sum.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>Sweep the point: the sum's length squared traces the stripes</h3>
+          <p>Move the point steadily up the screen. The two arrows swing apart and together again, once every time the path difference grows by one wavelength. The sum arrow grows and shrinks with them.</p>
+          <p>Plot the square of its length, |ψ₁ + ψ₂|², at each point and the stripes appear. The dashed line is |ψ₁|² + |ψ₂|², the two slits' chances added without the arrows: the stripes swing above and below it, and their outline is step 1's envelope.</p></div>
+        <figure><canvas id="ex3" width="640" height="400"></canvas><figcaption id="cap3">Left: the arrows at the moving point, and the three pieces of the sum squared. Right: |ψ₁ + ψ₂|² traced as the point sweeps; dashed, |ψ₁|² + |ψ₂|².</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>One at a time: your dots against the curve</h3>
+          <p>The curve from step 3 is not a brightness. It is the chance of a single particle landing at each point. Each one lands somewhere, at random, with that chance. Count the dots in thin bins along the screen and the counts grow in the shape of the curve.</p>
+          <p>Here are the dots you have fired so far, sorted into bins, with the curve scaled to the same total. The more you fire, the closer they get. Nothing has to be in the apparatus at the same time: in Hitachi's experiment only about 10 electrons a second were sent, each crossing the microscope in a hundred-millionth of a second, so there was never more than one inside.</p></div>
+        <figure><canvas id="ex4" width="640" height="400"></canvas><figcaption id="cap4">Your dots from the screen above, counted into bins, and the predicted curve.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>A detector at the slits: add chances, not arrows</h3>
+          <p>With a detector, every particle is seen at one slit. Sort the dots by slit. The blue group lands in a single bump centred on the upper slit; the orange group in one centred on the lower. Each group alone has no stripes.</p>
+          <p>Now the total is just blue plus orange, bump plus bump: a smooth hump with no gaps. The cross term is gone. Not because anyone watched, but because the detector's kick leaves the two paths in different states, so their arrows no longer add; only their chances do.</p></div>
+        <figure><canvas id="ex5" width="640" height="400"></canvas><figcaption id="cap5">The dots seen at each slit counted separately, then stacked. The dashed curve shows the stripes that are lost.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">6</span>Where the stripes fall: λ·L / d from the geometry</h3>
+          <p>The path difference comes from a tiny triangle at the slits: the two paths leave at nearly the same angle θ (theta), and the lower one is longer by d·sin θ (d times sin θ). A bright stripe needs that to be a whole number of wavelengths, m·λ, where m = 0, 1, 2, … counts the stripes out from the middle. For small angles, sin θ is about y / L, so the m-th bright stripe sits at height y = m·λ·L / d.</p>
+          <p>So neighbouring stripes are λ·L / d apart. Longer waves or closer slits spread them out; shorter waves or wider-set slits squeeze them. Try a different d or λ in the picture and watch the marks move.</p>
+          <div class="figctl"><label for="d2">Try d <strong id="d2Val"></strong></label><input type="range" id="d2" min="50" max="400" step="5" value="100"><label for="lam2">Try λ <strong id="lam2Val"></strong></label><input type="range" id="lam2" min="400" max="700" step="5" value="550"></div></div>
+        <figure><canvas id="ex6" width="640" height="400"></canvas><figcaption id="cap6">Left: the triangle at the slits; the red piece is the extra length d·sin θ, swinging as θ grows. Top: that length counted in wavelengths. Right: the screen, bright where it is a whole number.</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <p class="lead">ψ₁ (read "psi one") is the arrow, the amplitude, for the path through slit 1, and ψ₂ for the path through slit 2. λ (lambda) is the wavelength, d the distance between the slit centres, a the width of each slit, L the distance from the slits to the screen, y the height of a point on the screen, and θ (theta) the angle from the slits to that point.</p>
+      <div class="symbols">
+        <div><code class="formula">P = |ψ₁ + ψ₂|² = |ψ₁|² + |ψ₂|² + 2·Re(ψ₁*·ψ₂)</code><p>In words: the chance P of a hit at a point is the squared length of the two arrows added tip to tail. Written out, it is the chance through slit 1 alone, plus the chance through slit 2 alone, plus a cross term. Re means "the real part" and ψ₁* is ψ₁ with its turning direction flipped; together they measure how well the two arrows line up: 2·|ψ₁|·|ψ₂|·cos(angle between them). This cross term is the stripes, and it can be negative.</p></div>
+        <div><code class="formula">P_detected = |ψ₁|² + |ψ₂|²</code><p>In words: once the slit is known, the chance is the chance through slit 1 plus the chance through slit 2, with no cross term: one smooth bump.</p></div>
+        <div><code class="formula">I(θ) ∝ cos²(π·d·sin θ / λ) · sinc²(π·a·sin θ / λ)</code><p>In words: the brightness I at angle θ is proportional to two factors multiplied. The first, cos squared of (π times d times sin θ, divided by λ), makes the fine stripes from the slit separation d. The second, sinc squared of (π times a times sin θ, divided by λ), is the wide envelope from the slit width a; sinc x means sin x divided by x. This is the far-screen (Fraunhofer) form.</p></div>
+        <div><code class="formula">Δy = λ·L / d</code><p>In words: the distance Δy (delta y) between neighbouring bright stripes is the wavelength λ times the screen distance L, divided by the slit separation d.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Electron microscopes.</strong> Electrons are waves with a wavelength thousands of times shorter than light's, so they can resolve atoms. The same wave nature sets the limit of the picture.</li>
+        <li><strong>The rainbow on a CD or DVD.</strong> The tracks are a row of thousands of "slits", about 1.6 thousandths of a millimetre apart on a CD. Each colour has its own stripe spacing, so white light splits into a rainbow.</li>
+        <li><strong>Anti-reflection coatings on glasses and lenses.</strong> A thin layer sends two reflections, from its top and its bottom, half a wavelength apart. Their arrows point opposite ways and the reflection cancels.</li>
+        <li><strong>Holograms.</strong> A hologram is a recorded interference pattern between light from the object and a reference beam. Light it again and the stripes rebuild the object's wave.</li>
+        <li><strong>Atom interferometers.</strong> Clouds of atoms split along two paths and recombined measure gravity and rotation very precisely; they are being developed as navigation sensors that need no GPS.</li>
+        <li><strong>Quantum computing.</strong> A quantum computer steers many paths so that the wrong answers' arrows cancel and the right answer's add up. Interference is the whole trick.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>Young, 1801 to 1803</h4><p>Thomas Young argued that light is a wave in 1801 and showed light-and-dark stripes from sunlight split in two in 1803, in a lecture to the Royal Society printed in 1804. He described a two-slit version, but historians still debate whether he ever actually did it.</p></article>
+        <article><h4>Electrons are waves too: 1927</h4><p>Clinton Davisson and Lester Germer at Bell Labs fired electrons at a nickel crystal and found them scattered into the same sharp directions X-rays would take. Davisson shared the 1937 Nobel Prize with George Paget Thomson, who found the same thing independently.</p></article>
+        <article><h4>Real slits for electrons: 1961</h4><p>Claus Jönsson in Tübingen did the first true slit experiment with electrons, with up to five slits. It was published in German and stayed little known until an English translation appeared in 1974.</p></article>
+        <article><h4>One electron at a time: 1974 and 1989</h4><p>Merli, Missiroli and Pozzi in Bologna (1974) and Akira Tonomura's group at Hitachi (1989) recorded electrons arriving one by one. In Hitachi's film the stripes are clear after about 20 minutes of single hits.</p></article>
+        <article><h4>The most beautiful experiment</h4><p>In 2002 readers of <em>Physics World</em> voted the double-slit experiment with electrons the most beautiful experiment in physics. It was the only one in the top ten with nobody's name on it.</p></article>
+        <article><h4>2,000 atoms at once: 2019</h4><p>Yaakov Fein, Markus Arndt and colleagues in Vienna saw interference with molecules of up to 2,000 atoms, more than 25,000 atomic mass units each (about 25,000 hydrogen atoms' worth).</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "The pattern vanishes because a conscious observer looks." <strong>But:</strong> any detector that leaves a record of the slit does it, with nobody watching. The interaction puts the two paths in different states, so their arrows stop adding.</li>
+        <li><strong>Not:</strong> "The electron splits in half and each half goes through a slit." <strong>But:</strong> every electron is detected whole, in one spot. What goes through both slits is the amplitude, the arrow, not a piece of the electron.</li>
+        <li><strong>Not:</strong> "Going through both slits is a fact about where it was." <strong>But:</strong> it is a statement about how to compute the chances: you must add the two paths' arrows before squaring. Ask where it was and you change the experiment.</li>
+        <li><strong>Not:</strong> "Open a second slit and every point on the screen gets more hits." <strong>But:</strong> the dark stripes get fewer, even none. The cross term can be negative.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://www.feynmanlectures.caltech.edu/III_01.html" target="_blank" rel="noopener">Feynman Lectures, Vol. III, ch. 1: Quantum behavior</a><span>The classic walk-through with bullets, water waves and electrons, and why "both slits" is about amplitudes.</span></li>
+        <li><a href="https://physicsworld.com/a/the-double-slit-experiment/" target="_blank" rel="noopener">Physics World: The double-slit experiment (2002)</a><span>The history of who first did it with electrons, and the letters that followed.</span></li>
+        <li><a href="https://www.hitachi.com/rd/research/materials/quantum/doubleslit/index.html" target="_blank" rel="noopener">Hitachi: the single-electron experiment</a><span>Tonomura's film of the stripes building up one electron at a time.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Double-slit_experiment" target="_blank" rel="noopener">Double-slit experiment</a><span>Wikipedia: variations, which-path experiments, and the formulas.</span></li>
+        <li><a href="https://arxiv.org/abs/1211.3493" target="_blank" rel="noopener">Quantum interference of molecules</a><span>Anu Venugopalan (2012): a readable account of the double slit with particles, from electrons to molecules of over a hundred atoms.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>
