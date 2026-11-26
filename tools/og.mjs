@@ -1,7 +1,7 @@
 // Link previews for social media: a 1200×630 picture per page (web/og/<slug>.png, web/og/home.png) and the
 // Open Graph / Twitter tags in each page's <head>, between <!-- share --> and <!-- /share -->.
-// Run after adding or renaming a page, with the built site served locally:
-//   ./build.sh && python3 -m http.server 8080 -d web &   node tools/og.mjs http://localhost:8080
+// ./build.sh runs it on every build (serving web/ on a spare port), and tests/share.test.mjs then fails the
+// build if any live page or the home page lacks its tags or picture. By hand: node tools/og.mjs <url of web/>
 // Needs playwright-core and a Chromium (CHROME=/path/to/chrome-headless-shell, or Playwright's own).
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -11,7 +11,9 @@ const SITE = 'https://lilavati.pages.dev';
 const base = process.argv[2] || 'http://localhost:8080';
 const web = new URL('../web/', import.meta.url).pathname;
 const { chromium } = await import('playwright-core').catch(() => import(join(homedir(), 'node_modules/playwright-core/index.mjs')));
-const browser = await chromium.launch(process.env.CHROME ? { executablePath: process.env.CHROME } : {});
+const shell = join(homedir(), 'Library/Caches/ms-playwright/chromium_headless_shell-1255/chrome-headless-shell-mac-arm64/chrome-headless-shell');
+const exe = process.env.CHROME || (existsSync(shell) ? shell : undefined);
+const browser = await chromium.launch(exe ? { executablePath: exe } : {});
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
 await page.goto(base + '/', { waitUntil: 'networkidle' });
 const live = await page.evaluate(async () => (await import('/concepts.js')).CONCEPTS.filter(c => c.status === 'live').map(c => c.slug));
@@ -59,10 +61,13 @@ function tags(html, url, image, alt) {
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="${esc(alt)}">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:locale" content="en_GB">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${desc}">
   <meta name="twitter:image" content="${image}">
+  <meta name="twitter:image:alt" content="${esc(alt)}">
   <!-- /share -->`;
   const old = /<!-- share -->[\s\S]*?<!-- \/share -->/;
   if (old.test(html)) return html.replace(old, block);
