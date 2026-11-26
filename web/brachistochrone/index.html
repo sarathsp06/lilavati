@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The fastest slide is not the straight one · The brachistochrone · Lilavati</title>
+  <meta name="description" content="A bead slides from A down to B. The straight line is shortest, but a curve that drops steeply first and then coasts, the cycloid, gets there sooner. Race the tracks, draw your own, and see why.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body data-concept="brachistochrone">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>The fastest slide is not the straight one</h1>
+      <p class="idea">Drop steeply first, then coast: the curve that beats the straight line every time.</p>
+      <p>Three tracks run from A down to B: a straight line, a circular arc and a cycloid. Press <strong>Race</strong> and three identical balls are let go at the same moment; the stopwatch tells you who arrives first. Drag A and B about, draw a track of your own, and try to beat the cycloid. You can't, and the steps below show why.</p>
+    </header>
+
+    <section id="what" data-label="What it is" class="block what">
+      <h2>What the brachistochrone is</h2>
+      <p>The brachistochrone is the answer to a question: of all the tracks you could lay between a point A and a lower point B, which one gets a frictionless ball from A to B in the least time under gravity? The name is Greek for "shortest time". The answer is not the straight line but a cycloid, the curve a point on the rim of a rolling wheel draws, which starts steeply and then levels out. The question is special because it asks for the best <em>whole curve</em>, not the best single number, and solving it gave birth to the calculus of variations, the maths of choosing a best path. On this page A and B are the two points you drag, the balls are the frictionless slides, and the race is the question asked out loud.</p>
+    </section>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="track" class="wide" width="900" height="540" aria-label="Three tracks from A down to B with balls racing along them"></canvas>
+          <div class="under">
+            <div class="ctl">
+              <button id="race">▶ Race</button>
+              <button id="drawBtn" class="outline" data-local>✏️ Draw your own</button>
+              <button id="clearBtn" class="outline">Remove yours</button>
+              <label>Gravity <select id="gravity"><option value="9.81">Earth, 9.8 m/s²</option><option value="1.62">Moon, 1.6 m/s²</option><option value="3.71">Mars, 3.7 m/s²</option><option value="24.79">Jupiter, 24.8 m/s²</option></select></label>
+              <label data-local>Film speed <select id="tempo"><option value="1">real time</option><option value="0.5" selected>half</option><option value="0.25">quarter</option></select></label>
+            </div>
+            <p class="say" id="say"></p>
+          </div>
+        </div>
+        <aside class="panel">
+          <h4>The race</h4>
+          <table class="times" id="times"></table>
+          <p class="hint-s" id="verdict"></p>
+          <h4>How to play</h4>
+          <p class="hint-s">Drag <b>A</b> and <b>B</b>. Press <b>Draw your own</b>, then drag a line from A to B to add your track (<b>Remove yours</b> takes it away). The race restarts by itself after every finish; <b>Race</b> restarts it now. Gravity changes how fast everything happens, never who wins.</p>
+          <p class="hint-s">The balls slide without friction, so each one's speed depends only on how far it has dropped.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Press Race and watch the stopwatch.</strong> <span>The straight track is the shortest of the three, yet the cycloid ball arrives first. Watch the speeds: the cycloid ball is fast long before the others.</span><button class="outline" data-try="race">Show me</button></li>
+        <li><strong>Drag B far to the right, only a little below A.</strong> <span>The cycloid dips well below B and climbs back up to it. It is now much longer than the straight line, and it still wins.</span><button class="outline" data-try="far">Show me</button></li>
+        <li><strong>Draw a track that starts almost level, then drops.</strong> <span>Your ball crawls along the flat start with almost no speed, and loses badly. The speed you earn early is used for the whole rest of the trip.</span><button class="outline" data-try="shallow">Show me</button></li>
+        <li><strong>Drop straight down, then run level to B.</strong> <span>That gets full speed as early as possible, so it does well, but its path is long: every part is fast, there is just too much of it. It still loses to the cycloid.</span><button class="outline" data-try="corner">Show me</button></li>
+        <li><strong>Switch gravity to the Moon.</strong> <span>Every time grows by the same factor, √(9.8 ÷ 1.6) ≈ 2.5. The order of arrival never changes: the fastest track is a matter of shape, not of gravity.</span><button class="outline" data-try="moon">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>Why the cycloid wins, step by step</h2>
+      <p class="lead">These pictures follow your A, your B and your tracks above.</p>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">1</span>Speed depends only on how far the ball has dropped</h3>
+          <p>With no friction, the ball trades height for speed and nothing is lost. Every metre it drops gives it the same amount of energy, whatever track it is on: g joules for each kilogram, about 9.8 J. That energy shows up as speed: half of the speed squared (½·v²) for each kilogram, where v is the speed.</p>
+          <p>So ½·v² = g·y, where y is the depth below A, and the speed at depth y is v = √(2·g·y), the square root of two times g times y. Two balls at the same depth on different tracks always move at the same speed. The tracks differ only in <em>when</em> they reach each depth.</p>
+        </div>
+        <figure><canvas id="ex1" width="600" height="360"></canvas><figcaption>A ball on your cycloid. The energy it has given up by dropping y metres (grey) equals its speed energy (teal), and the arrows show every track has the same speed at that depth.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">2</span>Time is distance divided by speed, piece by piece</h3>
+          <p>Cut the straight track into pieces. On each piece the ball's push is steady, so the piece takes its length divided by the average of the speeds at its two ends. Add the pieces up and you have the whole time.</p>
+          <p>The first piece is the slow one: it starts from a standstill. That is the whole story in one line. Every piece costs <em>length ÷ speed</em>, and the pieces near the start, where speed is low, cost the most.</p>
+        </div>
+        <figure><canvas id="ex2" width="600" height="360"></canvas><figcaption id="cap2">Your straight track in 8 pieces: length, average speed and time for each, and the running total.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">3</span>The same sum along any track</h3>
+          <p>The rule does not care what shape the track is. Cut your own drawn track into pieces (or the cycloid, if you have not drawn one), find each piece's length and its average speed from the depths at its ends, and add up length ÷ speed.</p>
+          <p>Compare the first few pieces with the straight line's. A track that gets deep quickly has fast pieces almost from the start; a track that stays shallow pays a slow piece after slow piece.</p>
+        </div>
+        <figure><canvas id="ex3" width="600" height="360"></canvas><figcaption id="cap3">Your drawn track in 10 pieces, added up the same way.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">4</span>Dropping steeply first buys speed for the whole trip</h3>
+          <p>Here is each ball's speed against time, read off the race above. The cycloid starts straight down, so its speed shoots up at once; the straight line gains speed slowly and evenly.</p>
+          <p>The area under each curve is the distance covered. The cycloid has the longest track, but its curve is high from the very start, so it fills its longer distance sooner. The straight line is short but spends too long being slow.</p>
+        </div>
+        <figure><canvas id="ex4" width="600" height="360"></canvas><figcaption>Speed against time for each track, with the race's stopwatch sweeping across. Dots: each ball now.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">5</span>The fastest path bends like light</h3>
+          <p>Johann Bernoulli's trick: cut the space below A into thin level layers. In each layer the ball has roughly one speed, faster the deeper you go. Light crossing layers of different speed takes the fastest route, and it bends by Snell's law: call the angle between the path and straight down α (alpha); then sin(α) ÷ speed is the same number in every layer.</p>
+          <p>Make the ball do the same. Its path is a chain of straight pieces, each a little more tilted than the last. Thin the layers and the chain smooths into one curve: the cycloid. Where the path turns level it has reached the cycloid's lowest point, and if B is beyond it, it climbs back up by the same rule in reverse.</p>
+          <div class="figctl"><label for="layers">Layers <strong id="layersVal"></strong></label><input type="range" id="layers" min="2" max="40" step="1" value="6"></div>
+        </div>
+        <figure><canvas id="ex5" width="600" height="360"></canvas><figcaption id="cap5">Layers shaded by speed, the light-like path through them (orange), and the cycloid it is heading for (teal).</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div>
+          <h3><span class="num">6</span>The cycloid is the mark of a point on a rolling wheel</h3>
+          <p>Stick a pen to the rim of a wheel and roll the wheel along a line. The pen draws a cycloid: it starts straight down from the line, swings along, and comes back up to touch it again. The wheel's radius, called a, sets the size; the angle it has turned, θ (theta), says where the pen is.</p>
+          <p>For your A and B there is exactly one wheel size that makes the pen pass through B. Roll it from A at a steady √(g ÷ a) radians per second and the pen keeps pace with the racing ball the whole way. So the time to B is the final angle divided by that rate: θ·√(a ÷ g), θ times the square root of a over g, where θ is how far the wheel has turned when the pen reaches B.</p>
+        </div>
+        <figure><canvas id="ex6" width="600" height="360"></canvas><figcaption id="cap6">A wheel rolling along the underside of the level line through A, the mark its rim point leaves, and the racing ball (teal) riding with the pen (red).</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <div class="symbols">
+        <div><code class="formula">½·v² = g·y   so   v = √(2·g·y)</code><p>In words: v is the ball's speed, y is how far below A it is, and g is the strength of gravity (9.8 m/s² on Earth). Half of v squared equals g times y, so the speed is the square root of two times g times y: it depends only on depth, not on the track.</p></div>
+        <div><code class="formula">T = Σ (length of a piece) ÷ (average speed on that piece)   →   T = ∫ ds ÷ √(2·g·y)</code><p>In words: T is the total time. Σ means "add up over all the pieces"; ∫ means the same with ever thinner pieces, where ds is the tiny length of one piece and √(2·g·y) is the speed there. The brachistochrone is the track that makes T smallest.</p></div>
+        <div><code class="formula">sin(α) ÷ v = the same number in every layer</code><p>In words: Snell's law. α is the angle between the track and straight down, v is the speed there. Along the fastest track, sine of α divided by v never changes, as for a light ray bending through layers of faster and faster glass.</p></div>
+        <div><code class="formula">x = a·(θ − sin θ),   y = a·(1 − cos θ),   T = θ·√(a ÷ g)</code><p>In words: the cycloid. a is the radius of the rolling wheel, θ (theta) is the angle it has turned, in radians, and x, y is where the rim point is: a times (θ minus sine of θ) across, a times (1 minus cosine of θ) down. The wheel size a and the final θ are fixed by where B is; the time to get there is θ times the square root of a over g.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Roller coasters and water slides.</strong> The first drop is the steepest part of the ride for a reason: the speed earned there carries you through the rest.</li>
+        <li><strong>Skiing and skateboarding.</strong> A racer picking a line down a slope, or a skater dropping into a half-pipe, is choosing a path for speed, not shortness.</li>
+        <li><strong>The lifeguard's run.</strong> Running is faster than swimming, so a lifeguard who heads for a drowning swimmer should run further along the beach and swim less. That is Snell's law, and the same maths as step 5.</li>
+        <li><strong>Lenses and mirages.</strong> Light takes the fastest path through glass and warm air. Lenses are shaped so every path from an object to its image takes the same time.</li>
+        <li><strong>Rockets and robots.</strong> Finding the best <em>whole path</em> (least fuel, least time) rather than the best next step is the calculus of variations, and it began with this problem. Spacecraft trajectories and robot arm motions are planned this way.</li>
+        <li><strong>Pendulum clocks.</strong> The same cycloid makes a pendulum swing in the same time whatever its width, which is why Huygens built it into the first accurate clocks.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>A challenge to the world, 1696</h4><p>Johann Bernoulli posed the problem in the journal Acta Eruditorum in June 1696, addressed to "the most brilliant mathematicians in the world", and gave them six months. Leibniz persuaded him to extend the deadline so that foreigners had a chance. The name is Greek: <em>brachistos</em>, shortest, and <em>chronos</em>, time.</p></article>
+        <article><h4>Newton did it in one night</h4><p>Newton learned of the challenge at 4 pm on 29 January 1697, coming home tired from his work at the Royal Mint, and had solved it by 4 the next morning. His answer was published without his name. Bernoulli wrote that he knew the author anyway, "ex ungue leonem": the lion by his claw.</p></article>
+        <article><h4>Five answers, one curve</h4><p>Solutions came from Newton, Leibniz, Jakob Bernoulli (Johann's brother and rival), Tschirnhaus and l'Hôpital. Johann printed his own in Acta Eruditorum in May 1697, in the same issue as most of theirs. Every one of them found the cycloid.</p></article>
+        <article><h4>Galileo guessed wrong</h4><p>In his Two New Sciences of 1638, Galileo showed that sliding along an arc of a circle is quicker than along its chord, and concluded that the circle was the quickest path of all. He was right that the straight line loses, and wrong about the winner: the circle is beaten by the cycloid.</p></article>
+        <article><h4>The same curve keeps time</h4><p>Christiaan Huygens found in 1659 that a ball let go anywhere on a cycloid reaches the bottom in the same time (the tautochrone). In his 1673 book Horologium Oscillatorium he fitted pendulum clocks with cycloid-shaped cheeks so that wide and narrow swings took the same time.</p></article>
+        <article><h4>Bernoulli's solution was borrowed light</h4><p>Johann Bernoulli solved the problem by pretending the ball was a ray of light passing through layers of ever thinner air, so that Snell's law of refraction did the work. That is step 5 above, and it is still the quickest route to the answer.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "The shortest path is the fastest." <strong>But:</strong> the straight line is shortest and loses every race. Time is length divided by speed, and the straight line is slow for too long.</li>
+        <li><strong>Not:</strong> "Then the steepest start must win: fall straight down and run level." <strong>But:</strong> that gets speed early, but the path is long: a full drop plus the whole way across. Try it above: the cycloid still wins.</li>
+        <li><strong>Not:</strong> "A heavier ball wins." <strong>But:</strong> mass cancels out, as it does for falling objects. Identical or not, balls on the same track arrive together.</li>
+        <li><strong>Not:</strong> "The cycloid wins because it ends up going faster." <strong>But:</strong> at B every ball has the same speed, √(2·g·depth). The cycloid wins because it got its speed earlier.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://www.3blue1brown.com/lessons/brachistochrone" target="_blank" rel="noopener">3Blue1Brown: The Brachistochrone, with Steven Strogatz</a><span>A video on Bernoulli's challenge and his clever solution using the way light bends.</span></li>
+        <li><a href="https://mathshistory.st-andrews.ac.uk/HistTopics/Brachistochrone/" target="_blank" rel="noopener">MacTutor: The brachistochrone problem</a><span>The 1696 challenge, the letters, Newton's night, and what each solver did.</span></li>
+        <li><a href="https://mathworld.wolfram.com/BrachistochroneProblem.html" target="_blank" rel="noopener">MathWorld: Brachistochrone Problem</a><span>The calculus-of-variations route: from the time integral to the cycloid in a few lines.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Brachistochrone_curve" target="_blank" rel="noopener">Wikipedia: Brachistochrone curve</a><span>Several proofs side by side (Bernoulli's, Jakob's, Newton's) and Galileo's earlier attempt.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>
