@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why you should always switch doors · The Monty Hall problem · Lilavati</title>
+  <meta name="description" content="Three doors, one car. The host opens a door with a goat. Should you switch? Play it, run thousands of games, and see on screen why switching wins two times in three.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body data-concept="monty-hall">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Why you should always switch doors</h1>
+      <p class="idea">Three doors, one car, one goat revealed. Switching wins twice as often, and you can prove it by playing.</p>
+      <p>Pick a door. The host, who knows where the car is, opens another door with a goat behind it and offers you the one door left. Play by hand, let thousands of games play themselves, try 100 doors, or make the host guess, and watch how often staying and switching win.</p>
+    </header>
+
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What the Monty Hall problem is</h2>
+      <p>The <strong>Monty Hall problem</strong> is a puzzle about chance, named after the host of the American game show <em>Let's Make a Deal</em>. You pick one of three doors; one hides a car, the other two hide goats. The host then opens one of the other doors, always a goat, and asks if you want to switch to the last closed door. It feels like two doors, so 50/50, but switching wins 2 times in 3.</p>
+      <p>The real lesson is about <strong>updating chances on evidence</strong> (Bayes' rule): what you learn depends on <em>how</em> the evidence was chosen. The host is not opening a door at random; he is forced to avoid the car, and that is information. On this page you play the game and then derive the 1/3 and 2/3 by drawing every possible world and crossing out the ones the host's move rules out.</p>
+    </section>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="stage" class="wide" width="900" height="560" aria-label="The doors, and how often staying and switching have won so far"></canvas>
+          <div class="under">
+            <p class="say" id="say"></p>
+            <div class="row">
+              <button id="stay" class="outline">Stay</button>
+              <button id="switch">Switch</button>
+              <button id="new" class="secondary">New game</button>
+              <button id="auto" class="outline secondary">■ Stop auto-play</button>
+            </div>
+            <div class="row">
+              <label>Doors <select id="doors"><option value="3" selected>3</option><option value="10">10</option><option value="100">100</option></select></label>
+              <label>The host <select id="host"><option value="knows" selected>knows where the car is</option><option value="guesses">opens doors at random</option></select></label>
+              <button id="fast" class="outline secondary">Play 1000 games</button>
+              <button id="reset" class="outline secondary">Start over</button>
+            </div>
+          </div>
+        </div>
+        <aside class="panel">
+          <h4>Every game so far</h4>
+          <p class="hint-s">Each game is played by two people with the same first pick: one always stays, one always switches.</p>
+          <table class="tally"><tbody>
+            <tr><td><span class="dot st"></span>Staying won</td><td id="tStay"></td></tr>
+            <tr><td><span class="dot sw"></span>Switching won</td><td id="tSwitch"></td></tr>
+            <tr id="voidRow"><td>Host showed the car (not counted)</td><td id="tVoid"></td></tr>
+          </tbody></table>
+          <h4>Games you played</h4>
+          <table class="tally"><tbody>
+            <tr><td>You stayed</td><td id="mStay"></td></tr>
+            <tr><td>You switched</td><td id="mSwitch"></td></tr>
+          </tbody></table>
+          <p class="hint-s">Click a door to pick it. Once the host has opened doors, click your door to stay or the other closed door to switch.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Let it play itself for a minute.</strong> <span>The two lines wobble at first, then settle: staying near 1/3, switching near 2/3. Neither is 1/2.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Play ten games by hand and always stay.</strong> <span>You win about three of them. Then play ten and always switch: about seven. Small runs are noisy; the lines above are the long run.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Pick 100 doors.</strong> <span>You pick one, the host opens 98 goats and leaves exactly one other door shut. Would you really stay? Switching wins 99 times in 100.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Make the host open doors at random, then play 1000 games.</strong> <span>About a third of the games he shows the car and they don't count. In the rest, staying and switching win equally often: 1/2 each. The host's knowledge is what made switching better.</span><button class="outline" data-try="3">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>From your first pick to two in three, step by step</h2>
+      <p class="lead">These pictures use the number of doors and the game above: your pick and the door the host left shut.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>Your first pick is right one time in n</h3>
+          <p>Before anything happens, the car is equally likely to be behind any door. Picture each of those possibilities as a separate world: with 3 doors there are 3 worlds, each with chance 1/3.</p>
+          <p>Walk the car through every world and count the ones where it is behind your door: just one. So your first pick is right with chance 1/n, and wrong with chance (n − 1)/n. Nothing the host does later can change which world you are in.</p></div>
+        <figure><canvas id="ex1" width="640" height="400"></canvas><figcaption>The car visits every door in turn; a world turns green when it sits behind your pick.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>The host's hands are tied, except in one world</h3>
+          <p>The host must open every other door except one, and never the car. In a world where the car is behind another door, he has no choice at all: he must leave that door shut.</p>
+          <p>Only in the world where your first pick is right can he choose which goat door to leave shut, and he picks among them at random. Watch each world: one row keeps changing its mind, the others always end the same way.</p></div>
+        <figure><canvas id="ex2" width="640" height="400"></canvas><figcaption id="cap2">Each row is one world. The host opens the grey doors; the outlined door is the one he leaves shut.</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>Cross out the worlds that don't match what you saw</h3>
+          <p>Draw every world as a piece of a square with area equal to its chance. Your door's column (1/n wide) is cut into n − 1 slices, one for each door the host might leave shut. Every other column is one block: there the host's move is forced.</p>
+          <p>You saw him leave one particular door shut. Cross out every piece where he would have done something else. Two pieces survive: a thin slice where you were right (stay wins) and a whole column where the car is behind the door he kept (switch wins). Blow them back up to fill the square: 1 part to n − 1, so 1/3 against 2/3 with three doors.</p></div>
+        <figure><canvas id="ex3" width="640" height="400"></canvas><figcaption id="cap3"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>Switching wins exactly when your first pick was wrong</h3>
+          <p>With a host who knows, the door he leaves shut hides the car whenever your first pick missed it. So "switch" is the same bet as "my first pick was wrong", and "stay" is the same bet as "my first pick was right".</p>
+          <p>Deal a stack of games and sort them by one question only: was the first pick right? The piles grow at 1 to n − 1, the same split as step 1.</p></div>
+        <figure><canvas id="ex4" width="640" height="400"></canvas><figcaption>Games from above, sorted: first pick right (stay wins) or wrong (switch wins).</figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>A host who guesses gives you nothing: 1/2</h3>
+          <p>Now let the host open doors at random. In every world, including the ones where your pick is wrong, he could leave any of the other doors shut, so every column is cut into slices.</p>
+          <p>Seeing goats behind the doors he opened rules out more: in the worlds where the car was behind a door he opened, he would have shown it (red). The two surviving slices are the same size, so stay and switch are 1/2 each. Same doors, same goats on show, different answer: what matters is how the door was chosen.</p></div>
+        <figure><canvas id="ex5" width="640" height="400"></canvas><figcaption id="cap5"></figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>n</strong> is the number of doors. <strong>P(A)</strong> is the chance of A, a number from 0 to 1. <strong>P(A | B)</strong> is read "the chance of A given B": the chance of A once you know B happened. <strong>C₂</strong> means "the car is behind door 2"; <strong>H₃</strong> means "the host opens door 3". You picked door 1.</p>
+      <div class="symbols">
+        <div><code class="formula">P(first pick right) = 1/n</code><p>In words: one world in n has the car behind your door. With three doors, 1/3.</p></div>
+        <div><code class="formula">P(switch wins) = (n − 1)/n</code><p>In words: a knowing host leaves the car's door shut whenever you missed it, so switching wins whenever your first pick was wrong. Three doors: 2/3; a hundred: 99/100.</p></div>
+        <div><code class="formula">P(C₂ | H₃) = P(H₃ | C₂) · P(C₂) / P(H₃) = (1 · ⅓) / ½ = ⅔</code><p>In words: Bayes' rule. If the car is behind door 2 the host must open door 3 (chance 1); the car is there a third of the time; he opens door 3 half of the time overall. That gives two thirds.</p></div>
+        <div><code class="formula">random host: P(switch wins | only goats shown) = ½</code><p>In words: if the host might have shown the car but didn't, the two surviving worlds are equally likely, whatever n is.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Medical tests.</strong> A positive result means different things depending on how common the illness is and why you were tested: the same updating of chances on evidence as the host's door.</li>
+        <li><strong>Card games.</strong> Bridge players use the "principle of restricted choice": an opponent who played a card because they had to tells you more than one who chose it freely. It is the Monty Hall argument at the card table.</li>
+        <li><strong>Search and rescue.</strong> Searchers split the sea into squares with chances and update them after each square is searched and found empty. Bayesian search helped find the wreck of Air France flight 447 in 2011.</li>
+        <li><strong>Spam filters.</strong> Each word in an email shifts the chance that it is spam, using Bayes' rule, the same rule as step 3.</li>
+        <li><strong>Reading reviews and surveys.</strong> Who chose to answer, or which results were chosen to show you, changes what they tell you, just as a host who knows differs from one who guesses.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>10,000 letters</h4><p>In September 1990 Marilyn vos Savant answered the puzzle in her <em>Ask Marilyn</em> column in <em>Parade</em> magazine: switch. About 10,000 readers wrote in, nearly 1,000 of them with PhDs, most saying she was wrong. She was right.</p></article>
+        <article><h4>Named in 1975</h4><p>The statistician Steve Selvin posed the problem in letters to <em>The American Statistician</em> in 1975 and called it the "Monty Hall problem". Monty Hall wrote to him about it the same year.</p></article>
+        <article><h4>Erdős wasn't convinced</h4><p>Paul Erdős, one of the most prolific mathematicians ever, refused to believe the answer until he was shown a computer simulation, as Andrew Vázsonyi recounted. Which is what the Play section above does.</p></article>
+        <article><h4>Pigeons do better</h4><p>In a 2010 study, Walter Herbranson and Julia Schroeder found that pigeons playing a version of the game with grain as the prize quickly learned to switch nearly every time. People in the same kind of test did not.</p></article>
+        <article><h4>Older cousins</h4><p>Joseph Bertrand's box paradox (1889) and Martin Gardner's three prisoners problem (<em>Scientific American</em>, 1959) are the same trap in other clothes; both give the "obvious" 1/2 where the right answer is 2/3 or 1/3.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "Two doors are left, so it's 50/50." <strong>But:</strong> the two doors didn't get there the same way. Yours was picked blind; the other survived a host who was steering around the car.</li>
+        <li><strong>Not:</strong> "Opening a door moves the car's chances around." <strong>But:</strong> the car never moves. What changes is what you know about which world you are in.</li>
+        <li><strong>Not:</strong> "Switching always wins." <strong>But:</strong> it wins 2 times in 3. A third of the time your first pick was right and switching loses the car.</li>
+        <li><strong>Not:</strong> "It doesn't matter whether the host knows." <strong>But:</strong> a host who opens a door at random and happens to show a goat leaves you at 1/2 (step 5).</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://en.wikipedia.org/wiki/Monty_Hall_problem" target="_blank" rel="noopener">Monty Hall problem</a><span>Wikipedia: the history, many ways to explain it, and the variants (including the host who guesses).</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Bayes%27_theorem" target="_blank" rel="noopener">Bayes' theorem</a><span>Wikipedia: the rule behind step 3, with medical-test examples.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Principle_of_restricted_choice" target="_blank" rel="noopener">Principle of restricted choice</a><span>Wikipedia: the same idea in contract bridge.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Three_Prisoners_problem" target="_blank" rel="noopener">Three Prisoners problem</a><span>Wikipedia: Martin Gardner's 1959 version of the same puzzle.</span></li>
+        <li><a href="https://www.straightdope.com/21342062/on-let-s-make-a-deal-you-pick-door-1-monty-opens-door-2-no-prize-do-you-stay-with-door-1-or-switch-t" target="_blank" rel="noopener">The Straight Dope (1990)</a><span>Cecil Adams answering a reader in 1990, while the argument over the <em>Parade</em> column was raging.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>

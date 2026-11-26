@@ -50,8 +50,10 @@ export const CONCEPTS = [
   { slug: 'taylor-series', name: 'Taylor series', status: 'soon', topic: 'Calculus', level: 'Curious', color: '#db2777',
     idea: 'A curve near one point, rebuilt from its derivatives there.', related: ['derivatives'] },
   // the person's list of 2026-11-25, in their order; each page gets its preview from web/<slug>/preview.js
-  { slug: 'monty-hall', hook: 'Why you should always switch doors', tagline: 'Three doors, one car, one goat revealed. Switching wins twice as often, and you can prove it by playing.', name: 'The Monty Hall problem', status: 'soon', topic: 'Probability', level: 'Starter', color: '#b45309', previewFile: true,
-    idea: 'Your first pick is right one time in three; the host\u2019s reveal moves the other two-thirds onto one door.', related: ['nash-equilibrium'] },
+  { slug: 'monty-hall', hook: 'Why you should always switch doors', tagline: 'Three doors, one car, one goat revealed. Switching wins twice as often, and you can prove it by playing.', name: 'The Monty Hall problem', status: 'live', topic: 'Probability', level: 'Starter', color: '#b45309', previewFile: true,
+    idea: 'Your first pick is right one time in three; the host\u2019s reveal moves the other two-thirds onto one door.',
+    blurb: 'Play the game show by hand or watch thousands of games, open 98 of 100 doors, and see why a guessing host changes the answer.',
+    related: ['nash-equilibrium', 'chaos'] },
   { slug: 'brachistochrone', hook: 'The fastest slide is not the straight one', tagline: 'Drop steeply first, then coast: the curve that beats the straight line every time.', name: 'The brachistochrone', status: 'soon', topic: 'Calculus', level: 'Curious', color: '#0e7490', previewFile: true,
     idea: 'The quickest path between two points under gravity is a cycloid, found by comparing whole paths, not points.', related: ['derivatives', 'orbits'] },
   { slug: 'chaos', hook: 'Why the weather forecast stops at ten days', tagline: 'Two almost identical starts, two completely different futures. Deterministic, yet unpredictable.', name: 'Chaos and the butterfly effect', status: 'soon', topic: 'Dynamics', level: 'Curious', color: '#7c2d12', previewFile: true,

@@ -7,6 +7,7 @@
 //! - `linalg`: matrices as moves of the plane, determinants, eigenvectors, the SVD, dot products.
 //! - `waves`: adding waves: cancelling, beats, harmonics.
 //! - `games`: guess two-thirds of the average: levels of thinking, best replies, the Nash equilibrium.
+//! - `monty`: the Monty Hall game: dealing games, the host's move, many games at once, the exact chances.
 pub mod fourier;
 pub mod motion;
 pub mod orbit;
