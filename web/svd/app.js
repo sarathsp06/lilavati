@@ -33,7 +33,7 @@ function drawSvd(p, d, s, labels = true) {
   const M = at(d, s), v1 = [Math.cos(d.tv), Math.sin(d.tv)], v2 = [-Math.sin(d.tv), Math.cos(d.tv)];
   p.grid(M, 'rgba(37,99,235,.22)').axes().circle(I2, null, 'rgba(0,0,0,.2)', 2).circle(M, 'rgba(14,165,233,.15)', '#0369a1', 3);
   const a1 = apply(M, ...v1), a2 = apply(M, ...v2);
-  p.arrow(...a1, COL.w, { width: 4, label: labels ? (s >= 3 ? 'σ₁u₁' : 'v₁') : '' }).arrow(...a2, COL.blue, { width: 4, label: labels ? (s >= 3 ? 'σ₂u₂' : 'v₂') : '' });
+  p.arrow(...a1, COL.w, { width: 4, label: labels ? (s >= 3 ? 'σ₁·u₁' : 'v₁') : '' }).arrow(...a2, COL.blue, { width: 4, label: labels ? (s >= 3 ? 'σ₂·u₂' : 'v₂') : '' });
 }
 function draw(s) {
   const d = parts(s.m);

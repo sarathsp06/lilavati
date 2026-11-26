@@ -18,7 +18,14 @@
 
     <section id="what" data-label="What it is" class="block what reveal">
       <h2>What the singular value decomposition is</h2>
-      <p>The <strong>singular value decomposition</strong> (SVD) says that every matrix, whatever its shape, is three simple moves in a row: a turn, a stretch along a few axes, and another turn. The stretch factors are the <strong>singular values</strong>, and they rank the matrix's directions by how much it magnifies them. Keeping only the biggest ones gives the best simple approximation of the matrix.</p><p>On this page you slide through the three moves, then use the same idea to compress a picture and to find the main direction in a cloud of data.</p>
+      <p>The <strong>singular value decomposition</strong> (SVD) splits any matrix into three simple moves done one after another: a turn, a stretch along the axes, and another turn.</p>
+      <ul>
+        <li><strong>The first turn, Vᵀ</strong> ("V transposed"), lines up the two directions the matrix stretches most and least with the axes.</li>
+        <li><strong>The stretch, Σ</strong> (capital sigma), scales each axis by its own number: σ₁ along the first, σ₂ along the second. These are the <strong>singular values</strong>: never negative, biggest first.</li>
+        <li><strong>The second turn, U</strong>, swings the stretched result into its final place. (Either turn may include a mirror flip.)</li>
+        <li><strong>Written together:</strong> A = U·Σ·Vᵀ, read right to left: first Vᵀ, then Σ, then U. Keeping only the biggest σ gives the best simpler version of the matrix, which is how a photo shrinks to a few numbers.</li>
+      </ul>
+      <p>Below, a circle goes through the three moves and becomes an ellipse: σ₁ and σ₂ are its longest and shortest radius. Further down, the same idea compresses a picture and finds the main direction in a cloud of data.</p>
     </section>
 
     <section id="play" data-label="Play">
@@ -58,7 +65,7 @@
       </div>
 
       <div class="step reveal">
-        <div><h3><span class="num">2</span>Two arrows at right angles stay at right angles</h3><p>On the circle there are two arrows at right angles, v₁ and v₂, that land exactly on the ellipse's axes: A v₁ = σ₁ u₁ and A v₂ = σ₂ u₂, where u₁ and u₂ are also at right angles.</p><p>Eigenvectors only exist for some matrices and need not be at right angles. These singular vectors always exist, for any matrix, even a non-square one.</p></div>
+        <div><h3><span class="num">2</span>Two arrows at right angles stay at right angles</h3><p>On the circle there are two arrows at right angles, v₁ and v₂, that land exactly on the ellipse's axes: A v₁ = σ₁·u₁ and A v₂ = σ₂·u₂ (σ₁ times the arrow u₁), where u₁ and u₂ are also at right angles.</p><p>Eigenvectors only exist for some matrices and need not be at right angles. These singular vectors always exist, for any matrix, even a non-square one.</p></div>
         <figure><canvas id="ex2" width="640" height="420"></canvas><figcaption id="cap2">v₁ and v₂ on the circle, and where they land.</figcaption></figure>
       </div>
 
