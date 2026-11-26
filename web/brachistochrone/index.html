@@ -43,7 +43,7 @@
           <p class="hint-s" id="verdict"></p>
           <h4>How to play</h4>
           <p class="hint-s">Drag <b>A</b> and <b>B</b>. Press <b>Draw your own</b>, then drag a line from A to B to add your track (<b>Remove yours</b> takes it away). The race restarts by itself after every finish; <b>Race</b> restarts it now. Gravity changes how fast everything happens, never who wins.</p>
-          <p class="hint-s">The balls slide without friction, so each one's speed depends only on how far it has dropped.</p>
+          <p class="hint-s">The balls slide without friction. On a smooth track each one's speed depends only on how far it has dropped. A sharp corner knocks speed away: the ball keeps only the part of its speed that points along the new direction, so a square corner stops it dead. No ball can climb higher than A.</p>
         </aside>
       </div>
     </section>
@@ -54,7 +54,7 @@
         <li><strong>Press Race and watch the stopwatch.</strong> <span>The straight track is the shortest of the three, yet the cycloid ball arrives first. Watch the speeds: the cycloid ball is fast long before the others.</span><button class="outline" data-try="race">Show me</button></li>
         <li><strong>Drag B far to the right, only a little below A.</strong> <span>The cycloid dips well below B and climbs back up to it. It is now much longer than the straight line, and it still wins.</span><button class="outline" data-try="far">Show me</button></li>
         <li><strong>Draw a track that starts almost level, then drops.</strong> <span>Your ball crawls along the flat start with almost no speed, and loses badly. The speed you earn early is used for the whole rest of the trip.</span><button class="outline" data-try="shallow">Show me</button></li>
-        <li><strong>Drop straight down, then run level to B.</strong> <span>That gets full speed as early as possible, so it does well, but its path is long: every part is fast, there is just too much of it. It still loses to the cycloid.</span><button class="outline" data-try="corner">Show me</button></li>
+        <li><strong>Drop straight down, curve round, then run level to B.</strong> <span>That gets full speed as early as possible, so it does well, but its path is long: every part is fast, there is just too much of it. It still loses to the cycloid. Draw it with a sharp square corner instead and the ball stops dead at the corner.</span><button class="outline" data-try="corner">Show me</button></li>
         <li><strong>Switch gravity to the Moon.</strong> <span>Every time grows by the same factor, √(9.8 ÷ 1.6) ≈ 2.5. The order of arrival never changes: the fastest track is a matter of shape, not of gravity.</span><button class="outline" data-try="moon">Show me</button></li>
       </ol>
     </section>
@@ -67,7 +67,7 @@
         <div>
           <h3><span class="num">1</span>Speed depends only on how far the ball has dropped</h3>
           <p>With no friction, the ball trades height for speed and nothing is lost. Every metre it drops gives it the same amount of energy, whatever track it is on: g joules for each kilogram, about 9.8 J. That energy shows up as speed: half of the speed squared (½·v²) for each kilogram, where v is the speed.</p>
-          <p>So ½·v² = g·y, where y is the depth below A, and the speed at depth y is v = √(2·g·y), the square root of two times g times y. Two balls at the same depth on different tracks always move at the same speed. The tracks differ only in <em>when</em> they reach each depth.</p>
+          <p>So ½·v² = g·y, where y is the depth below A, and the speed at depth y is v = √(2·g·y), the square root of two times g times y. Two balls at the same depth on different smooth tracks always move at the same speed. The tracks differ only in <em>when</em> they reach each depth. (A sharp corner breaks this: the ball is knocked against the new direction and keeps only the part of its speed along it, v·cos of the angle it turns through. Draw a jagged track to see it lose.)</p>
         </div>
         <figure><canvas id="ex1" width="600" height="360"></canvas><figcaption>A ball on your cycloid. The energy it has given up by dropping y metres (grey) equals its speed energy (teal), and the arrows show every track has the same speed at that depth.</figcaption></figure>
       </div>

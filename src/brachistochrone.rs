@@ -2,7 +2,8 @@
 //!
 //! Coordinates: x to the right and y *down* (depth below the start), both in metres. A bead starts
 //! at rest at A = (0, 0) and slides without friction to B = (bx, by) with bx > 0, by > 0. Gravity g
-//! in m/s². Energy conservation gives the speed at any depth: v = √(2 g y), whatever the path.
+//! in m/s². Without friction, energy conservation gives the speed at any depth, v = √(2 g y), on any
+//! smooth path; a sharp corner knocks some of that speed away (see `slide_time`).
 //!
 //! Paths are flat lists of points [x0, y0, x1, y1, …]. Along a straight segment the push along the
 //! track is constant, so the time for a segment is exactly its length divided by the average of the
@@ -71,54 +72,157 @@ pub fn arc_points(bx: f64, by: f64, n: usize) -> Vec<f64> {
     }).collect()
 }
 
-/// The exact time along a path of straight segments from rest at (0, 0): each segment takes its
-/// length divided by the average of the speeds at its ends. Infinite if the path rises above the
-/// start (the bead cannot get there) or has a level segment at the start's height (no speed at all).
+/// How long a bead takes to slide along a path from rest at its first point to its last: infinite if
+/// it never gets there (it runs out of speed and slides back, or the path rises above the start).
+///
+/// Along a straight segment the push along the track is constant (g times the segment's slope), so
+/// every piece of the motion is exact. Smooth bends cost nothing. A sharp corner does: the bead keeps
+/// only the part of its velocity that points along the new direction, v·cos(turn), as a real bead or
+/// ball does when it is knocked round a kink. Bends of up to CORNER per point count as smooth, so a
+/// finely sampled curve (the cycloid, the arc, a carefully drawn track) loses nothing.
 #[wasm_bindgen]
-pub fn slide_time(pts: &[f64], g: f64) -> f64 { slide_segment_times(pts, g).iter().sum() }
+pub fn slide_time(pts: &[f64], g: f64) -> f64 {
+    let run = Run::new(pts, g);
+    if run.arrives { run.legs.last().map_or(0.0, |l| l.t0 + l.dur) } else { f64::INFINITY }
+}
 
-/// The time each segment takes (one number per segment, so n points give n − 1 times).
+/// Bends sharper than this (radians, at one point of the path) are corners that cost speed.
+pub const CORNER: f64 = 0.12;
+
+/// The time each segment takes on the way forward (one number per segment, so n points give n − 1
+/// times); infinite from the segment where the bead runs out of speed and turns back.
 #[wasm_bindgen]
 pub fn slide_segment_times(pts: &[f64], g: f64) -> Vec<f64> {
-    let n = pts.len() / 2;
-    let mut out = Vec::with_capacity(n.saturating_sub(1));
-    for i in 1..n {
-        let (x0, y0, x1, y1) = (pts[2 * i - 2], pts[2 * i - 1], pts[2 * i], pts[2 * i + 1]);
-        let ds = ((x1 - x0).powi(2) + (y1 - y0).powi(2)).sqrt();
-        if ds < 1e-12 { out.push(0.0); continue; }
-        if y0 < -1e-9 || y1 < -1e-9 { out.push(f64::INFINITY); continue; }
-        let (v0, v1) = (speed_at_depth(g, y0), speed_at_depth(g, y1));
-        out.push(if v0 + v1 <= 0.0 { f64::INFINITY } else { 2.0 * ds / (v0 + v1) });
+    let run = Run::new(pts, g);
+    let n = run.seg.len();
+    let mut out = vec![0.0; n];
+    let mut reached = vec![false; n];
+    for l in &run.legs {
+        if l.v0 < 0.0 || l.back { break; }
+        out[l.i] += l.dur;
+        if l.done { reached[l.i] = true; }
+    }
+    for i in 0..n { if !reached[i] && run.seg[i].len > 1e-12 { out[i] = f64::INFINITY; } }
+    out
+}
+
+/// The speed the bead has as it reaches each point on the way forward, after any corner there
+/// (NaN from the point where it turns back).
+#[wasm_bindgen]
+pub fn slide_speeds(pts: &[f64], g: f64) -> Vec<f64> {
+    let run = Run::new(pts, g);
+    let mut out = vec![f64::NAN; run.seg.len() + 1];
+    out[0] = 0.0;
+    for l in &run.legs {
+        if l.v0 < 0.0 || l.back { break; }
+        if l.done { out[l.i + 1] = l.v0 + l.a * l.dur; }
     }
     out
 }
 
-/// Where a bead released at time 0 is at time t: [x, y, speed, done] with done = 1 once it has
-/// arrived at the end of the path (it then sits there). Within a segment the push is constant, so
-/// the distance covered after τ seconds is v0 τ + ½ a τ² with a = (v1² − v0²)/(2 ds).
+/// Where a bead released at time 0 is at time t: [x, y, speed, done, stuck] with done = 1 once it has
+/// arrived at the end of the path (it then sits there), and stuck = 1 when it will never arrive.
 #[wasm_bindgen]
 pub fn slide_position(pts: &[f64], g: f64, t: f64) -> Vec<f64> {
+    let run = Run::new(pts, g);
+    let stuck = if run.arrives { 0.0 } else { 1.0 };
     let n = pts.len() / 2;
-    if n == 0 { return vec![0.0, 0.0, 0.0, 1.0]; }
-    let times = slide_segment_times(pts, g);
-    let mut left = t.max(0.0);
-    for (i, &dt) in times.iter().enumerate() {
-        let (x0, y0, x1, y1) = (pts[2 * i], pts[2 * i + 1], pts[2 * i + 2], pts[2 * i + 3]);
-        if dt == 0.0 { continue; }
-        if left >= dt {
-            if dt.is_infinite() { return vec![x0, y0, speed_at_depth(g, y0), 0.0]; }
-            left -= dt;
-            continue;
+    if n == 0 { return vec![0.0, 0.0, 0.0, 1.0, 0.0]; }
+    let t = t.max(0.0);
+    for l in &run.legs {
+        if t <= l.t0 + l.dur {
+            let (tau, sg) = (t - l.t0, &run.seg[l.i]);
+            let s = (l.s0 + l.v0 * tau + 0.5 * l.a * tau * tau).clamp(0.0, sg.len);
+            let u = if sg.len > 0.0 { s / sg.len } else { 0.0 };
+            return vec![sg.x0 + (sg.x1 - sg.x0) * u, sg.y0 + (sg.y1 - sg.y0) * u, (l.v0 + l.a * tau).abs(), 0.0, stuck];
         }
-        let ds = ((x1 - x0).powi(2) + (y1 - y0).powi(2)).sqrt();
-        let (v0, v1) = (speed_at_depth(g, y0), speed_at_depth(g, y1));
-        let a = (v1 * v1 - v0 * v0) / (2.0 * ds);
-        let s = (v0 * left + 0.5 * a * left * left).clamp(0.0, ds);
-        let u = s / ds;
-        return vec![x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, (v0 + a * left).max(0.0), 0.0];
     }
-    let (x, y) = (pts[2 * n - 2], pts[2 * n - 1]);
-    vec![x, y, speed_at_depth(g, y), 1.0]
+    match run.legs.last() {
+        Some(l) if !run.arrives => {
+            let sg = &run.seg[l.i];
+            let s = (l.s0 + l.v0 * l.dur + 0.5 * l.a * l.dur * l.dur).clamp(0.0, sg.len);
+            let u = if sg.len > 0.0 { s / sg.len } else { 0.0 };
+            vec![sg.x0 + (sg.x1 - sg.x0) * u, sg.y0 + (sg.y1 - sg.y0) * u, 0.0, 0.0, 1.0]
+        }
+        _ => vec![pts[2 * n - 2], pts[2 * n - 1], if run.arrives { run.v_end } else { 0.0 }, if run.arrives { 1.0 } else { 0.0 }, stuck],
+    }
+}
+
+struct Seg { x0: f64, y0: f64, x1: f64, y1: f64, len: f64 }
+/// One stretch of motion inside one segment with a constant push: from distance s0 along it at
+/// speed v0 (negative when sliding back), accelerating at a, for dur seconds. done: it reached the
+/// segment's far end going forward; back: it is on its way back.
+struct Leg { i: usize, t0: f64, s0: f64, v0: f64, a: f64, dur: f64, done: bool, back: bool }
+struct Run { seg: Vec<Seg>, legs: Vec<Leg>, arrives: bool, v_end: f64 }
+
+impl Run {
+    /// Follows the bead: through each segment exactly, round corners with v·cos(turn), back down when it
+    /// runs out of speed, until it arrives, comes to rest, or a minute of its time has passed.
+    fn new(pts: &[f64], g: f64) -> Run {
+        let m = pts.len() / 2;
+        let mut seg = Vec::new();
+        for i in 1..m {
+            let (x0, y0, x1, y1) = (pts[2 * i - 2], pts[2 * i - 1], pts[2 * i], pts[2 * i + 1]);
+            let len = ((x1 - x0).powi(2) + (y1 - y0).powi(2)).sqrt();
+            if len > 1e-12 { seg.push(Seg { x0, y0, x1, y1, len }); }
+        }
+        let mut run = Run { seg, legs: Vec::new(), arrives: false, v_end: 0.0 };
+        let n = run.seg.len();
+        if n == 0 { run.arrives = true; return run; }
+        let acc = |sg: &Seg| g * (sg.y1 - sg.y0) / sg.len;
+        // what survives of the speed going round the point between segments j and j + 1
+        let keep = |a: &Seg, b: &Seg| {
+            let c = ((a.x1 - a.x0) * (b.x1 - b.x0) + (a.y1 - a.y0) * (b.y1 - b.y0)) / (a.len * b.len);
+            let turn = c.clamp(-1.0, 1.0).acos();
+            if turn <= CORNER { 1.0 } else { turn.cos().max(0.0) }
+        };
+        let (mut i, mut s, mut v, mut t) = (0usize, 0.0f64, 0.0f64, 0.0f64);
+        let mut back = false;
+        for _ in 0..200_000 {
+            if t > 60.0 { break; }
+            let sg = &run.seg[i];
+            let a = acc(sg);
+            if v.abs() < 1e-12 && a.abs() < 1e-12 { break; }   // at rest on the level: it stays
+            // time to reach the far end (v ≥ 0) or the near end (v < 0), or to stop and turn
+            let hit = |target: f64| -> Option<f64> {
+                let d = target - s;   // solve v τ + ½ a τ² = d for the first τ > 0
+                if a.abs() < 1e-12 { return if v.abs() > 1e-12 && d / v > 0.0 { Some(d / v) } else { None }; }
+                let disc = v * v + 2.0 * a * d;
+                if disc < 0.0 { return None; }
+                let r = disc.sqrt();
+                [(-v + r) / a, (-v - r) / a].into_iter().filter(|&x| x > 1e-12).fold(None, |m: Option<f64>, x| Some(m.map_or(x, |y| y.min(x))))
+            };
+            let moving_fwd = v > 0.0 || (v == 0.0 && a > 0.0);
+            let tau_end = if moving_fwd { hit(sg.len) } else { hit(0.0) };
+            let tau_turn = if a != 0.0 && v != 0.0 && v.signum() != a.signum() { Some(-v / a) } else { None };
+            match (tau_end, tau_turn) {
+                (Some(te), tt) if tt.map_or(true, |x| te <= x) => {
+                    let ve = v + a * te;
+                    run.legs.push(Leg { i, t0: t, s0: s, v0: v, a, dur: te, done: moving_fwd, back });
+                    t += te;
+                    if moving_fwd {
+                        if i + 1 == n { run.arrives = true; run.v_end = ve; return run; }
+                        v = ve * keep(&run.seg[i], &run.seg[i + 1]); i += 1; s = 0.0;
+                    } else {
+                        if i == 0 { return run; }   // back at the start, at rest
+                        v = ve * keep(&run.seg[i - 1], &run.seg[i]); i -= 1; s = run.seg[i].len;
+                    }
+                }
+                (_, Some(tt)) => {
+                    run.legs.push(Leg { i, t0: t, s0: s, v0: v, a, dur: tt, done: false, back });
+                    t += tt; s = (s + v * tt + 0.5 * a * tt * tt).clamp(0.0, sg.len); v = 0.0; back = true;
+                }
+                _ => break,
+            }
+            // at rest at a point between two segments that both rise away from it: it stays there
+            if v == 0.0 && ((s <= 1e-12 && i > 0 && acc(&run.seg[i]) <= 0.0 && acc(&run.seg[i - 1]) >= 0.0)
+                || (s >= run.seg[i].len - 1e-12 && i + 1 < n && acc(&run.seg[i]) >= 0.0 && acc(&run.seg[i + 1]) <= 0.0)) { break; }
+            if v == 0.0 && s <= 1e-12 && i > 0 && acc(&run.seg[i]) <= 0.0 { i -= 1; s = run.seg[i].len; }
+            if v == 0.0 && s >= run.seg[i].len - 1e-12 && i + 1 < n && acc(&run.seg[i]) >= 0.0 { i += 1; s = 0.0; }
+            if i == 0 && s <= 1e-12 && v == 0.0 && acc(&run.seg[0]) <= 0.0 { break; }   // level or rising at the start
+        }
+        run
+    }
 }
 
 /// The same path with n points spaced evenly along its length (for drawn paths with uneven points).
@@ -282,6 +386,43 @@ mod tests {
         // free fall: after t seconds it has dropped ½ g t²
         let p = slide_position(&[0.0, 0.0, 0.0, 10.0], G, 1.0);
         assert!((p[1] - 0.5 * G).abs() < 1e-9 && (p[2] - G).abs() < 1e-9);
+    }
+
+    #[test]
+    fn sharp_corners_cost_speed_and_smooth_bends_do_not() {
+        // straight down 2 m, then a sharp right angle onto the level: all the speed points the wrong way
+        let drop_level = [0.0, 0.0, 0.0, 2.0, 3.0, 2.0];
+        assert!(slide_time(&drop_level, G).is_infinite(), "a square corner stops it dead");
+        let p = slide_position(&drop_level, G, 5.0);
+        assert!(p[4] == 1.0 && p[3] == 0.0 && (p[1] - 2.0).abs() < 1e-9, "it sits at the corner: {p:?}");
+        // the same turn rounded off (a quarter circle in many small steps) keeps the speed
+        let mut round = vec![0.0, 0.0, 0.0, 1.0];
+        for k in 1..=60 { let th = PI / 2.0 * k as f64 / 60.0; round.extend([1.0 - th.cos(), 1.0 + th.sin()]); }
+        round.extend([3.0, 2.0]);
+        let t = slide_time(&round, G);
+        assert!(t.is_finite());
+        let v = slide_speeds(&round, G);
+        assert!((v[v.len() - 1] - speed_at_depth(G, 2.0)).abs() < 1e-9, "no speed lost on the bend: {}", v[v.len() - 1]);
+        // a 45° kink keeps cos 45° of the speed
+        let kink = [0.0, 0.0, 0.0, 1.0, 1.0, 2.0];
+        let v = slide_speeds(&kink, G);
+        assert!((v[1] - speed_at_depth(G, 1.0)).abs() < 1e-9);
+        let want = (speed_at_depth(G, 1.0) * (PI / 4.0).cos()).powi(2) + 2.0 * G * 1.0;
+        assert!((v[2] - want.sqrt()).abs() < 1e-9, "{} vs {}", v[2], want.sqrt());
+    }
+
+    #[test]
+    fn a_bead_that_runs_out_of_speed_slides_back_and_never_arrives() {
+        // a smooth dip 2 m deep that climbs out to `end` metres below A (negative: above A)
+        let dip = |end: f64| { let mut p = vec![0.0, 0.0];
+            for k in 1..=200 { let x = 6.0 * k as f64 / 200.0; p.extend([x, 2.0 * (PI * x / 6.0).sin() + end * x / 6.0]); } p };
+        assert!(slide_time(&dip(-0.05), G).is_infinite(), "it can't climb higher than it started");
+        let late = slide_position(&dip(-0.05), G, 4.0);
+        assert!(late[4] == 1.0 && late[1] > 0.0, "it has turned back into the dip: {late:?}");
+        assert!(slide_time(&dip(0.3), G).is_finite(), "ending 0.3 m below A it makes it");
+        // a hairpin (a sharp turn back the way it came) stops it, so it can't climb the next bump
+        let hairpin = [0.0, 0.0, 0.0, 3.0, 0.5, 1.0, 1.0, 3.0, 3.0, 1.5];
+        assert!(slide_time(&hairpin, G).is_infinite());
     }
 
     #[test]

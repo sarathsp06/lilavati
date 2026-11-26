@@ -1,7 +1,7 @@
 // The brachistochrone page: three (or four) tracks from A down to B, balls racing on them under gravity,
 // and the step-by-step pictures that work out why the cycloid wins. The physics is in Rust
 // (src/brachistochrone.rs): positions in metres, x to the right and y *down* from A.
-import init, { speed_at_depth, cycloid_params, cycloid_points, line_points, arc_points, slide_time, slide_segment_times, slide_position, slide_resample, snell_path } from '../pkg/lilavati.js';
+import init, { speed_at_depth, cycloid_params, cycloid_points, line_points, arc_points, slide_time, slide_segment_times, slide_speeds, slide_position, slide_resample, snell_path } from '../pkg/lilavati.js';
 import { share, nums } from '../together/share.js';
 
 await init();
@@ -140,14 +140,14 @@ function readouts() {
   let html = '<tr><th></th><th>Track</th><th>Length</th><th>Time</th></tr>';
   for (const t of tracks) {
     const arrived = tr >= t.T - 1e-9, rank = order.indexOf(t);
-    const time = !Number.isFinite(t.T) ? 'never starts' : arrived ? `${f2(t.T)} s${rank === 0 ? ' 🏁' : ''}` : '…';
+    const time = !Number.isFinite(t.T) ? 'never gets there' : arrived ? `${f2(t.T)} s${rank === 0 ? ' 🏁' : ''}` : '…';
     html += `<tr class="${arrived && rank === 0 ? 'win' : ''}"><td><i class="sw" style="background:${t.color}"></i></td><td>${t.name}</td><td>${f2(t.len)} m</td><td>${time}</td></tr>`;
   }
   let verdict = '';
   if (tr >= end && order.length) {
     const c = byKey('cyc'), l = byKey('line'), w = order[0];
     verdict = `${w.name} first. ` + (Number.isFinite(l.T) ? `The cycloid is ${Math.round(100 * (c.len / l.len - 1))}% longer than the straight line and arrives ${f2(l.T - c.T)} s sooner.` : '');
-    const m = byKey('mine'); if (m && !Number.isFinite(m.T)) verdict += ' Your track is level where it leaves A, so its ball never gets going.';
+    const m = byKey('mine'); if (m && !Number.isFinite(m.T)) verdict += ' Your ball never reaches B: each sharp corner knocks away the part of its speed that points the wrong way, and no ball can climb back up to the height it started from.';
   }
   const say = drawMode ? 'Drag from A to B on the picture to lay your track.' : tr >= end ? 'Finished: ' + order.map(t => `${t.name.toLowerCase()} ${f2(t.T)} s`).join(', ') + '.' : `Racing in ${tempo() === 1 ? 'real time' : tempo() === 0.5 ? 'half speed' : 'quarter speed'}, g = ${g} m/s².`;
   const key = html + verdict + say;
@@ -250,10 +250,10 @@ function pieces(id, capId, tk, n, ghost, key, dt) {
   c.fillStyle = COL.ink; c.font = '13px system-ui';
   if (k > 0) {
     const i = k - 1, L = Math.hypot(q[2 * i + 2] - q[2 * i], q[2 * i + 3] - q[2 * i + 1]);
-    const v0 = speed_at_depth(g, q[2 * i + 1]), v1 = speed_at_depth(g, q[2 * i + 3]);
+    const sp = slide_speeds(q, g), v0 = sp[i], v1 = sp[i + 1];
     const [lx, ly] = m((q[2 * i] + q[2 * i + 2]) / 2, (q[2 * i + 1] + q[2 * i + 3]) / 2);
     c.font = '700 12px system-ui'; c.fillText(String(k), lx + 7, ly - 5); c.font = '13px system-ui';
-    c.fillText(`Piece ${k}: ${f2(L)} m ÷ ((${f2(v0)} + ${f2(v1)}) ÷ 2) m/s = ${Number.isFinite(st[i]) ? f2(st[i]) + ' s' : '∞ (no speed at all)'}`, 12, 172);
+    c.fillText(Number.isFinite(st[i]) ? `Piece ${k}: ${f2(L)} m ÷ ((${f2(v0)} + ${f2(v1)}) ÷ 2) m/s = ${f2(st[i])} s` : `Piece ${k}: the ball never gets this far.`, 12, 172);
   } else c.fillText('Cutting the track into pieces…', 12, 172);
   // the bars: time for each piece, and the running total
   const fin = [...st, ...(gst || [])].filter(Number.isFinite), mx = Math.max(...fin, 1e-9);
@@ -307,7 +307,8 @@ function step4() {
   });
   c.strokeStyle = 'rgba(0,0,0,.4)'; c.setLineDash([4, 4]); c.beginPath(); c.moveTo(X(now), Y1 - 6); c.lineTo(X(now), Y0); c.stroke(); c.setLineDash([]);
   c.fillStyle = COL.ink; c.font = '600 13px system-ui'; c.fillText(`stopwatch ${f2(tr)} s`, Math.min(X(now) + 6, X1 - 110), Y0 - 8);
-  c.fillStyle = COL.ink2; c.font = '12px system-ui'; c.fillText('Every ball ends at the same speed: the speed of B\'s depth.', X0, 352);
+  const vB = speed_at_depth(g, off()[1]), slowed = fin.some(t => slide_position(t.pts, g, t.T)[2] < vB - 0.01);
+  c.fillStyle = COL.ink2; c.font = '12px system-ui'; c.fillText(slowed ? 'Smooth tracks end at the speed of B\'s depth; sharp corners on yours cost it speed.' : 'Every ball ends at the same speed: the speed of B\'s depth.', X0, 352);
 }
 
 // 5: light-like layers
@@ -381,7 +382,10 @@ const TRY = {
   race: () => restart(),
   far: () => { A = [...A0]; B = [A0[0] + 9 * PX, A0[1] + 1.5 * PX]; if (!fits(A, B)) mine = null; build(); restart(); },
   shallow: () => { A = [...A0]; B = [...B0]; setMineFromFractions([0, 0, 0.25, 0.02, 0.5, 0.05, 0.75, 0.12, 0.9, 0.4, 1, 1]); build(); restart(); },
-  corner: () => { A = [...A0]; B = [...B0]; setMineFromFractions([0, 0, 0, 1, 1, 1]); build(); restart(); },
+  // straight down, round a quarter circle, then level to B (a square corner would stop the ball dead)
+  corner: () => { A = [...A0]; B = [...B0]; const [bx, by] = off(), r = Math.min(0.8, by / 2, bx / 2), q = [0, 0, 0, by - r];
+    for (let k = 1; k <= 24; k++) { const th = Math.PI / 2 * k / 24; q.push(r - r * Math.cos(th), by - r + r * Math.sin(th)); }
+    q.push(bx, by); setMineFromMetres(q); build(); restart(); },
   moon: () => { $('gravity').value = '1.62'; $('gravity').dispatchEvent(new Event('change')); },
 };
 for (const b of document.querySelectorAll('[data-try]')) b.addEventListener('click', () => { TRY[b.dataset.try]?.(); $('play').scrollIntoView({ behavior: 'smooth' }); });
