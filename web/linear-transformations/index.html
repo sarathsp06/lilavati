@@ -18,7 +18,14 @@
 
     <section id="what" data-label="What it is" class="block what reveal">
       <h2>What a linear transformation and a matrix are</h2>
-      <p>A <strong>linear transformation</strong> is a move of the whole plane (or space) that keeps grid lines straight, evenly spaced and through the origin: stretching, turning, shearing, squashing, or flipping, but never bending. A <strong>matrix</strong> is the recipe for such a move written as a grid of numbers: its columns say where the basic arrows land, and from those two arrows every other point follows.</p><p>On this page you drag the two basic arrows and the matrix fills itself in. A layer of a neural network applies exactly such a move to its data, in many more dimensions.</p>
+      <p>A <strong>linear transformation</strong> moves every point of the plane at once while keeping grid lines straight, parallel and evenly spaced, with the origin staying put; a <strong>matrix</strong> is the small grid of numbers that records such a move.</p>
+      <ul>
+        <li><strong>What it can do:</strong> stretch, squash, turn, shear (slant) or mirror the plane, or any mix of these. It never bends lines and never shifts the origin.</li>
+        <li><strong>The two basic arrows:</strong> î = (1, 0) is one step right and ĵ = (0, 1) one step up. Where these two land decides the whole move.</li>
+        <li><strong>The matrix:</strong> its first column is where î lands, its second column where ĵ lands. If î lands on (2, 0) and ĵ stays at (0, 1), the columns are (2, 0) and (0, 1), and everything becomes twice as wide.</li>
+        <li><strong>Every other point</strong> (x, y) is x steps of î plus y steps of ĵ, so it lands at x × (where î landed) + y × (where ĵ landed).</li>
+      </ul>
+      <p>Below, drag the tips of î and ĵ: the whole grid follows, and the matrix fills itself in. A layer of a neural network applies exactly such a move to its data, in many more dimensions.</p>
     </section>
 
     <section id="play" data-label="Play">

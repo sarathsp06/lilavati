@@ -27,7 +27,7 @@ function draw(s) {
   basis(P, m);
   P.arrow(ax, ay, COL.v, { label: 'Av' });
   const d = det2(...s.m);
-  $('say').innerHTML = `v = ${vec(...v, 1)} lands at <b>Av = ${vec(ax, ay)}</b> = ${fmt(v[0], 1)}·(green) + ${fmt(v[1], 1)}·(red). Areas × ${fmt(d)}${Math.abs(d) < 1e-9 ? ' (squashed: no way back)' : ''}.`;
+  $('say').innerHTML = `v = ${vec(...v, 1)} lands at <b>Av = ${vec(ax, ay)}</b> = ${fmt(v[0], 1)} × (green î) + ${fmt(v[1], 1)} × (red ĵ). Areas × ${fmt(d)}${Math.abs(d) < 1e-9 ? ' (squashed: no way back)' : ''}.`;
   explain(s.m);
 }
 
