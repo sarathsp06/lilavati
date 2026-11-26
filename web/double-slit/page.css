@@ -1,0 +1,15 @@
+/* The double-slit page: the controls under the picture, the figure sliders, the panel checkboxes. */
+.under .ctl { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; width: 100%; }
+.under button { margin: 0; width: auto; padding: .35rem .8rem; font-size: .88rem; }
+.under label { font-size: .82rem; margin: 0; display: flex; gap: .4rem; align-items: center; }
+.under input[type=range] { margin: 0; width: 9rem; }
+.panel label { font-size: .88rem; }
+.panel label.inline { display: flex; gap: .5rem; align-items: center; margin: .3rem 0; }
+.panel label.inline input { margin: 0; }
+.figctl { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-top: .5rem; font-size: .85rem; }
+.figctl label { margin: 0; }
+.figctl input { margin: 0; max-width: 14rem; }
+@media (max-width: 900px) {
+  .under input[type=range] { width: 7rem; }
+  .under button { padding: .3rem .6rem; font-size: .82rem; }
+}

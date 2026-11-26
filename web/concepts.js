@@ -64,7 +64,7 @@ export const CONCEPTS = [
     idea: 'Shapes that can be deformed into each other without tearing are the same; the number of holes tells them apart.', related: ['linear-transformations'] },
   { slug: 'fourth-dimension', hook: 'What a four-dimensional cube looks like from here', tagline: 'A cube\u2019s shadow is flat. A tesseract\u2019s shadow is a cube. Turn it and watch the shadow change.', name: 'Four-dimensional geometry', status: 'soon', topic: 'Geometry', level: 'Curious', color: '#6d28d9', previewFile: true,
     idea: 'A fourth direction at right angles to all three; we see it only as projections that shift as it turns.', related: ['linear-transformations', 'topology'] },
-  { slug: 'double-slit', hook: 'Why one electron goes through both slits', tagline: 'Fire them one at a time and the stripes still build up. Look which slit, and they vanish.', name: 'The double-slit experiment', status: 'soon', topic: 'Quantum', level: 'Curious', color: '#be185d', previewFile: true,
+  { slug: 'double-slit', hook: 'Why one electron goes through both slits', tagline: 'Fire them one at a time and the stripes still build up. Look which slit, and they vanish.', name: 'The double-slit experiment', status: 'live', topic: 'Quantum', level: 'Curious', color: '#be185d', previewFile: true,
     idea: 'Add the two paths\u2019 amplitudes before squaring; the cross term is the interference pattern.', related: ['superposition', 'fourier-series'] },
 ];
 export const bySlug = Object.fromEntries(CONCEPTS.map(c => [c.slug, c]));
