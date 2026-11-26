@@ -127,3 +127,21 @@ export function card(c) {
 
 // Together: invite people to explore a page with you (together/index.js)
 import('./together/index.js').catch(e => console.warn('[together] not available', e));
+
+// Share: the phone's or browser's own share sheet where there is one, else copy the link. Always the plain
+// page address, never a Together invite (?join=…).
+{
+  const spot = document.querySelector('.topbar a.gh') || document.querySelector('.home-nav .navlinks a.gh');
+  if (spot) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'share-btn'; b.title = 'Share this page'; b.setAttribute('aria-label', 'Share this page');
+    b.innerHTML = '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Share</span>';
+    b.addEventListener('click', async () => {
+      const url = document.querySelector('link[rel=canonical]')?.href || location.origin + location.pathname;
+      const title = document.title.replace(/ · Lilavati$/, ''), text = document.querySelector('meta[name=description]')?.content || '';
+      if (navigator.share) { try { await navigator.share({ title, text, url }); } catch { /* the person closed the sheet */ } return; }
+      try { await navigator.clipboard.writeText(url); b.querySelector('span').textContent = 'Link copied'; setTimeout(() => { b.querySelector('span').textContent = 'Share'; }, 1800); } catch { prompt('Copy this link:', url); }
+    });
+    spot.before(b);
+  }
+}

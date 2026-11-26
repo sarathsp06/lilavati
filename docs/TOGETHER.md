@@ -26,13 +26,15 @@ host. Everyone keeps the newest signed rules (who is removed, whether it's locke
 they hold while the host is away. Someone who edits the site's code in their own browser could ignore a
 command aimed at them; the code is the real lock. Code: `web/together/host.js`, `tests/host.test.mjs`.
 
-## Following the host
+## Where everyone is, and Go to
 
-By default everyone follows the host: when the host goes to another page, followers go there too, and as
-the host scrolls, followers scroll to the same place. Position is sent as a section (hero, each section,
-each step) and how far through it, not in pixels, so a phone follows a wide screen. A follower can switch
-it off with **follow the host** in the panel (remembered for the tab); switching it back on jumps to where
-the host is. Changes made by anyone still reach everyone.
+Nobody is moved automatically (the person's choice, 2026-11-26: following someone's scroll fought your own
+scrolling and lagged). Everyone sends where they are as they scroll: the page, the section at the top of their
+screen (hero, each section, each step) and how far through it, plus that section's name. The panel shows it under
+each person ("here · step 3", "on Topology · Step by step"), and **Go to** next to them takes you there once:
+it scrolls to their section, or opens their page and lands on it (`#tg-at=k_f` in the address, removed on
+arrival). Sections, not pixels, so a phone lands where a wide screen is. Changes made by anyone still reach
+everyone.
 
 ## Voice
 

@@ -176,8 +176,10 @@ function build() {
     const where = m.slug === slug ? 'here' : null;
     const bits = [rules?.host && m.pid === rules.host ? '👑 host' : '', (typing.get(m.id) || 0) > Date.now() ? '✍️ typing…' : '', m.mic ? (m.muted ? '🔇 muted' : voice?.hears(m.id) ? '🎤 on voice' : '🎤 connecting…') : ''].filter(Boolean);
     const info = el('small', { textContent: bits.join(' · ') });
-    if (!where) info.append(bits.length ? ' · ' : '', el('a', { href: linkFor(m.slug), textContent: m.slug ? `on ${bySlug[m.slug]?.name || m.slug}` : 'on the home page' }));
+    const p = pos.get(m.id), at = p?.label ? ` · ${p.label}` : '';
+    info.append(bits.length ? ' · ' : '', where ? `here${at}` : `on ${m.slug ? bySlug[m.slug]?.name || m.slug : 'the home page'}${at}`);
     const tools = [];
+    const go = el('button', { type: 'button', className: 'tg-mini', textContent: 'Go to', title: `Go to where ${m.name} is, once` }); go.onclick = () => goTo(m); tools.push(go);
     if (amHost()) {
       if (m.mic && !m.muted) { const b = el('button', { type: 'button', className: 'tg-mini', textContent: 'mute' }); b.onclick = () => hostMute(m); tools.push(b); }
       const k = el('button', { type: 'button', className: 'tg-mini danger', textContent: 'remove' }); k.onclick = () => { if (confirm(`Remove ${m.name} from this session?`)) setRules({ banned: [...(rules?.banned || []), m.pid], allow: (rules?.allow || []).filter(x => x !== m.pid) }); }; tools.push(k);
@@ -205,7 +207,7 @@ function build() {
   if (typers.length) ch.append(el('span', { textContent: `${typers.join(', ')} ${typers.length === 1 ? 'is' : 'are'} typing…` }));
   panel.append(el('section', { className: 'tg-sec tg-chat' }, ch, log, form));
 
-  // inviting, the host's switches, following, leaving: at the bottom, folded once others are here
+  // inviting, the host's switches, leaving: at the bottom, folded once others are here
   const inv = el('details', { className: 'tg-sec tg-invite', open: invOpen ?? !session.members.size });
 
   const sum = el('summary', { textContent: 'Invite people and settings' });
@@ -220,15 +222,9 @@ function build() {
     if (amHost()) {
       const lock = el('button', { type: 'button', className: 'tg-mini' + (rules?.locked ? ' on' : ''), textContent: rules?.locked ? '🔒 locked: nobody new can join' : '🔓 lock the session' });
       lock.onclick = () => setRules({ locked: !rules?.locked, allow: rules?.locked ? [] : [pid, ...[...session.members.values()].map(m => m.pid)] });
-      inv.append(el('p', { className: 'tg-hint' }, '👑 You are the host. Everyone following you goes where you go. ', lock));
+      inv.append(el('p', { className: 'tg-hint' }, '👑 You are the host. ', lock));
     } else {
       if (rules?.locked) inv.append(el('p', { className: 'tg-hint', textContent: '🔒 The host has locked this session.' }));
-      if (rules?.host) {
-        const f = el('button', { type: 'button', className: 'tg-mini' + (following ? ' on' : ''), textContent: following ? '👀 following the host' : 'follow the host' });
-        f.title = 'Go to the page the host is on and scroll with them';
-        f.onclick = () => { following = !following; sessionStorage.setItem(KEY + '.follow', following ? '1' : '0'); if (following) sendRaw?.({ t: 'where' }); render(); };
-        inv.append(el('p', { className: 'tg-hint' }, f));
-      }
     }
   }
   const leave = el('button', { type: 'button', className: 'secondary outline tg-leave', textContent: 'Leave session' });
@@ -364,40 +360,53 @@ function disconnect() {
   render();
 }
 
-// ---------- follow the host: their page and where they are on it ----------
-// The host sends where they are (page, the section at the top of their screen and how far through it)
-// as they scroll; followers go there. Sections, not pixels, so a phone follows a wide screen.
-let following = sessionStorage.getItem(KEY + '.follow') !== '0';
+// ---------- where everyone is, and going to someone ----------
+// Everyone sends where they are (page, the section at the top of their screen, how far through it, and that
+// section's name) as they scroll. Nobody is moved automatically: the panel shows where each person is, and
+// "Go to" takes you there once. Sections, not pixels, so a phone lands where a wide screen is.
 const TOPBAR = 70;
+const pos = new Map();   // member id → { slug, k, f, label }
 const anchors = () => [...document.querySelectorAll('main > header, main > section, main .step, main nav.home-nav ~ *')];
+function labelOf(a) {
+  if (!a) return '';
+  if (a.matches('header')) return 'the top';
+  const h = a.matches('.step') ? a.querySelector('h3') : null;
+  if (h) return 'step ' + (h.querySelector('.num')?.textContent || '').trim();
+  return a.dataset.label || a.querySelector('h2')?.textContent?.trim().slice(0, 40) || '';
+}
 function where() {
   const a = anchors(); let k = 0;
   for (let i = 0; i < a.length; i++) if (a[i].getBoundingClientRect().top <= TOPBAR + 1) k = i;
   const r = a[k]?.getBoundingClientRect();
-  return { k, f: r && r.height ? Math.max(0, Math.min(1, (TOPBAR - r.top) / r.height)) : 0 };
+  return { k, f: r && r.height ? Math.max(0, Math.min(1, (TOPBAR - r.top) / r.height)) : 0, label: labelOf(a[k]) };
 }
 let leadT = null;
 function lead(to) {
-  if (!amHost() || !session) return;
+  if (!session) return;
   clearTimeout(leadT);
-  leadT = setTimeout(() => { const w = where(); sendRaw?.({ t: 'lead', slug, k: w.k, f: Math.round(w.f * 1000) / 1000 }, to); }, to ? 0 : 120);
+  leadT = setTimeout(() => { const w = where(); sendRaw?.({ t: 'lead', slug, k: w.k, f: Math.round(w.f * 1000) / 1000, label: w.label }, to); }, to ? 0 : 400);
 }
 addEventListener('scroll', () => lead(), { passive: true });
-function follow(m, from) {
-  if (!following || amHost() || !rules?.host || session.member(from)?.pid !== rules.host) return;
-  if (m.slug !== slug) {   // the host went to another page: go there too
-    if (m.slug === '' || bySlug[m.slug]?.status === 'live') { toast('Following the host…'); location.href = linkFor(m.slug); }
-    return;
-  }
-  const a = anchors()[m.k]; if (!a) return;
+function scrollToSpot(k, f) {
+  const a = anchors()[k]; if (!a) return;
   const r = a.getBoundingClientRect();
-  scrollTo({ top: Math.max(0, r.top + scrollY + m.f * r.height - TOPBAR), behavior: Math.abs(r.top - TOPBAR) > innerHeight * 2 ? 'auto' : 'smooth' });
+  scrollTo({ top: Math.max(0, r.top + scrollY + f * r.height - TOPBAR), behavior: Math.abs(r.top - TOPBAR) > innerHeight * 2 ? 'auto' : 'smooth' });
+}
+function goTo(m) {
+  const p = pos.get(m.id) || { slug: m.slug, k: 0, f: 0 };
+  if (p.slug === slug) { scrollToSpot(p.k, p.f); toast(`Gone to ${m.name}`); return; }
+  location.href = linkFor(p.slug) + `#tg-at=${p.k}_${Math.round(p.f * 1000)}`;
+}
+// arriving from someone else's "Go to" on another page: land where they were
+{
+  const at = /^#tg-at=(\d{1,3})_(\d{1,4})$/.exec(location.hash);
+  if (at) { history.replaceState(history.state, '', location.pathname + location.search); const land = () => setTimeout(() => scrollToSpot(+at[1], +at[2] / 1000), 400); document.readyState === 'complete' ? land() : addEventListener('load', land); }
 }
 
 function handle(r, from) {
   if (!r) return;
-  if (r.type === 'lead') { follow(r, from); return; }
-  if (r.type === 'where') { if (amHost()) lead(from); return; }
+  if (r.type === 'lead') { const old = pos.get(from); pos.set(from, r); if (!old || old.slug !== r.slug || old.label !== r.label) render(); return; }
+  if (r.type === 'where') { lead(from); return; }
   if (r.type === 'host') { fromHost(r.data); return; }
   if (r.type === 'join') {
     if (r.rules) fromHost(r.rules);
@@ -405,7 +414,7 @@ function handle(r, from) {
     if (r.isNew) toast(`${r.member.name} joined${r.member.slug && r.member.slug !== slug ? ' (on another page)' : ''}`);
     if (r.answerState) whenReady(() => sendRaw({ t: 'state', slug, s: snapshot() }, from));
     if (r.answerChat) sendRaw({ t: 'hist', msgs: session.history() }, from);
-    if (amHost()) lead(from);   // a newcomer (or someone arriving on a new page) learns where the host is
+    lead(from);   // a newcomer (or someone arriving on a new page) learns where everyone is
   }
   if (r.type === 'chat') { typing.delete(from); saveChat(); if (panel.hidden) { unread++; toast(`${r.message.name}: ${r.message.text}`); } }
   if (r.type === 'typing') { typing.set(from, Date.now() + 4000); setTimeout(render, 4100); }
@@ -477,7 +486,7 @@ document.addEventListener('click', e => {
   if (i >= 0) sendRaw({ t: 'click', slug, i });
 }, true);
 
-window.__together = { get voice() { return voice; }, get session() { return session; }, get rules() { return rules; }, get following() { return following; }, get amHost() { return amHost(); }, pid };   // for tests and debugging
+window.__together = { get voice() { return voice; }, get session() { return session; }, get rules() { return rules; }, get amHost() { return amHost(); }, pid };   // for tests and debugging
 render();
 if (token && (!hasHost(token) || code)) connect();
 else if (token) { panel.hidden = false; render(); }   // invited: ask for the code

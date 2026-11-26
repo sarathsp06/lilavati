@@ -118,6 +118,7 @@ previews['nash-equilibrium'] = (c, w, h, sec) => {
   c.strokeStyle = '#be123c'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(X(avg * 2 / 3), y + 4); c.lineTo(X(avg * 2 / 3), 30); c.stroke();
   c.fillStyle = '#be123c'; c.font = '600 14px system-ui'; c.textAlign = 'left'; c.fillText(`round ${wrap ? k + 1 : k + 1 + (u > 0.5 ? 1 : 0)}: ⅔ of the average`, X(avg * 2 / 3) + 6, 40);
 };
+window.__lilavatiPreviews = previews;   // for tools/og.mjs, which draws the link-preview pictures
 const cards = [...document.querySelectorAll('canvas[data-preview]')];
 // newer pages keep their card preview in web/<slug>/preview.js (default export (c, w, h, sec) => void), loaded here
 for (const c of CONCEPTS) if (c.status === 'live' && c.previewFile) import(`./${c.slug}/preview.js`).then(m => { previews[c.slug] = m.default; }).catch(e => console.warn('preview', c.slug, e));

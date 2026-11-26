@@ -59,5 +59,9 @@ Notes for anyone (person or AI agent) adding to or changing this site.
   controls still calls `share()`. Validate what `set` receives (it comes from other browsers; `nums()` helps).
   Mark controls that must stay personal (copy buttons, sound, a playback clock) with `data-local`. Pages
   where people act separately (a game with hidden guesses) use `room` from the same file instead.
+- **Link previews (social media):** every page carries Open Graph and Twitter card tags and a 1200×630 picture
+  (`web/og/<slug>.png`), made from its title, hook and home-card preview. After adding or renaming a page run
+  `node tools/og.mjs http://localhost:8080` with `web/` served there; it rewrites the `<!-- share -->` block in
+  each page's `<head>`. Pages also get a **Share** button (the device's share sheet, or copy the link).
 - **Checks:** `./build.sh` runs `cargo test` for the maths and `node --test tests/*.test.mjs` for Together; open every changed page in a browser at desktop and phone
   width before deploying. Deploy steps are in [docs/DEPLOY.md](docs/DEPLOY.md).

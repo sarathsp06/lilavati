@@ -20,7 +20,7 @@
 //   app   { slug, d }              the page's own message (share.js room.send)
 //   mic   { on, muted }            my microphone is on (voice.js) or off, and whether I muted it
 //   typing {}                      I am writing a chat message
-//   lead  { slug, k, f }           where the host is: page, section k, fraction f through it
+//   lead  { slug, k, f, label }    where someone is: page, section k, fraction f through it, and its name
 //   host  { d }                    a signed command from the host (host.js): rules or mute
 //   refused { why }                you may not be in this session ('removed' or 'locked')
 //
@@ -107,7 +107,7 @@ export function createSession({ self, name = '', slug = '', since = 0, send = ()
         case 'typing': { const m = members.get(from); return m ? { type: 'typing', member: m } : null; }
         case 'mic': { const m = members.get(from); if (!m) return null; const was = m.mic; m.mic = msg.on === true; m.muted = m.mic && msg.muted === true; return { type: 'mic', member: m, changed: was !== m.mic }; }
         case 'where': return { type: 'where', from };
-        case 'lead': return Number.isInteger(msg.k) && msg.k >= 0 && msg.k < 500 && Number.isFinite(msg.f) && (msg.slug === '' || cleanSlug(msg.slug)) ? { type: 'lead', slug: msg.slug, k: msg.k, f: Math.max(0, Math.min(1, msg.f)), from } : null;
+        case 'lead': return Number.isInteger(msg.k) && msg.k >= 0 && msg.k < 500 && Number.isFinite(msg.f) && (msg.slug === '' || cleanSlug(msg.slug)) ? { type: 'lead', slug: msg.slug, k: msg.k, f: Math.max(0, Math.min(1, msg.f)), label: typeof msg.label === 'string' ? msg.label.replace(/[\u0000-\u001f<>]/g, '').slice(0, 40) : '', from } : null;
         case 'host': return msg.d && typeof msg.d === 'object' ? { type: 'host', data: msg.d, from } : null;
         case 'refused': return { type: 'refused', why: msg.why === 'locked' ? 'locked' : 'removed', from };
         case 'app': return msg.slug === me.slug && msg.d !== undefined && members.has(from) ? { type: 'app', data: msg.d, from } : null;
