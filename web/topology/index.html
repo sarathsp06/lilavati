@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why a coffee cup is a doughnut · Topology · Lilavati</title>
+  <meta name="description" content="Topology studies what survives stretching and bending but not cutting or gluing. Morph a doughnut into a mug and watch the hole count and V − E + F stay fixed.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body data-concept="topology">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>Why a coffee cup is a doughnut</h1>
+      <p class="idea">Stretch, bend and squeeze all you like, never tear or glue: only the holes count.</p>
+      <p>Below is a rubber sheet made of little squares. Morph a doughnut into a mug, drag the sheet about, and watch lengths and areas change while the number of holes, and one simple count of dots, edges and squares, never moves. Then cut it or punch a hole and see that count jump.</p>
+    </header>
+
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What topology is</h2>
+      <p><strong>Topology</strong> is the study of the properties of a shape that survive any amount of stretching, bending and squeezing, but not cutting or gluing. Lengths, angles, areas and straightness are all forgotten; what is left is how the shape hangs together: how many pieces it has, and how many holes go right through it. Two shapes are the same to a topologist if one can be smoothly deformed into the other.</p>
+      <p>A doughnut and a coffee mug both have exactly one hole (in the mug it is the handle), so you can mould one into the other without tearing. On this page the shape is a sheet of squares. Moving the sheet changes every length, but the count <strong>V − E + F</strong> (dots minus edges plus squares) stays put, and it tells you the number of holes.</p>
+    </section>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="sheet" width="900" height="600" aria-label="A rubber sheet of squares with holes, which you can morph and drag"></canvas>
+          <div class="under">
+            <p class="say" id="keep"></p>
+            <p class="say" id="change"></p>
+          </div>
+        </div>
+        <aside class="panel">
+          <label>Shape <select id="shape">
+            <option value="0">No hole: a lump of clay</option>
+            <option value="1" selected>One hole: a doughnut and a mug</option>
+            <option value="2">Two holes: a pair of glasses</option>
+            <option value="3">Three holes: a pretzel</option>
+          </select></label>
+          <label><span id="ends">Doughnut ↔ mug</span> <strong id="tVal">0%</strong><input type="range" id="morph" min="0" max="1" step="0.01" value="0"></label>
+          <div class="row"><button id="playMorph">Play the morph</button><button id="smooth" class="outline">Smooth out my pulls</button></div>
+          <p class="key">Drag anywhere on the sheet to pull it like rubber.</p>
+          <h4>Now break the rules</h4>
+          <div class="row"><button id="cut" class="secondary outline">Cut it</button><button id="punch" class="secondary outline">Punch a hole</button></div>
+          <p class="key" id="breakNote">Cutting and punching are not stretching. Watch V − E + F when you do them.</p>
+          <label class="inline"><input type="checkbox" id="showDots" checked> show the dots and edges</label>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Play the doughnut into a mug.</strong> <span>The outline gets longer and the area changes, but V − E + F stays at 0 and there is still one hole.</span><button class="outline" data-try="mug">Show me</button></li>
+        <li><strong>Pull the sheet hard in a few places.</strong> <span>Squares get long and thin and angles change. No dot, edge or square appears or disappears, so the count cannot change.</span><button class="outline" data-try="pull">Show me</button></li>
+        <li><strong>Cut the mug's handle.</strong> <span>V − E + F goes from 0 to 1 and the hole is gone: the mug has become a lump. A cut is not a stretch.</span><button class="outline" data-try="cut">Show me</button></li>
+        <li><strong>Punch a hole in the pretzel.</strong> <span>V − E + F drops from −2 to −3: each new hole takes exactly 1 off.</span><button class="outline" data-try="punch">Show me</button></li>
+        <li><strong>Cut the lump of clay right across.</strong> <span>Now there are two pieces and V − E + F is 2. Pieces count +1 each, holes −1 each.</span><button class="outline" data-try="split">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>Why V − E + F counts holes, step by step</h2>
+      <p class="lead">The first, third and fourth pictures use the shape you set up above: change it and they change.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>Count the dots, the edges and the squares</h3><p>The sheet is made of <strong>vertices</strong> (the dots, V of them), <strong>edges</strong> (the lines between neighbouring dots, E of them) and <strong>faces</strong> (the squares, F of them). Count each kind once.</p><p>Then work out V − E + F: the number of dots, take away the number of edges, add the number of squares. This number has a name, the <strong>Euler characteristic</strong>, written χ (the Greek letter chi, said "kye").</p></div>
+        <figure><canvas id="s1" width="600" height="420"></canvas><figcaption id="cap1"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>Making the mesh finer never changes the count</h3><p>Any way of splitting the sheet into pieces can be reached by small moves. Put a new dot on an edge: one more dot, and the edge becomes two, so one more edge. Draw a line across a face: one more edge, and the face becomes two, so one more face.</p><p>Either way the +1 and the −1 cancel. Gluing on a new square along one edge adds 2 dots, 3 edges and 1 face: 2 − 3 + 1 = 0 again. So V − E + F belongs to the shape, not to the way you drew the grid on it.</p></div>
+        <figure><canvas id="s2" width="600" height="380"></canvas>
+          <div class="row kpick" role="group" aria-label="Pick a move"><button data-move="0" class="on">Dot on an edge</button><button data-move="1">Line across a face</button><button data-move="2">Square on the side</button></div>
+          <figcaption id="cap2"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>Build the sheet square by square: each closed hole takes away 1</h3><p>Start with one square: 4 − 4 + 1 = 1. Add the others one at a time. A square glued on along one edge brings 2 dots, 3 edges and 1 face: no change. A square glued along two edges that meet at a corner brings 1 dot, 2 edges, 1 face: no change.</p><p>The only squares that change the count are the ones that close a ring around a gap: 0 new dots, 2 new edges, 1 face, so the count drops by 1. A square that starts a separate piece adds 1. That is why V − E + F = pieces − holes.</p></div>
+        <figure><canvas id="s3" width="600" height="420"></canvas><figcaption id="cap3"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>Stretching moves dots; cutting and punching change the counts</h3><p>Stretching and bending only move the dots: every dot, edge and square is still there, so V, E and F, and V − E + F, stay exactly as they were. That is why the number is a <em>topological</em> property.</p><p>A cut is different. The k dots along the cut are doubled (V goes up by k) and the k − 1 edges between them are doubled (E goes up by k − 1), so V − E + F goes up by 1. Punching out a square removes one face and nothing else, so it goes down by 1.</p></div>
+        <figure><canvas id="s4" width="600" height="420"></canvas>
+          <div class="row kpick" role="group" aria-label="Pick a change"><button data-break="cut" class="on">Cut</button><button data-break="punch">Punch</button></div>
+          <figcaption id="cap4"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>Closed surfaces: a sphere has 2, a doughnut 0</h3><p>Do the same count on a surface with no edge at all. A cube is a sphere with corners: 8 − 12 + 6 = 2, and blowing it up into a ball moves dots but changes nothing. Every convex solid, from a pyramid to a football, gives 2.</p><p>The surface of a doughnut (a <strong>torus</strong>) is a rectangle with its left edge glued to its right and its top glued to its bottom. Glued dots and edges are only counted once, and the count comes to 0. Each extra hole takes away 2 more: χ = 2 − 2·g.</p></div>
+        <figure><canvas id="s5" width="600" height="400"></canvas>
+          <div class="row kpick" role="group" aria-label="Pick a surface"><button data-surf="0" class="on">Sphere (a cube blown up)</button><button data-surf="1">Torus (a glued rectangle)</button></div>
+          <figcaption id="cap5"></figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>V</strong> is the number of vertices (dots), <strong>E</strong> the number of edges, <strong>F</strong> the number of faces. <strong>χ</strong> (chi) is the Euler characteristic. <strong>P</strong> is the number of separate pieces, <strong>H</strong> the number of holes in a flat sheet, and <strong>g</strong> (the genus) the number of holes through a closed surface. <strong>2·g</strong> means two times g.</p>
+      <div class="symbols">
+        <div><code class="formula">χ = V − E + F</code><p>In words: count the dots, take away the edges, add the faces.</p></div>
+        <div><code class="formula">(V + 1) − (E + 1) + F = V − E + F</code><p>In words: a new dot on an edge adds one dot and one edge, and they cancel; a new line across a face adds one edge and one face, and they cancel too.</p></div>
+        <div><code class="formula">χ = P − H</code><p>In words: for a flat sheet, each separate piece counts +1 and each hole through it counts −1.</p></div>
+        <div><code class="formula">χ = 2 − 2·g</code><p>In words: a closed surface with g holes (a sphere has g = 0, a torus g = 1) has Euler characteristic two minus twice g.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Metro maps.</strong> Harry Beck's London Underground map, first issued in 1933, threw away true distances and directions and kept only which stations connect: a topological map. The Underground has used such maps ever since.</li>
+        <li><strong>Footballs and buckyballs.</strong> Any closed ball made only of pentagons and hexagons, three at every corner, has exactly 12 pentagons. That follows from V − E + F = 2, and holds for footballs and carbon molecules like C₆₀ alike.</li>
+        <li><strong>The wind.</strong> You can't comb a hairy ball flat (the hairy ball theorem). So on any shell of air around the Earth, there is always some point where the wind is not blowing sideways at all.</li>
+        <li><strong>3D models and printing.</strong> Characters in games and films are meshes of corners, edges and faces. V − E + F of a closed mesh gives its number of holes, a quick way to catch a model that has a hole it shouldn't.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>Euler noticed the edges</h4><p>On 14 November 1750 Leonhard Euler wrote to a friend that the edges of a solid matter, not just its corners and faces. His formula V − E + F = 2 for solids was published in 1758, and some count it as the first theorem of topology.</p></article>
+        <article><h4>Seven bridges</h4><p>In 1736 Euler proved you can't walk through Königsberg crossing each of its seven bridges exactly once. The answer depends only on what connects to what, not on any distances: an early topology result.</p></article>
+        <article><h4>The name is from 1847</h4><p>Johann Benedict Listing, encouraged by his mentor Gauss, introduced the word "Topologie" in his 1847 book <em>Vorstudien zur Topologie</em>. He had been using it in letters for ten years.</p></article>
+        <article><h4>60, 90, 32</h4><p>The classic football (the truncated icosahedron, used for Adidas's Telstar at the 1970 World Cup) has 60 corners, 90 edges and 32 panels: 12 pentagons and 20 hexagons. 60 − 90 + 32 = 2.</p></article>
+        <article><h4>You can comb a doughnut</h4><p>A hairy ball always has a cowlick somewhere (Poincaré proved this for the sphere in 1885). A hairy doughnut can be combed perfectly flat. The difference is the Euler characteristic: 2 for the sphere, 0 for the torus.</p></article>
+        <article><h4>He said no to a million dollars</h4><p>Grigori Perelman proved the Poincaré conjecture, a famous problem about the shapes of three-dimensional spaces. He declined the Fields Medal in 2006 and the $1 million Millennium Prize in 2010.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "A cup has a hole, where the coffee goes." <strong>But:</strong> that is a dent, not a hole: you can't pass a string through it. A cup without a handle is the same as a plate or a ball.</li>
+        <li><strong>Not:</strong> "A drinking straw has two holes, one at each end." <strong>But:</strong> it has one hole, running right through. Squash it short and it is a ring, like a doughnut.</li>
+        <li><strong>Not:</strong> "V − E + F is always 2." <strong>But:</strong> that is for solids shaped like a ball. A solid with a tunnel through it, like a picture frame, gives 0, and each extra tunnel takes off 2 more.</li>
+        <li><strong>Not:</strong> "Topology means the shapes look alike." <strong>But:</strong> a mug and a doughnut look nothing alike. Topology ignores lengths, angles and curves, and keeps only pieces and holes.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://en.wikipedia.org/wiki/Euler_characteristic" target="_blank" rel="noopener">Euler characteristic (Wikipedia)</a><span>The number V − E + F for solids, surfaces and beyond, with a table of examples.</span></li>
+        <li><a href="https://ics.uci.edu/~eppstein/junkyard/euler/" target="_blank" rel="noopener">Twenty-one proofs of Euler's formula (David Eppstein)</a><span>Many different ways to see why V − E + F = 2, from cutting to counting angles.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Topology" target="_blank" rel="noopener">Topology (Wikipedia)</a><span>The history, from Euler's bridges to modern topology, and the coffee mug and doughnut.</span></li>
+        <li><a href="https://phys.org/news/2016-10-coffee-donut-topology.html" target="_blank" rel="noopener">When is a coffee mug a donut? (phys.org, 2016)</a><span>A plain-words article from the day the 2016 Nobel Prize in Physics went to topological phases of matter.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>
