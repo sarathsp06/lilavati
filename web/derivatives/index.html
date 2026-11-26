@@ -7,6 +7,7 @@
   <meta name="description" content="The slope of a graph tells how fast it changes; the area under it adds the changes back up. Draw a motion and see its derivatives and integrals live.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
   <style>
     .pick { display: flex; align-items: center; gap: .7rem; margin: 0 0 .6rem; font-weight: 600; }
     .pick select { margin: 0; flex: 1; max-width: 22rem; font-weight: 400; }
@@ -23,7 +24,28 @@
 
     <section id="what" data-label="What it is" class="block what reveal">
       <h2>What derivatives and integrals are</h2>
-      <p>A <strong>derivative</strong> is a rate of change: how fast one quantity changes as another one moves. On a graph it is the slope at a single point. An <strong>integral</strong> is the opposite: it adds up a rate over a stretch to get the total, and on a graph it is the area under the curve. The two undo each other, which is the fundamental theorem of calculus.</p><p>On this page the quantity is position along a line over time. Its derivative is speed, the derivative of speed is acceleration, and integrating speed gives the distance covered. Everything you can read off a speedometer and an odometer is this pair of operations.</p>
+      <p><strong>Derivatives</strong> and <strong>integrals</strong> are the two basic moves of calculus: one tells how fast a quantity is changing at a single moment, the other adds the changes up into a total.</p>
+      <ul>
+        <li><strong>The derivative</strong> is the rate of change at one instant. On a graph it is the steepness (the slope) of the curve at one point: rise divided by run, for a run so short it is just that point.</li>
+        <li><strong>The integral</strong> adds a quantity up over a stretch. On a graph it is the area under the curve, found by adding up thin rectangles.</li>
+        <li><strong>They undo each other.</strong> Take the area under a curve, then the slope of that, and you are back at the curve you started with. This is the fundamental theorem of calculus.</li>
+      </ul>
+      <p>The picture just below shows both moves on the plainest curve, y = x·x. After it, the curve is a motion: the slope of position is speed (what a speedometer shows), the slope of speed is acceleration, and the area under speed is the distance covered (what an odometer counts).</p>
+    </section>
+
+    <section id="idea" data-label="The idea" class="block reveal">
+      <h2>The idea on one curve</h2>
+      <p class="lead">The curve is y = x·x (x times x): at x = 1 it is 1 high, at x = 2 it is 4 high, at x = 3 it is 9 high. Pick a point on it, then make the step h smaller and watch both numbers settle.</p>
+      <figure class="idea-fig"><canvas id="ideaCanvas" width="900" height="400" aria-label="The curve y = x times x twice: on the left a line through a point and a point a step further on, on the right rectangles under the curve"></canvas>
+        <figcaption id="ideaCap"></figcaption></figure>
+      <div class="idea-controls">
+        <label>Point x = <b id="ideaXVal">2.00</b><input id="ideaX" type="range" min="0.2" max="2.5" step="0.05" value="2"></label>
+        <label>Step h = <b id="ideaHVal">0.50</b><input id="ideaH" type="range" min="0.05" max="1" step="0.05" value="0.5"></label>
+      </div>
+      <p class="formula" id="ideaSlope"></p>
+      <p class="formula" id="ideaArea"></p>
+      <p id="ideaSay"></p>
+      <p>Read the first line as: go a step h to the right, see how much the curve rose, divide. The second: rectangles about h wide (adjusted so they end exactly at x), each as tall as the curve at its left edge, added up. Below, x is time and the curve is a motion: its slope is the speed and the area under the speed is the distance.</p>
     </section>
 
     <section id="play" data-label="Play">
@@ -174,6 +196,7 @@
     <section id="next" data-label="Next" class="block"></section>
   </main>
   <script type="module" src="app.js"></script>
+  <script type="module" src="idea.js"></script>
   <script type="module" src="../concepts.js"></script>
 </body>
 </html>
