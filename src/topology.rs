@@ -282,6 +282,89 @@ impl Sheet {
     }
 }
 
+// ---------- the idea figure: one flat rubber ring moulded into other shapes ----------
+
+/// A super-ellipse direction: (cos θ, sin θ) pushed out towards the corners of a square when `e` < 1.
+fn sq(theta: f64, e: f64) -> (f64, f64) {
+    let (c, s) = (theta.cos(), theta.sin());
+    (c.signum() * c.abs().powf(e), s.signum() * s.abs().powf(e))
+}
+
+/// One of the ring's five moulds, at angle θ: `outer` picks the outside edge or the edge of the hole.
+/// 0 a round ring, 1 a square frame, 2 a long thin band, 3 a star, 4 a lump with the hole off to one side
+/// (a mug, the hole being its handle).
+fn ring_key(k: u32, outer: bool, th: f64) -> (f64, f64) {
+    let (c, s) = (th.cos(), th.sin());
+    match (k, outer) {
+        (0, true) => (c, s),
+        (0, false) => (0.45 * c, 0.45 * s),
+        (1, true) => { let (x, y) = sq(th, 0.25); (0.92 * x, 0.92 * y) }
+        (1, false) => { let (x, y) = sq(th, 0.25); (0.5 * x, 0.5 * y) }
+        (2, true) => (1.5 * c, 0.5 * s),
+        (2, false) => (1.25 * c, 0.2 * s),
+        (3, true) => { let r = 1.0 + 0.3 * (5.0 * th).cos(); (r * c, r * s) }
+        (3, false) => (0.36 * c, 0.36 * s),
+        (4, true) => {
+            // the cup: a rounded box; the handle: a half-oval stuck on its right-hand side
+            let (x, y) = sq(th, 1.0 / 3.0);
+            let (bx, by) = (-0.3 + 0.85 * x, 0.95 * y);
+            let ext = if c > 0.0 { 0.78 * (1.0 - (by / 0.7).powi(2)).max(0.0).sqrt() } else { 0.0 };
+            (bx + ext, by)
+        }
+        (_, _) => (0.88 + 0.14 * c, 0.34 * s),
+    }
+}
+
+/// The idea figure's rubber ring after moulding to `t` (0 to 4: round, square, band, star, mug; in
+/// between, a smooth blend of the two neighbours). Returns n points round the outside edge, then n round
+/// the edge of the hole, as x, y pairs, both anticlockwise from the right-hand side. Moulding only moves
+/// points: there are always the same 2·n of them, joined the same way.
+#[wasm_bindgen]
+pub fn ring_shape(t: f64, n: u32) -> Vec<f64> {
+    let n = n.max(8) as usize;
+    let t = t.clamp(0.0, 4.0);
+    let k = (t.floor() as u32).min(3);
+    let u = t - k as f64;
+    let u = u * u * (3.0 - 2.0 * u);
+    let mut out = Vec::with_capacity(4 * n);
+    for outer in [true, false] {
+        for i in 0..n {
+            let th = 2.0 * PI * i as f64 / n as f64;
+            let (a, b) = (ring_key(k, outer, th), ring_key(k + 1, outer, th));
+            out.push(a.0 + (b.0 - a.0) * u);
+            out.push(a.1 + (b.1 - a.1) * u);
+        }
+    }
+    out
+}
+
+/// The length round a closed loop of points (x, y pairs) and the area it encloses.
+#[wasm_bindgen]
+pub fn loop_length_area(pts: &[f64]) -> Vec<f64> {
+    let n = pts.len() / 2;
+    let (mut len, mut a) = (0.0, 0.0);
+    for i in 0..n {
+        let j = (i + 1) % n;
+        let (x0, y0, x1, y1) = (pts[2 * i], pts[2 * i + 1], pts[2 * j], pts[2 * j + 1]);
+        len += (x1 - x0).hypot(y1 - y0);
+        a += x0 * y1 - x1 * y0;
+    }
+    vec![len, (a / 2.0).abs()]
+}
+
+/// Is (x, y) inside the closed loop of points? (Count how often a ray to the right crosses the loop.)
+#[allow(dead_code)]
+fn inside(pts: &[f64], x: f64, y: f64) -> bool {
+    let n = pts.len() / 2;
+    let mut ins = false;
+    for i in 0..n {
+        let j = (i + n - 1) % n;
+        let (xi, yi, xj, yj) = (pts[2 * i], pts[2 * i + 1], pts[2 * j], pts[2 * j + 1]);
+        if (yi > y) != (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi { ins = !ins; }
+    }
+    ins
+}
+
 /// The angle of the ring map, for tests: a point's direction from the hole's centre is kept.
 #[allow(dead_code)]
 fn angle(x: f64, y: f64) -> f64 { y.atan2(x).rem_euclid(2.0 * PI) }
@@ -289,6 +372,33 @@ fn angle(x: f64, y: f64) -> f64 { y.atan2(x).rem_euclid(2.0 * PI) }
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_ring_keeps_its_hole_through_every_mould() {
+        let n = 240;
+        // the round ring: a disc of radius 1 with a hole of radius 0.45
+        let r = ring_shape(0.0, n);
+        let (o, i) = (loop_length_area(&r[..2 * n as usize]), loop_length_area(&r[2 * n as usize..]));
+        assert!((o[0] - 2.0 * PI).abs() < 1e-3 && (o[1] - PI).abs() < 1e-3);
+        assert!((i[0] - 0.9 * PI).abs() < 1e-3 && (i[1] - 0.2025 * PI).abs() < 1e-3);
+        let mut lens = Vec::new();
+        for s in 0..=80 {
+            let t = s as f64 / 20.0;
+            let r = ring_shape(t, n);
+            assert_eq!(r.len(), 4 * n as usize);
+            let (out, hole) = r.split_at(2 * n as usize);
+            // every point of the hole's edge stays inside the outside edge, so it is still one ring with one hole
+            for k in 0..n as usize { assert!(inside(out, hole[2 * k], hole[2 * k + 1]), "t = {t}, point {k}"); }
+            let (a, b) = (loop_length_area(out), loop_length_area(hole));
+            assert!(a[1] - b[1] > 0.4, "t = {t}: rubber left {}", a[1] - b[1]);
+            lens.push(a[0] + b[0]);
+        }
+        // but the lengths do change as it is moulded
+        let (lo, hi) = lens.iter().fold((f64::MAX, 0.0f64), |(l, h), &v| (l.min(v), h.max(v)));
+        assert!(hi - lo > 1.0);
+        // a unit square's length and area
+        assert_eq!(loop_length_area(&[0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]), vec![4.0, 1.0]);
+    }
 
     #[test]
     fn solids_have_two() {
