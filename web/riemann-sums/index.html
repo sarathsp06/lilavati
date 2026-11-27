@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to measure a shape with a curved edge · Riemann sums · Lilavati</title>
+  <meta name="description" content="Fill the area under a curve with rectangles, make them thinner, and watch the total close in on the exact area. A sprinter's speed becomes 100 metres, a half circle becomes π.">
+  <!-- share -->
+  <link rel="canonical" href="https://lilavati.pages.dev/riemann-sums/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Lilavati">
+  <meta property="og:title" content="How to measure a shape with a curved edge · Riemann sums">
+  <meta property="og:description" content="Fill the area under a curve with rectangles, make them thinner, and watch the total close in on the exact area. A sprinter's speed becomes 100 metres, a half circle becomes π.">
+  <meta property="og:url" content="https://lilavati.pages.dev/riemann-sums/">
+  <meta property="og:image" content="https://lilavati.pages.dev/og/riemann-sums.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="How to measure a shape with a curved edge: Cut it into thin rectangles and add them up. Make them thinner and the total closes in on the exact area.">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to measure a shape with a curved edge · Riemann sums">
+  <meta name="twitter:description" content="Fill the area under a curve with rectangles, make them thinner, and watch the total close in on the exact area. A sprinter's speed becomes 100 metres, a half circle becomes π.">
+  <meta name="twitter:image" content="https://lilavati.pages.dev/og/riemann-sums.png">
+  <meta name="twitter:image:alt" content="How to measure a shape with a curved edge: Cut it into thin rectangles and add them up. Make them thinner and the total closes in on the exact area.">
+  <meta property="og:logo" content="https://lilavati.pages.dev/icon-512.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#faf8f4">
+  <!-- /share -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body data-concept="riemann-sums">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>How to measure a shape with a curved edge</h1>
+      <p class="idea">Cut it into thin rectangles and add them up. Make them thinner and the total closes in on the exact area.</p>
+      <p>Rectangles are easy: width times height. Fill the area under a curve with them, and the curved edge is only a small error. Below, the curve is a sprinter's speed, a parabola, a wave, a half circle or a hyperbola. Choose how many rectangles, where each one takes its height, and drag the ends of the area, and watch the total and how far it is off.</p>
+    </header>
+
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What a Riemann sum is</h2>
+      <p>A <strong>Riemann sum</strong> estimates the area under a curve by cutting it into thin strips, turning each strip into a rectangle and adding up the rectangles.</p>
+      <ul>
+        <li><strong>The strips:</strong> the stretch from a to b is cut into n equal pieces, each Δx = (b − a) ÷ n wide.</li>
+        <li><strong>The heights:</strong> each rectangle is as tall as the curve at one point of its strip: its left edge, its right edge or its middle. (The trapezoid rule slants the top to join both edges.)</li>
+        <li><strong>The sum:</strong> add up width × height for every strip. That is the Riemann sum.</li>
+        <li><strong>The limit:</strong> make the strips thinner and thinner and the sum closes in on one number, the exact area. That number is the <em>integral</em>, and this is how Bernhard Riemann defined it.</li>
+      </ul>
+      <p>On this page the first curve is a 100 m sprinter's speed over time. A rectangle under it is speed × a short time, which is a distance, so the area under the whole curve is the distance run: 100 metres.</p>
+    </section>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="stage" class="wide" width="900" height="540" aria-label="A curve with rectangles under it, and the dots that mark where the area starts and ends"></canvas>
+          <div class="under">
+            <p class="say" id="say"></p>
+            <div class="row">
+              <label>Curve <select id="kind">
+                <option value="0" selected>A 100 m sprint</option>
+                <option value="1">The parabola y = x·x</option>
+                <option value="2">A wave, y = sin x</option>
+                <option value="3">A half circle</option>
+                <option value="4">The hyperbola y = 1/x</option>
+              </select></label>
+              <label>Height from <select id="rule">
+                <option value="0" selected>the left edge</option>
+                <option value="1">the right edge</option>
+                <option value="2">the middle</option>
+                <option value="3">both edges (trapezoids)</option>
+              </select></label>
+            </div>
+            <div class="row">
+              <label class="nlab">Rectangles <b id="nVal">1</b><input id="n" type="range" min="1" max="128" step="1" value="1"></label>
+              <button id="auto" class="outline secondary">■ Stop</button>
+            </div>
+          </div>
+        </div>
+        <aside class="panel">
+          <h4>The numbers</h4>
+          <table class="tally"><tbody>
+            <tr><td>Each strip is Δx wide</td><td id="tDx"></td></tr>
+            <tr><td>All the rectangles add to</td><td id="tSum"></td></tr>
+            <tr><td>The exact area</td><td id="tExact"></td></tr>
+            <tr><td>Off by</td><td id="tErr"></td></tr>
+          </tbody></table>
+          <p class="hint-s" id="units"></p>
+          <p class="hint-s">Drag the two dots on the bottom line to choose where the area starts (a) and ends (b). Area under the line counts as negative.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Watch the sprint fill up.</strong> <span>With heights from the left edge, one rectangle has height 0 (the start, standing still). Each time the rectangles get thinner the total climbs: towards 100 m, never past it.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Take heights from the right edge instead.</strong> <span>Now every rectangle sticks out above the curve and the total comes down from above. The exact 100 m is trapped between the left and right totals.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Use the middle, with just 4 rectangles under the parabola from 0 to 1.</strong> <span>The total is 0.328 against an exact 1/3 = 0.333: already within 0.006. Each rectangle's top crosses the curve, so its overshoot and undershoot nearly cancel.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Run the wave all the way to 2π.</strong> <span>The second hump is under the line, so its rectangles count as negative. Above and below cancel: the total is 0.</span><button class="outline" data-try="3">Show me</button></li>
+        <li><strong>Fill the half circle with 128 rectangles.</strong> <span>Its area is π/2, so twice the total is π: 3.14… Archimedes squeezed π the same way, with polygons instead of rectangles.</span><button class="outline" data-try="4">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>From rectangles to the exact area, step by step</h2>
+      <p class="lead">These pictures use the curve, the number of rectangles and the heights you chose above.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>Add the rectangles up one at a time</h3>
+          <p>Every strip is the same width, Δx. Its rectangle takes its height from the curve at one point of the strip. Its area is width × height, a single multiplication.</p>
+          <p>The bar on the right adds them up as the picture moves along: each rectangle's area becomes one slice of the bar. When the last one is in, the bar is the Riemann sum. The dashed line is the exact area it is trying to hit.</p></div>
+        <figure><canvas id="ex1" width="640" height="400"></canvas><figcaption id="cap1"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>Each rectangle misses a little</h3>
+          <p>Where a rectangle sticks out above the curve it counts area that isn't there (red). Where the curve rises above the rectangle, real area is left out (green).</p>
+          <p>The sum is the exact area plus all the red minus all the green. On a rising curve, left-edge rectangles only leave out (too small) and right-edge ones only stick out (too big); on a falling curve it is the other way round.</p></div>
+        <figure><canvas id="ex2" width="640" height="400"></canvas><figcaption id="cap2"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>Halve the width, halve the miss</h3>
+          <p>Each strip's miss fits inside a box Δx wide and as tall as the curve rises or falls inside that strip. Slide all the boxes to the right and stack them: they make one column, Δx wide.</p>
+          <p>Cut the strips in half and the column gets half as wide, but no taller: the curve still rises and falls by the same total. So the miss is at most half what it was. Keep halving and the miss shrinks to nothing.</p></div>
+        <figure><canvas id="ex3" width="640" height="400"></canvas><figcaption id="cap3"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>Why the middle does much better</h3>
+          <p>Here is one strip, magnified. Turn the flat top of the middle rectangle about its centre until it touches the curve. The triangle it cuts off on one side is the triangle it adds on the other, so the area doesn't change.</p>
+          <p>Now the only miss is the thin curved gap between the slanted top and the curve. Halving the strip makes that gap about 8 times smaller, and there are twice as many strips: the total miss falls about 4 times, not 2.</p>
+          <div class="figctl"><label for="stripK">Strip <strong id="stripVal"></strong></label><input type="range" id="stripK" min="1" max="8" step="1" value="1"></div></div>
+        <figure><canvas id="ex4" width="640" height="400"></canvas><figcaption id="cap4"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>Thinner and thinner: the exact area</h3>
+          <p>Here is the total for 1, 2, 4, 8 … up to 1024 rectangles, for each way of choosing heights. Every line flattens onto the same height, the dashed line: that is the exact area, the integral.</p>
+          <p>Left and right totals close in about twice as fast with each doubling; middle and trapezoid totals about four times as fast. No finite number of rectangles is exact, but the totals get as close as you like.</p></div>
+        <figure><canvas id="ex5" width="640" height="400"></canvas><figcaption id="cap5"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">6</span>Below the line takes away</h3>
+          <p>A rectangle's height is the curve's height, and below the line that is a negative number. So rectangles under the line subtract from the total.</p>
+          <p>The gauge on the right adds them in order: it climbs with each blue rectangle and drops with each red one. For a speed, negative means going backwards, so the total is how far you ended up from the start.</p>
+          <div class="figctl"><button id="useWave" class="outline">Use this wave above</button></div></div>
+        <figure><canvas id="ex6" width="640" height="400"></canvas><figcaption id="cap6"></figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>f(x)</strong> is the height of the curve at x. <strong>a</strong> and <strong>b</strong> are where the area starts and ends, <strong>n</strong> is the number of strips, and <strong>Δx</strong> (delta x) is the width of one strip. <strong>xₖ</strong> (x sub k) is the k-th strip edge, and <strong>xₖ*</strong> is the point in strip k where its height is taken. <strong>Σ</strong> (sigma) means "add up", here for k from 1 to n.</p>
+      <div class="symbols">
+        <div><code class="formula">Δx = (b − a) ÷ n,   xₖ = a + k·Δx</code><p>In words: cut the stretch from a to b into n equal strips; the k-th edge is k strips along from a.</p></div>
+        <div><code class="formula">Sₙ = f(x₁*)·Δx + f(x₂*)·Δx + … + f(xₙ*)·Δx = Σ f(xₖ*)·Δx</code><p>In words: the Riemann sum Sₙ is the height times the width of every rectangle, added up. Left edge: xₖ* = xₖ₋₁; right edge: xₖ* = xₖ; middle: halfway between.</p></div>
+        <div><code class="formula">∫ₐᵇ f(x) dx = the limit of Sₙ as n → ∞</code><p>In words: the integral, the exact area from a to b, is the number the sums close in on as the strips get thinner. The ∫ is a stretched S, for "sum", and dx is the thin width.</p></div>
+        <div><code class="formula">|Sₙ − ∫ₐᵇ f(x) dx| ≤ Δx · (how far f rises and falls, strip by strip, in all)</code><p>In words: the miss fits in the column from step 3, so it is at most Δx times the column's height. Halve Δx and the bound halves.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Navigation without GPS.</strong> Phones, drones and aircraft add up acceleration × a split second to get speed, and speed × a split second to get how far they have moved, hundreds of times a second (inertial navigation, or dead reckoning).</li>
+        <li><strong>Your electricity bill.</strong> A kilowatt-hour is power × time. A smart meter measures the power many times a minute and adds up power × the time between readings.</li>
+        <li><strong>Medicine doses.</strong> Doctors judge how much of a drug the body really got by the area under the curve of its level in the blood over time, worked out with the trapezoid rule from a few blood samples.</li>
+        <li><strong>Judging an AI model.</strong> A classifier's quality is often reported as its "AUC": the area under its ROC curve, which software adds up from trapezoids.</li>
+        <li><strong>Ships and land.</strong> Naval architects find the area and volume of a hull, and surveyors the area of an oddly shaped plot, from measurements at equal spacings with the trapezoid and Simpson's rules.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>Riemann's definition</h4><p>Bernhard Riemann defined the integral as the limit of these sums in his 1854 habilitation thesis on trigonometric series. It was only published in 1868, two years after his death.</p></article>
+        <article><h4>Archimedes and the parabola</h4><p>Around 250 BC, in <em>Quadrature of the Parabola</em>, Archimedes showed that a slice of a parabola has 4/3 the area of the triangle inside it, by filling it with ever smaller triangles: the same idea, 2,000 years early.</p></article>
+        <article><h4>Kepler's wine barrels</h4><p>After buying wine for his wedding in 1613, Johannes Kepler doubted how merchants measured barrels. In 1615 he published <em>Nova stereometria doliorum vinariorum</em>, finding volumes by cutting them into thin slices.</p></article>
+        <article><h4>A stretched S</h4><p>Gottfried Wilhelm Leibniz first wrote the integral sign ∫ in a manuscript dated 29 October 1675. It is a long S, for <em>summa</em>, Latin for sum: a reminder that an integral is a sum of thin pieces.</p></article>
+        <article><h4>Simpson's rule isn't Simpson's</h4><p>The rule that fits parabolas to strips is named after Thomas Simpson, who published it in 1743. Kepler had used it more than a century earlier, and in German it is still called <em>Keplersche Fassregel</em>, Kepler's barrel rule.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "With enough rectangles the sum is exact." <strong>But:</strong> any finite number of rectangles still misses a little. The exact area is the limit the sums close in on.</li>
+        <li><strong>Not:</strong> "Left-edge sums are always too small." <strong>But:</strong> only where the curve rises. Where it falls, the left edge is the high side and the rectangles stick out.</li>
+        <li><strong>Not:</strong> "Area is never negative." <strong>But:</strong> in an integral, area under the line counts as negative. A wave over a whole cycle adds up to 0.</li>
+        <li><strong>Not:</strong> "Middle or edge, it's all the same." <strong>But:</strong> with the same rectangles, the middle is usually far closer: doubling the rectangles cuts its miss by 4, the edges' only by 2.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://en.wikipedia.org/wiki/Riemann_sum" target="_blank" rel="noopener">Riemann sum</a><span>Wikipedia: left, right, middle and trapezoid sums, with their error bounds.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Riemann_integral" target="_blank" rel="noopener">Riemann integral</a><span>Wikipedia: how the limit is made precise, and which functions have one.</span></li>
+        <li><a href="https://openstax.org/books/calculus-volume-1/pages/5-1-approximating-areas" target="_blank" rel="noopener">OpenStax Calculus, 5.1 Approximating areas</a><span>A free textbook chapter with worked examples and exercises.</span></li>
+        <li><a href="https://www.3blue1brown.com/lessons/integration" target="_blank" rel="noopener">3Blue1Brown: Integration and the fundamental theorem of calculus</a><span>A video on why the area under a speed curve is the distance travelled.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>
