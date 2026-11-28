@@ -199,7 +199,7 @@ function ex1(sec) {
 function ex2(sec) {
   const [g, w, h, z] = fig('ex2'), yw = 0.9 * Math.sin(sec * 0.45), pt = 0.25 * Math.sin(sec * 0.31);
   const tri = [[-1, -0.65, 0.1], [1.05, -0.4, -0.15], [-0.15, 0.85, 0]].map(p => turn(p, yw, pt));
-  const S = w * 0.2, ox = w * 0.4, oy = h * 0.55, P = p => [ox + p[0] * S, oy - p[1] * S];
+  const S = w * 0.19, ox = w * 0.4, oy = h * 0.64, P = p => [ox + p[0] * S, oy - p[1] * S];
   const [A, B, C] = tri, AB = [B[0] - A[0], B[1] - A[1], B[2] - A[2]], AC = [C[0] - A[0], C[1] - A[1], C[2] - A[2]];
   let n = norm(cross(AB, AC)); if (n[2] < 0) n = n.map(v => -v);
   const cos = dot(n, LIGHT), b = AMBIENT + DIFFUSE * Math.max(0, cos);
@@ -215,9 +215,12 @@ function ex2(sec) {
   g.fillStyle = '#f59e0b'; g.beginPath(); g.arc(lx, ly, 9, 0, 7); g.fill(); text(g, 'L (to the light)', lx - 12, ly - 14, ORANGE, 13, z, 700);
   // the sum, written out, and the shade it gives
   const f2 = v => fmt(v, 2);
-  tag(g, `n = AB × AC, made length 1 = (${f2(n[0])}, ${f2(n[1])}, ${f2(n[2])})`, 12, 22 * z, INK, 13, z);
-  tag(g, `cos θ = n · L = ${f2(n[0])}×(${f2(LIGHT[0])}) + ${f2(n[1])}×${f2(LIGHT[1])} + ${f2(n[2])}×${f2(LIGHT[2])} = ${f2(cos)}`, 12, 42 * z, ORANGE, 13, z);
-  tag(g, `brightness = 0.22 + 0.78 × ${f2(Math.max(0, cos))} = ${f2(b)}`, 12, 62 * z, INK, 13, z);
+  const narrow = ($('ex2').clientWidth || w) < 500, fs = narrow ? 15 : 13, lh = fs * 1.5 * z;
+  const lines = [[`n = AB × AC, made length 1 = (${f2(n[0])}, ${f2(n[1])}, ${f2(n[2])})`, INK]];
+  const sum = `${f2(n[0])}×(${f2(LIGHT[0])}) + ${f2(n[1])}×${f2(LIGHT[1])} + ${f2(n[2])}×${f2(LIGHT[2])}`;
+  if (narrow) lines.push([`cos θ = n · L`, ORANGE], [`  = ${sum} = ${f2(cos)}`, ORANGE]); else lines.push([`cos θ = n · L = ${sum} = ${f2(cos)}`, ORANGE]);
+  lines.push([`brightness = 0.22 + 0.78 × ${f2(Math.max(0, cos))} = ${f2(b)}`, INK]);
+  lines.forEach(([s2, col], i) => tag(g, s2, 10, (fs + 6) * z + i * lh, col, fs, z));
   // a brightness scale with the triangle's place on it
   const gx = w - 46 * z, gt = 90 * z, gb = h - 24 * z, GY = v => gb - (gb - gt) * v;
   for (let i = 0; i < 40; i++) { g.fillStyle = rgb([52, 178, 166], i / 40); g.fillRect(gx, GY((i + 1) / 40), 22 * z, (gb - gt) / 40 + 1); }
@@ -286,7 +289,7 @@ function ex4(sec) {
 }
 
 // ---------- step 5: add up the triangles for the area ----------
-let areas5 = null, key5 = '';
+let areas5 = null, key5 = '', order5 = [], rank5 = [], lon5 = [];
 function ex5(sec) {
   const [g, w, h, z] = fig('ex5'), l5 = Math.min(level, 2), mesh = meshOf(shape, l5), T = mesh.m[0], ex = exactOf(shape)[0];
   if (key5 !== shape + ':' + l5) {
@@ -294,13 +297,19 @@ function ex5(sec) {
     for (let i = 0; i < t.length; i += 3) {
       const P = j => [p[3 * t[j]], p[3 * t[j] + 1], p[3 * t[j] + 2]], A = P(i), B = P(i + 1), C = P(i + 2);
       areas5.push(Math.hypot(...cross([B[0] - A[0], B[1] - A[1], B[2] - A[2]], [C[0] - A[0], C[1] - A[1], C[2] - A[2]])) / 2);
+      lon5.length = areas5.length; lon5[areas5.length - 1] = Math.atan2(A[2] + B[2] + C[2], A[0] + B[0] + C[0]);
     }
+    // count them in order round the shape (by longitude), so the shape can turn to keep the next one in front
+    order5 = areas5.map((_, i) => i).sort((a, b) => lon5[a] - lon5[b]);
+    rank5 = []; order5.forEach((i, r) => { rank5[i] = r; });
   }
   const run = 9, cyc = sec % (run + 2.5), k = Math.min(T, Math.floor(T * cyc / run));
-  const v = view(w * 0.7, h, shape);
-  render(g, mesh, { ...v, f: v.f * 0.85, cx: w * 0.36, cy: h * 0.56, yaw: sec * 0.35, pitch: SHAPES[shape].pitch, smooth: false, edges: true, lineWidth: 0.8,
-    color: [214, 211, 205], faceColor: i => (i < k ? SHAPES[shape].color : i === k ? [250, 204, 21] : null) });
-  let sum = 0; for (let i = 0; i < k; i++) sum += areas5[i];
+  const v = view(w * 0.7, h, shape), cur = order5[Math.min(k, T - 1)];
+  // turn so the triangle being counted faces you: a point at longitude φ faces the camera when yaw = φ − 90°
+  const yaw5 = (lon5[order5[0]] + (lon5[order5[T - 1]] - lon5[order5[0]]) * Math.min(1, cyc / run)) - Math.PI / 2;
+  render(g, mesh, { ...v, f: v.f * 0.85, cx: w * 0.36, cy: h * 0.56, yaw: yaw5, pitch: SHAPES[shape].pitch, smooth: false, edges: true, lineWidth: 0.8,
+    color: [214, 211, 205], faceColor: i => (rank5[i] < k ? SHAPES[shape].color : rank5[i] === k ? [250, 204, 21] : null) });
+  let sum = 0; for (let r = 0; r < k; r++) sum += areas5[order5[r]];
   // the bar: the running total against the true area
   const bx = w - 70 * z, bt = 80 * z, bb = h - 24 * z, top = Math.max(ex, sum) * 1.05, BY = v2 => bb - (bb - bt) * v2 / top;
   g.fillStyle = rgb(SHAPES[shape].color); g.fillRect(bx, BY(sum), 30 * z, bb - BY(sum));
@@ -308,7 +317,7 @@ function ex5(sec) {
   g.strokeStyle = INK; g.setLineDash([5, 4]); g.lineWidth = 2; g.beginPath(); g.moveTo(bx - 10, BY(ex)); g.lineTo(bx + 40 * z, BY(ex)); g.stroke(); g.setLineDash([]);
   text(g, 'true', bx - 12, BY(ex) - 6, INK, 12, z, 600, 'right'); text(g, fmt(ex), bx - 12, BY(ex) + 12 * z, INK, 12, z, 600, 'right');
   text(g, fmt(sum), bx + 15 * z, BY(sum) - 6, INK, 12, z, 700, 'center');
-  if (k < T) tag(g, `triangle ${k + 1} of ${big(T)}: ½ × |AB × AC| = ${fmt(areas5[k])}`, 12, 22 * z, '#a16207', 13, z);
+  if (k < T) tag(g, `triangle ${k + 1} of ${big(T)} (yellow): ½ × |AB × AC| = ${fmt(areas5[cur])}`, 12, 22 * z, '#a16207', 13, z);
   else tag(g, `all ${big(T)} triangles: ${fmt(sum)}, ${pct((ex - sum) / ex * 100)} short of the true ${fmt(ex)}`, 12, 22 * z, INK, 13, z);
   tag(g, `total so far: ${fmt(sum)}`, 12, 44 * z, INK2, 13, z);
   $('cap5').textContent = `Your ${SHAPES[shape].name}${l5 !== level ? ` with ${big(T)} triangles (you have ${big(meshOf(shape, level).m[0])} above; these are big enough to see)` : ` with your ${big(T)} triangles`}. Counted triangles turn coloured; the bar adds up their areas.`;
