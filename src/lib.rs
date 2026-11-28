@@ -9,6 +9,7 @@
 //! - `games`: guess two-thirds of the average: levels of thinking, best replies, the Nash equilibrium.
 //! - `monty`: the Monty Hall game: dealing games, the host's move, many games at once, the exact chances.
 //! - `riemann`: the area under a curve from thin rectangles: left, right, middle and trapezoid sums.
+//! - `mesh`: curved surfaces drawn with flat triangles (polygon meshes), and Archimedes' polygons round a circle.
 //! - `topology`: rubber sheets with holes, V − E + F (the Euler characteristic) and what cutting changes.
 pub mod fourier;
 pub mod motion;
@@ -24,3 +25,4 @@ pub mod topology;
 pub mod tesseract;
 pub mod slits;
 pub mod riemann;
+pub mod mesh;

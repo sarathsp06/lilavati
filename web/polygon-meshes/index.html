@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Polygon meshes · How a computer draws a curved world · Lilavati</title>
+  <meta name="description" content="Every curved surface in a game or a film is made of flat triangles. Turn a ball, a doughnut or a pebble made of 20 to 20,000 triangles, switch between flat and smooth shading, and see the gap to the true surface shrink.">
+  <!-- share -->
+  <link rel="canonical" href="https://lilavati.pages.dev/polygon-meshes/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Lilavati">
+  <meta property="og:title" content="Polygon meshes · How a computer draws a curved world">
+  <meta property="og:description" content="Every curved surface in a game or a film is made of flat triangles. Turn a ball, a doughnut or a pebble made of 20 to 20,000 triangles, switch between flat and smooth shading, and see the gap to the true surface shrink.">
+  <meta property="og:url" content="https://lilavati.pages.dev/polygon-meshes/">
+  <meta property="og:image" content="https://lilavati.pages.dev/og/polygon-meshes.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="How a computer draws a curved world: Thousands of flat triangles, small enough that your eye sees a smooth surface.">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Polygon meshes · How a computer draws a curved world">
+  <meta name="twitter:description" content="Every curved surface in a game or a film is made of flat triangles. Turn a ball, a doughnut or a pebble made of 20 to 20,000 triangles, switch between flat and smooth shading, and see the gap to the true surface shrink.">
+  <meta name="twitter:image" content="https://lilavati.pages.dev/og/polygon-meshes.png">
+  <meta name="twitter:image:alt" content="How a computer draws a curved world: Thousands of flat triangles, small enough that your eye sees a smooth surface.">
+  <meta property="og:logo" content="https://lilavati.pages.dev/icon-512.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#faf8f4">
+  <!-- /share -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body data-concept="polygon-meshes">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>How a computer draws a curved world</h1>
+      <p class="idea">Thousands of flat triangles, small enough that your eye sees a smooth surface.</p>
+      <p>A computer can't draw a curved surface directly. Every ball, face and car in a game or a film is built from flat triangles. Below you can turn a ball, a doughnut or a pebble made of anything from 20 to about 20,000 triangles. Switch between flat and smooth shading, and watch the area, the volume and the gap to the true surface close in.</p>
+    </header>
+
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What a polygon mesh is</h2>
+      <p>A <strong>polygon mesh</strong> is a curved surface replaced by many small flat pieces, almost always triangles, joined edge to edge.</p>
+      <ul>
+        <li><strong>Corners:</strong> points that sit on the true surface (the <em>vertices</em>).</li>
+        <li><strong>Triangles:</strong> each one joins three corners with a flat face. Three points always lie in one flat plane, so a triangle can never bend.</li>
+        <li><strong>The trade:</strong> flat pieces miss the curve a little. Make them smaller and they hug it more closely, but there are more of them to draw.</li>
+        <li><strong>Shading:</strong> each triangle's brightness comes from how squarely it faces the light. Smooth shading blends the directions at the corners, so the facets disappear.</li>
+      </ul>
+      <p>It is the same idea as cutting an area into thin rectangles, or a circle into straight pieces: the curve is never drawn, only small straight things that get closer to it.</p>
+    </section>
+
+    <section id="idea" data-label="The idea" class="block reveal">
+      <h2>The idea on a circle</h2>
+      <p class="lead">A mesh in two dimensions: a circle drawn with straight pieces. The shaded shape has its corners on the circle; the dashed one wraps round it from outside.</p>
+      <figure class="idea-fig"><canvas id="ideaCv" width="900" height="420" aria-label="A circle drawn with straight pieces, one polygon inside it and one outside, with the gap between a piece and the circle magnified"></canvas>
+        <figcaption id="ideaCap"></figcaption></figure>
+      <div class="idea-controls">
+        <label>Straight pieces <b id="ideaNVal">6</b><input id="ideaN" type="range" min="3" max="96" step="1" value="6"></label>
+        <button id="ideaDouble" class="outline">Double them</button>
+      </div>
+      <p class="formula" id="ideaFormula"></p>
+      <p id="ideaSay"></p>
+      <p>A 3D mesh does the same thing to a surface: flat triangles instead of straight pieces, and the same race between the gap getting smaller and the number of pieces growing.</p>
+    </section>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="stage" class="wide" width="900" height="560" aria-label="A shaded 3D shape made of flat triangles. Drag sideways to turn it"></canvas>
+          <div class="under">
+            <p class="say" id="say"></p>
+            <div class="row">
+              <label class="nlab">Triangles <b id="lvlVal">320</b><input id="lvl" type="range" min="0" max="5" step="1" value="2"></label>
+              <button id="spin" class="outline secondary" data-local>■ Stop turning</button>
+            </div>
+          </div>
+        </div>
+        <aside class="panel">
+          <label>Shape <select id="shape">
+            <option value="0" selected>A ball</option>
+            <option value="1">A doughnut</option>
+            <option value="2">A pebble with three lumps</option>
+          </select></label>
+          <label>Shading <select id="shading">
+            <option value="0" selected>flat: one shade per triangle</option>
+            <option value="1">smooth: blended from the corners</option>
+          </select></label>
+          <label class="inline"><input type="checkbox" id="edges"> show the edges</label>
+          <h4>The numbers</h4>
+          <table class="tally"><tbody>
+            <tr><td>Triangles</td><td id="tT"></td></tr>
+            <tr><td>Corners</td><td id="tVx"></td></tr>
+            <tr><td>Edges</td><td id="tE"></td></tr>
+            <tr><td>Corners − edges + triangles</td><td id="tChi"></td></tr>
+            <tr><td>Area (true area)</td><td id="tA"></td></tr>
+            <tr><td>Volume (true)</td><td id="tV"></td></tr>
+            <tr><td>Deepest gap</td><td id="tGap"></td></tr>
+          </tbody></table>
+          <p class="hint-s" id="gapNote"></p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Start with 20 triangles.</strong> <span>The ball looks like a cut gem. Its area is 24% short of the true ball's: the flat faces cut corners everywhere.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Switch the same 20 triangles to smooth shading.</strong> <span>The facets vanish from the middle, but look at the outline: it still has corners. Smooth shading changes the light, not the shape.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Step up to 1,280 triangles.</strong> <span>The deepest gap is now about one pixel on your screen, so even flat shading looks round. Beyond this, more triangles change almost nothing you can see.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Show the edges of the doughnut.</strong> <span>Count corners, take away edges, add triangles: it is always 0, however many triangles. For the ball it is always 2. That is the hole count from the topology page.</span><button class="outline" data-try="3">Show me</button></li>
+        <li><strong>Watch the area as the triangles multiply.</strong> <span>Each step makes 4 times as many triangles and leaves about a quarter of the error: 24%, 7%, 1.9%, 0.48%, 0.12%, 0.03%.</span><button class="outline" data-try="4">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>From flat triangles to a smooth picture, step by step</h2>
+      <p class="lead">These pictures use the shape, the number of triangles and the shading you chose above.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>Three corners are always flat</h3>
+          <p>Any three points lie in one flat plane. Four need not: lift one corner of a square and the square has to bend, and a computer can't say which way.</p>
+          <p>So every four-sided piece is cut along a diagonal into two triangles. Each triangle is flat whatever its corners do, and that is why graphics cards draw only triangles.</p></div>
+        <figure><canvas id="ex1" width="640" height="400"></canvas><figcaption id="cap1"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>One triangle, one shade</h3>
+          <p>Two sides of the triangle, from one corner to the other two, are arrows. Their cross product is an arrow standing straight out of the triangle: its <em>normal</em>, n.</p>
+          <p>The more squarely the triangle faces the light, the brighter it is. The brightness is a little light from everywhere (22%) plus 78% times cos θ, where θ is the angle between the normal and the light, L. That one number paints the whole triangle.</p></div>
+        <figure><canvas id="ex2" width="640" height="400"></canvas><figcaption id="cap2"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>From a triangle to pixels</h3>
+          <p>The screen is a grid of pixels. For each pixel near the triangle, test its centre against the three edges: is it on the inside of each? Three yeses and the pixel takes the triangle's colour.</p>
+          <p>Where triangles overlap, each pixel keeps the nearest one: the computer remembers how far away every pixel's surface is (the <em>depth buffer</em>) and only paints over it with something closer.</p></div>
+        <figure><canvas id="ex3" width="640" height="400"></canvas><figcaption id="cap3"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>Halve the triangles' size, quarter the gap</h3>
+          <p>Slice the ball through the middle. Each triangle's edge is a straight chord across a piece of the circle, spanning an angle θ. In the middle the chord is 1 − cos(θ/2) inside the circle (the radius is 1).</p>
+          <p>Cut every triangle into four and each edge spans θ/2: the gap becomes 1 − cos(θ/4), very nearly a quarter. The pieces have half the width, so the gap shrinks with the square of the width.</p></div>
+        <figure><canvas id="ex4" width="640" height="400"></canvas><figcaption id="cap4"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>Add up the triangles for the area</h3>
+          <p>A triangle's area is half a parallelogram: half the length of the cross product of two of its sides. Add up every triangle and you have the mesh's area, just as rectangles added up to the area under a curve.</p>
+          <p>The triangles sit inside the true surface, so the total is a little short. Halving their size cuts the shortfall about four times, and the sum closes in on the true area.</p></div>
+        <figure><canvas id="ex5" width="640" height="400"></canvas><figcaption id="cap5"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">6</span>Smooth shading bends the light, not the surface</h3>
+          <p>Here is a slice through the mesh. With flat shading every face has one normal, so the brightness jumps at every edge. Smooth shading gives each corner its own normal, the average of the faces around it, and blends from one corner's normal to the next across each face.</p>
+          <p>The brightness now changes smoothly, so the eye reads a curve. But the outline still has corners: smooth shading changes only how the light is worked out.</p></div>
+        <figure><canvas id="ex6" width="640" height="400"></canvas>
+          <div class="row kpick" role="group" aria-label="Pick the shading" data-local><button data-sh="0" class="on" data-local>Flat</button><button data-sh="1" data-local>Smooth</button></div>
+          <figcaption id="cap6"></figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>A</strong>, <strong>B</strong> and <strong>C</strong> are a triangle's corners, and <strong>AB</strong> is the arrow from A to B. <strong>×</strong> between arrows is the cross product, an arrow standing out of both; <strong>|…|</strong> is an arrow's length. <strong>n</strong> is the normal (length 1), <strong>L</strong> the direction to the light (length 1), and <strong>n · L</strong> their dot product, which is cos θ. <strong>θ</strong> is an angle and <strong>π</strong> is 3.14159….</p>
+      <div class="symbols">
+        <div><code class="formula">area of ABC = ½ · |AB × AC|,   n = (AB × AC) ÷ |AB × AC|</code><p>In words: the cross product of two sides is as long as the parallelogram they span, so half of it is the triangle; pointing the other way, it is the triangle's normal.</p></div>
+        <div><code class="formula">brightness = 0.22 + 0.78 · max(0, n · L)</code><p>In words: some light from everywhere, plus more the more squarely the surface faces the light; none of that extra if it faces away.</p></div>
+        <div><code class="formula">gap = 1 − cos(θ/2) ≈ θ·θ ÷ 8</code><p>In words: a straight piece spanning angle θ (in radians) of a circle of radius 1 sits that far inside it at its middle. Halve θ and the gap is a quarter.</p></div>
+        <div><code class="formula">n · sin(π/n) &lt; π &lt; n · tan(π/n)</code><p>In words: half the perimeter of an n-sided shape inside a circle of radius 1 is less than π, and half of the one outside is more. With n = 96, Archimedes got 3.1408 &lt; π &lt; 3.1429.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Every video game.</strong> Characters, cars and landscapes are triangle meshes, and a graphics card draws billions of triangles a second. Far-away objects swap to meshes with fewer triangles ("level of detail"), because their gap would be smaller than a pixel anyway.</li>
+        <li><strong>Animated films and visual effects.</strong> Studios render surfaces cut into pieces about the size of a pixel or smaller, so no facet can ever show.</li>
+        <li><strong>3D printing.</strong> The standard STL file is nothing but a list of triangles, three corners and a normal each. A printer slices that mesh into layers.</li>
+        <li><strong>Medical scans.</strong> CT and MRI scanners measure a block of density values. The marching cubes method (Lorensen and Cline, 1987) turns them into a triangle mesh of a bone or an organ that a surgeon can turn on screen.</li>
+        <li><strong>Engineering simulation.</strong> Car crashes, bridges and aircraft wings are simulated on meshes of small triangles or tetrahedra (the finite element method). Smaller pieces give more accurate stresses, at the cost of more work.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>Archimedes' 96 sides</h4><p>Around 250 BC, in <em>Measurement of a Circle</em>, Archimedes doubled a hexagon's sides four times, to 96, inside and outside a circle. He showed 3 10/71 &lt; π &lt; 3 1/7, the best value anyone had for centuries.</p></article>
+        <article><h4>Smooth shading has two names</h4><p>Henri Gouraud published blending brightness from the corners in 1971. Bui Tuong Phong blended the corners' directions instead, with a shiny highlight, in his 1973 thesis and a 1975 paper. Both names are still used in every graphics course.</p></article>
+        <article><h4>The Utah teapot</h4><p>In 1975 Martin Newell at the University of Utah measured his family's Melitta teapot on graph paper and turned it into a 3D model. It became the standard test shape of computer graphics; the real teapot is now at the Computer History Museum in California.</p></article>
+        <article><h4>The Stanford bunny</h4><p>In 1994 Greg Turk and Marc Levoy scanned a clay bunny with a laser and turned it into a mesh of 69,451 triangles. It is still one of the most used test models in graphics research.</p></article>
+        <article><h4>Smaller than a pixel</h4><p>Pixar's renderer, used for <em>Toy Story</em> (1995), the first fully computer-animated feature film, cuts every surface into "micropolygons" about half a pixel across. Its gap is always below a pixel, the point you can find above with the slider.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "Smooth shading makes the surface smooth." <strong>But:</strong> the triangles stay exactly where they were; only the light is blended. The outline gives it away.</li>
+        <li><strong>Not:</strong> "More triangles always look better." <strong>But:</strong> once the deepest gap is under a pixel, extra triangles cost work and change nothing you can see.</li>
+        <li><strong>Not:</strong> "Graphics cards use triangles because they are the simplest shape to draw." <strong>But:</strong> the main reason is that three corners are always flat, so a triangle has one clear direction to face and can never twist.</li>
+        <li><strong>Not:</strong> "The mesh's corners are a little off the surface." <strong>But:</strong> the corners sit exactly on it; it is the flat faces between them that cut inside the curve.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://en.wikipedia.org/wiki/Polygon_mesh" target="_blank" rel="noopener">Polygon mesh (Wikipedia)</a><span>Corners, edges and faces, and the ways programs store them.</span></li>
+        <li><a href="https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/overview-rasterization-algorithm.html" target="_blank" rel="noopener">Scratchapixel: the rasterization algorithm</a><span>A careful walk through the edge tests and the depth buffer from step 3, with code.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Phong_shading" target="_blank" rel="noopener">Phong shading (Wikipedia)</a><span>Blending normals across a triangle, and the shiny highlight.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Approximations_of_%CF%80#Polygon_approximation_to_a_circle" target="_blank" rel="noopener">Approximations of π: polygons round a circle (Wikipedia)</a><span>Archimedes, Liu Hui and Zu Chongzhi squeezing π with polygons.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+/* Polygon meshes: the turning shape, the circle at the top, the step figures' pickers */
+#stage { touch-action: pan-y; cursor: grab; background: radial-gradient(circle at 50% 45%, #fff, #f1efe9); }
+#stage:active { cursor: grabbing; }
+.under .row { display: flex; gap: .4rem .9rem; flex-wrap: wrap; align-items: center; width: 100%; }
+.under button { width: auto; margin: 0; padding: .35rem .8rem; font-size: .88rem; }
+.under .say { margin: 0; }
+.under .nlab { flex: 1; min-width: 12rem; font-size: .82rem; margin: 0; display: flex; gap: .4rem; align-items: center; }
+.under .nlab b { font-family: var(--pico-font-family-monospace); min-width: 3.6em; }
+.under input[type=range] { margin: 0; flex: 1; min-width: 8rem; }
+.panel label.inline { display: flex; gap: .4rem; align-items: center; }
+table.tally { font-size: .86rem; margin: 0 0 .6rem; }
+table.tally td { padding: .25rem .4rem; }
+table.tally td:last-child { text-align: right; font-family: var(--pico-font-family-monospace); white-space: nowrap; }
+.kpick { display: flex; justify-content: center; gap: .4rem; margin: .5rem 0 .2rem; }
+.kpick button { width: auto; flex: 0 0 auto; margin: 0; padding: .25rem .7rem; font-size: .85rem; }
+.kpick button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.kpick button:not(.on) { background: transparent; color: var(--accent); border-color: var(--accent); }
+.idea-fig { margin: .8rem 0 .4rem; border: 1px solid var(--line); border-radius: 14px; background: #fff; overflow: hidden; }
+.idea-fig canvas { display: block; width: 100%; height: auto; }
+.idea-fig figcaption { padding: .4rem .8rem .6rem; }
+.idea-controls { display: flex; flex-wrap: wrap; gap: .6rem 1.6rem; align-items: center; }
+.idea-controls label { display: flex; gap: .5rem; align-items: center; margin: 0; }
+.idea-controls input[type=range] { width: min(320px, 60vw); margin: 0; }
+.idea-controls button { width: auto; margin: 0; padding: .3rem .9rem; font-size: .88rem; }
+#ideaFormula { font-family: var(--pico-font-family-monospace); font-size: .9rem; overflow-x: auto; white-space: nowrap; margin: .8rem 0 .4rem; }
+@media (max-width: 900px) {
+  .under button { padding: .25rem .55rem; font-size: .78rem; }
+  #ideaFormula { font-size: .74rem; }
+}
