@@ -1,6 +1,6 @@
-// The home page: the concept cards (from concepts.js) with small live previews, and the hero,
-// where spinning circles (the Rust Fourier series) draw one shape after another. Only what is on
-// screen is drawn, and the previews run at 25 fps, so the page stays light however many cards it has.
+// The home page: the concept cards (from concepts.js) with small previews, and the hero, where spinning
+// circles (the Rust Fourier series) have drawn a heart. Everything is still while the page scrolls; a card
+// plays its preview only while a mouse rests on it.
 import init, { Fourier, Craft, circular_speed, computer_guesses } from './pkg/lilavati.js';
 import { CONCEPTS, CHAPTERS, card } from './concepts.js';
 import { Plane, COL, I2, apply, rot, mul } from './la.js';
@@ -120,24 +120,28 @@ previews['nash-equilibrium'] = (c, w, h, sec) => {
 };
 window.__lilavatiPreviews = previews;   // for tools/og.mjs, which draws the link-preview pictures
 const cards = [...document.querySelectorAll('canvas[data-preview]')];
-// newer pages keep their card preview in web/<slug>/preview.js (default export (c, w, h, sec) => void), loaded here
-for (const c of CONCEPTS) if (c.status === 'live' && c.previewFile) import(`./${c.slug}/preview.js`).then(m => { previews[c.slug] = m.default; }).catch(e => console.warn('preview', c.slug, e));
+// Still pictures, so nothing runs while the page scrolls (the person's request, 2026-11-28): each card is
+// drawn once, a few seconds into its animation, and plays only while a mouse rests on it. The hero is drawn
+// finished. Touch screens never hover, so on phones nothing animates at all.
+const STILL_AT = 3.3;
 const drawCard = (cv, sec) => { const c = cv.getContext('2d'); c.clearRect(0, 0, cv.width, cv.height); previews[cv.dataset.preview]?.(c, cv.width, cv.height, sec); };
-// only what is on screen is drawn: the hero and the card previews stop while scrolled out of view,
-// and the previews run at 25 frames a second (the hero keeps the screen's rate)
-const onScreen = new Set();
-const watch = new IntersectionObserver(es => { for (const e of es) e.isIntersecting ? onScreen.add(e.target) : onScreen.delete(e.target); }, { rootMargin: '60px' });
-watch.observe(hero); cards.forEach(cv => { drawCard(cv, 1); watch.observe(cv); });
-let lastCards = 0;
+// newer pages keep their card preview in web/<slug>/preview.js (default export (c, w, h, sec) => void), loaded here
+const loaded = CONCEPTS.filter(c => c.status === 'live' && c.previewFile).map(c => import(`./${c.slug}/preview.js`).then(m => { previews[c.slug] = m.default; }).catch(e => console.warn('preview', c.slug, e)));
+cards.forEach(cv => drawCard(cv, STILL_AT));
+Promise.all(loaded).then(() => cards.forEach(cv => drawCard(cv, STILL_AT)));
 
-function frame(now) {
-  requestAnimationFrame(frame);
-  const dt = Math.min(0.1, (now - last) / 1000); last = now;
-  if (document.hidden) return;
-  if (!still && onScreen.has(hero)) drawHero(dt);
-  if (still || now - lastCards < 40) return;
-  lastCards = now;
-  for (const cv of cards) if (onScreen.has(cv)) drawCard(cv, now / 1000);
+// the hero: the heart, finished (the circles at the end of their turn)
+for (let i = 0; i <= 400; i++) { t = 2 * Math.PI * i / 400; drawHero(0); }
+
+// a card under the mouse plays from where its still picture is, and goes back to it when the mouse leaves
+let playing = null, start = 0;
+function play(now) {
+  if (!playing) return;
+  drawCard(playing, STILL_AT + (now - start) / 1000);
+  requestAnimationFrame(play);
 }
-if (still) { t = 2 * Math.PI; for (let i = 0; i <= 400; i++) { t = 2 * Math.PI * i / 400; drawHero(0); } }
-requestAnimationFrame(frame);
+if (!still && matchMedia('(hover: hover) and (pointer: fine)').matches) for (const cv of cards) {
+  const box = cv.closest('a') || cv;
+  box.addEventListener('mouseenter', () => { playing = cv; start = performance.now(); requestAnimationFrame(play); });
+  box.addEventListener('mouseleave', () => { if (playing === cv) { playing = null; drawCard(cv, STILL_AT); } });
+}
