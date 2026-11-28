@@ -53,8 +53,10 @@ export const CONCEPTS = [
     idea: 'Waves that meet simply add up, moment by moment: into chords, beats, silence and every sound you hear.',
     blurb: 'Mix three waves, listen to them, and see cancelling, beats and square waves appear.',
     related: ['fourier-series', 'derivatives'] },
-  { slug: 'taylor-series', name: 'Taylor series', status: 'soon', topic: 'Calculus', level: 'Curious', color: '#db2777',
-    idea: 'A curve near one point, rebuilt from its derivatives there.', related: ['derivatives'] },
+  { slug: 'taylor-series', hook: 'How your calculator knows sin(37°)', tagline: 'Add up a few simple powers of x and you get the curve back, near one point.', name: 'Taylor series', status: 'live', topic: 'Calculus', level: 'Curious', color: '#db2777', previewFile: true,
+    idea: 'A curve near one point, rebuilt from its height, slope, bend and so on there.',
+    blurb: 'Add terms one at a time and watch a polynomial hug sin, eˣ or ln(1 + x) further and further out, and see where some series stop working however many terms you take.',
+    related: ['derivatives', 'riemann-sums', 'fourier-series'] },
   // the person's list of 2026-11-25, in their order; each page gets its preview from web/<slug>/preview.js
   { slug: 'monty-hall', title: 'The Monty Hall problem', hook: 'Why you should always switch doors', tagline: 'Three doors, one car, one goat revealed. Switching wins twice as often, and you can prove it by playing.', name: 'The Monty Hall problem', status: 'live', topic: 'Probability', level: 'Starter', color: '#b45309', previewFile: true,
     idea: 'Your first pick is right one time in three; the host\u2019s reveal moves the other two-thirds onto one door.',

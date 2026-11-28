@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Taylor series · How your calculator knows sin(37°) · Lilavati</title>
+  <meta name="description" content="A Taylor series rebuilds a curve near one point from its height, slope, bend and so on there. Add terms one at a time and watch a polynomial hug sin, eˣ or ln(1 + x) further out, and see where some series stop working.">
+  <!-- share -->
+  <link rel="canonical" href="https://lilavati.pages.dev/taylor-series/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Lilavati">
+  <meta property="og:title" content="Taylor series · How your calculator knows sin(37°)">
+  <meta property="og:description" content="A Taylor series rebuilds a curve near one point from its height, slope, bend and so on there. Add terms one at a time and watch a polynomial hug sin, eˣ or ln(1 + x) further out, and see where some series stop working.">
+  <meta property="og:url" content="https://lilavati.pages.dev/taylor-series/">
+  <meta property="og:image" content="https://lilavati.pages.dev/og/taylor-series.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="How your calculator knows sin(37°): Add up a few simple powers of x and you get the curve back, near one point.">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:locale" content="en_GB">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Taylor series · How your calculator knows sin(37°)">
+  <meta name="twitter:description" content="A Taylor series rebuilds a curve near one point from its height, slope, bend and so on there. Add terms one at a time and watch a polynomial hug sin, eˣ or ln(1 + x) further out, and see where some series stop working.">
+  <meta name="twitter:image" content="https://lilavati.pages.dev/og/taylor-series.png">
+  <meta name="twitter:image:alt" content="How your calculator knows sin(37°): Add up a few simple powers of x and you get the curve back, near one point.">
+  <meta property="og:logo" content="https://lilavati.pages.dev/icon-512.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#faf8f4">
+  <!-- /share -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="page.css">
+</head>
+<body data-concept="taylor-series">
+  <main class="container">
+    <header id="hero" class="hero">
+      <h1>How your calculator knows sin(37°)</h1>
+      <p class="idea">Add up a few simple powers of x and you get the curve back, near one point.</p>
+      <p>A calculator can only add and multiply, yet it gives you sin(37°) at once. The trick is a polynomial that behaves like the sine curve. Below you can build such polynomials one term at a time for six curves, move the point they are built around, and see how far out they stay good and where some of them stop working altogether.</p>
+    </header>
+
+    <section id="what" data-label="What it is" class="block what reveal">
+      <h2>What a Taylor series is</h2>
+      <p>A <strong>Taylor series</strong> rebuilds a curve near one point, a, from what the curve is doing at that point: its height, its slope, how fast the slope changes, and so on.</p>
+      <ul>
+        <li><strong>The terms:</strong> f(a), then f′(a)·(x − a), then f″(a)/2·(x − a)², then f‴(a)/6·(x − a)³, and so on. Each term is a number times a power of (x − a), the distance from a.</li>
+        <li><strong>One more match each:</strong> the first term matches the height at a, the second the slope, the third the bend, the fourth how the bend changes.</li>
+        <li><strong>The polynomial:</strong> stop after a few terms and you have a polynomial, which needs only adding and multiplying. Near a, it is very close to the curve.</li>
+        <li><strong>Where it works:</strong> more terms hug the curve further out. For some curves the series only works within a fixed distance of a, however many terms you take.</li>
+      </ul>
+      <p>On this page the first curve is sin x around a = 0: x − x³/6 + x⁵/120 − x⁷/5040. With x = 37° = 0.6458 these four terms give 0.6018150, right to seven decimal places.</p>
+    </section>
+
+    <section id="play" data-label="Play">
+      <div class="toy">
+        <div class="viewer">
+          <canvas id="stage" class="wide" width="900" height="540" aria-label="A curve and its Taylor polynomial around a point a. Drag the point on the curve to move a, and the dot on the bottom line to choose x"></canvas>
+          <div class="under">
+            <p class="say" id="say"></p>
+            <div class="row">
+              <label class="nlab">Terms up to power <b id="nVal">1</b><input id="n" type="range" min="0" max="24" step="1" value="1"></label>
+              <button id="auto" class="outline secondary">■ Stop</button>
+            </div>
+          </div>
+        </div>
+        <aside class="panel">
+          <label>Curve <select id="kind">
+            <option value="0" selected>sin x</option>
+            <option value="1">cos x</option>
+            <option value="2">eˣ</option>
+            <option value="3">ln(1 + x)</option>
+            <option value="4">1 ÷ (1 − x)</option>
+            <option value="5">arctan x</option>
+          </select></label>
+          <h4 id="atX">The terms at x</h4>
+          <table class="tally"><tbody id="tbody"></tbody></table>
+          <p class="hint-s" id="note"></p>
+          <p class="hint-s">Drag the pink dot on the curve to move a, the point the series is built around. Drag the dot on the bottom line to choose x. The green band is where the polynomial is within 0.01 of the curve.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="try" data-label="Try this" class="block reveal">
+      <h2>Try this</h2>
+      <ol class="try">
+        <li><strong>Add the terms of sin x one at a time.</strong> <span>Each new term bends the polynomial back towards the curve a little further out, and the green band, where it is within 0.01, keeps growing.</span><button class="outline" data-try="0">Show me</button></li>
+        <li><strong>Work out sin(37°) like a calculator.</strong> <span>x = 0.6458. The terms are 0.64577 − 0.044883 + 0.00093587 − 0.0000092923 = 0.6018150. They shrink so fast that four are enough for seven decimals.</span><button class="outline" data-try="1">Show me</button></li>
+        <li><strong>Add up eˣ at x = 1.</strong> <span>1 + 1 + 1/2 + 1/6 + 1/24 + … The total closes in on e = 2.71828: 10 terms give 2.7182818.</span><button class="outline" data-try="2">Show me</button></li>
+        <li><strong>Push ln(1 + x) past x = 1.</strong> <span>With all 24 terms the series is excellent up to 1 and useless beyond it: at x = 1.5 it gives −412.9 instead of 0.916. More terms make it worse.</span><button class="outline" data-try="3">Show me</button></li>
+        <li><strong>Try arctan x around 0, then drag a to 2.</strong> <span>The curve is smooth everywhere, yet around 0 the series fails past 1. The trouble is at the imaginary numbers ±i, at distance √(1 + a²) from a: move a to 2 and it works up to 2.24 away.</span><button class="outline" data-try="4">Show me</button></li>
+      </ol>
+    </section>
+
+    <section id="steps" data-label="Step by step" class="block">
+      <h2>From one point to the whole curve, step by step</h2>
+      <p class="lead">These pictures use the curve, the point a, the number of terms and the x you chose above.</p>
+
+      <div class="step reveal">
+        <div><h3><span class="num">1</span>Match the height, then the slope</h3>
+          <p>The simplest guess is a flat line at the curve's height at a: the first term, f(a). It is right at a and soon wrong.</p>
+          <p>Add the second term, f′(a)·(x − a): a slope. Now the line is the curve's tangent at a. Over a step of length x − a it rises f′(a) times that step, which is the slope triangle in the picture.</p></div>
+        <figure><canvas id="ex1" width="640" height="400"></canvas><figcaption id="cap1"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">2</span>Match the bend</h3>
+          <p>A straight line can't bend. The third term, f″(a)/2·(x − a)², is a parabola: it makes the slope change at the same rate as the curve's slope changes at a.</p>
+          <p>The picture shows the miss at your x after each term: the gap between the curve and the polynomial. Every term you add makes the miss much smaller, as long as x is close enough to a.</p></div>
+        <figure><canvas id="ex2" width="640" height="400"></canvas><figcaption id="cap2"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">3</span>Where the factorials come from</h3>
+          <p>Take the derivative of (x − a)⁴ again and again. Each time the power comes down in front and drops by one: 4·(x − a)³, then 4·3·(x − a)², then 4·3·2·(x − a), then 4·3·2·1 = 24.</p>
+          <p>So the fourth derivative of the term c₄·(x − a)⁴ is 24·c₄. To make it equal the curve's fourth derivative at a, c₄ must be f⁗(a) ÷ 24. In general cₖ = f⁽ᵏ⁾(a) ÷ k!, where k! (k factorial) is 1·2·3·…·k.</p>
+          <div class="figctl"><label for="kPick">Power <strong id="kVal"></strong></label><input type="range" id="kPick" min="1" max="7" step="1" value="4"></div></div>
+        <figure><canvas id="ex3" width="640" height="400"></canvas><figcaption id="cap3"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">4</span>Add the terms up, one by one</h3>
+          <p>At your x, each term is just a number. The bars are those numbers; the line is the running total, closing in on the true value of the curve (dashed).</p>
+          <p>Near a the terms shrink fast, because each has a bigger factorial underneath and a higher power of a small distance on top. That is why a calculator needs only a handful of them.</p></div>
+        <figure><canvas id="ex4" width="640" height="400"></canvas><figcaption id="cap4"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">5</span>Too far out, the terms grow</h3>
+          <p>For ln(1 + x), 1 ÷ (1 − x) and arctan x, the terms at x are roughly (x − a)ᵏ ÷ Rᵏ, for a fixed distance R. Closer than R, they shrink and the sum settles. Further than R, they grow, and adding more only makes it worse.</p>
+          <p>R is the <strong>radius of convergence</strong>: the distance from a to the nearest point where the curve breaks down. For ln(1 + x) that is x = −1; for arctan x it is the imaginary numbers ±i, which is why a smooth curve can still have a short radius.</p>
+          <div class="figctl"><button id="useLn" class="outline">Use ln(1 + x) above</button></div></div>
+        <figure><canvas id="ex5" width="640" height="400"></canvas><figcaption id="cap5"></figcaption></figure>
+      </div>
+
+      <div class="step reveal">
+        <div><h3><span class="num">6</span>How big is the error?</h3>
+          <p>Near a, the error is about the size of the first term you left out. For sin x it is never more than that: no derivative of sin is ever bigger than 1, so the error is at most |x − a|ⁿ⁺¹ ÷ (n + 1)!.</p>
+          <p>That is how a calculator knows when to stop: it adds terms until the next one is smaller than the last digit it shows.</p></div>
+        <figure><canvas id="ex6" width="640" height="400"></canvas><figcaption id="cap6"></figcaption></figure>
+      </div>
+    </section>
+
+    <section id="symbols" data-label="In symbols" class="block reveal">
+      <h2>In symbols</h2>
+      <p class="lead">Reading the symbols: <strong>f(x)</strong> is the height of the curve at x, and <strong>a</strong> is the point the series is built around. <strong>f′(a)</strong>, <strong>f″(a)</strong> and <strong>f⁽ᵏ⁾(a)</strong> are the first, second and k-th derivatives at a: the slope, how fast the slope changes, and so on. <strong>k!</strong> (k factorial) is 1·2·3·…·k, with 0! = 1. <strong>cₖ</strong> (c sub k) is the number in front of the k-th term, and <strong>Pₙ(x)</strong> is the polynomial with terms up to power n.</p>
+      <div class="symbols">
+        <div><code class="formula">Pₙ(x) = f(a) + f′(a)·(x − a) + f″(a)/2!·(x − a)² + … + f⁽ⁿ⁾(a)/n!·(x − a)ⁿ</code><p>In words: start from the height at a, then add the slope, the bend and so on, each times a power of the distance from a.</p></div>
+        <div><code class="formula">cₖ = f⁽ᵏ⁾(a) ÷ k!</code><p>In words: the k-th number is the k-th derivative at a, divided by k factorial, because the k-th derivative of (x − a)ᵏ is k!.</p></div>
+        <div><code class="formula">sin x = x − x³/3! + x⁵/5! − x⁷/7! + …,   eˣ = 1 + x + x²/2! + x³/3! + …</code><p>In words: the series of sin and of eˣ around a = 0; both work for every x.</p></div>
+        <div><code class="formula">|sin x − Pₙ(x)| ≤ |x − a|ⁿ⁺¹ ÷ (n + 1)!</code><p>In words: for sin, the error is never more than the size of the first term left out, if its derivative there were 1.</p></div>
+      </div>
+    </section>
+
+    <section id="uses" data-label="Where you meet it" class="block reveal">
+      <h2>Where you meet it</h2>
+      <ul class="uses">
+        <li><strong>Your calculator and every computer.</strong> sin, cos, eˣ and ln on a chip are worked out with polynomials (or with a related method of adds and shifts called CORDIC). The polynomials are usually tuned versions of the Taylor polynomial, spreading the error evenly over a range.</li>
+        <li><strong>A swinging pendulum.</strong> Physics books replace sin θ with θ, the first term, when the swing is small. That turns a hard equation into an easy one and gives the familiar period 2π·√(length ÷ g).</li>
+        <li><strong>E = mc² and the kinetic energy.</strong> Einstein's energy of a moving body, written as a series in its speed, starts mc² + ½·m·v² + …: the second term is the kinetic energy from school physics.</li>
+        <li><strong>Training AI models.</strong> Gradient descent treats the error as a straight line (the first two terms) around the current settings; Newton's method uses a parabola (the first three).</li>
+        <li><strong>Bonds and loans.</strong> Traders estimate how a bond's price changes with interest rates by its "duration" and "convexity": the slope and bend terms of a Taylor series.</li>
+      </ul>
+    </section>
+
+    <section id="facts" data-label="Fun facts" class="block reveal">
+      <h2>Fun facts</h2>
+      <div class="facts">
+        <article><h4>Kerala, around 1400</h4><p>Madhava of Sangamagrama, who founded the Kerala school of astronomy and mathematics in India, found the series for sin, cos and arctan around 1400, about 250 years before they were found in Europe.</p></article>
+        <article><h4>Taylor, 1715</h4><p>Brook Taylor published the general method in <em>Methodus Incrementorum Directa et Inversa</em> in 1715. James Gregory had known it in 1671 but did not publish it.</p></article>
+        <article><h4>Maclaurin's name</h4><p>A Taylor series around a = 0 is often called a Maclaurin series, after Colin Maclaurin, who used them heavily in his <em>Treatise of Fluxions</em> of 1742.</p></article>
+        <article><h4>A very slow π</h4><p>arctan 1 = π/4 gives π = 4·(1 − 1/3 + 1/5 − 1/7 + …). It is beautiful and almost useless: after 1,000 terms it gives 3.14059, still wrong in the third decimal place.</p></article>
+        <article><h4>A curve its series can't see</h4><p>In 1823 Augustin-Louis Cauchy noticed that e^(−1/x²) (with value 0 at x = 0) has every derivative 0 at 0. Its Taylor series is 0 + 0 + 0 + …, yet the curve itself is not 0.</p></article>
+      </div>
+    </section>
+
+    <section id="mixups" data-label="Common mix-ups" class="block reveal">
+      <h2>Common mix-ups</h2>
+      <ul class="mixups">
+        <li><strong>Not:</strong> "More terms always give a better answer." <strong>But:</strong> only within the radius of convergence. Beyond it, each extra term makes the answer worse.</li>
+        <li><strong>Not:</strong> "A smooth curve's series works everywhere." <strong>But:</strong> arctan x is smooth everywhere, and its series around 0 still fails past 1, because of trouble at the imaginary numbers ±i.</li>
+        <li><strong>Not:</strong> "x³/3! means x³ divided by 3." <strong>But:</strong> 3! is 3 factorial, 1·2·3 = 6. The factorials grow so fast that later terms get tiny.</li>
+        <li><strong>Not:</strong> "The Taylor polynomial is the best polynomial for the job." <strong>But:</strong> it is the best very near a. Over a whole range, calculators use polynomials tuned so the worst error is as small as possible.</li>
+      </ul>
+    </section>
+
+    <section id="read" data-label="Read more" class="block reveal">
+      <h2>Read more</h2>
+      <ul class="reading">
+        <li><a href="https://en.wikipedia.org/wiki/Taylor_series" target="_blank" rel="noopener">Taylor series (Wikipedia)</a><span>The definition, many worked series, the radius of convergence and the history.</span></li>
+        <li><a href="https://www.3blue1brown.com/lessons/taylor-series" target="_blank" rel="noopener">3Blue1Brown: Taylor series</a><span>A video building the polynomial term by term, with the same height, slope and bend picture.</span></li>
+        <li><a href="https://openstax.org/books/calculus-volume-2/pages/6-3-taylor-and-maclaurin-series" target="_blank" rel="noopener">OpenStax Calculus Volume 2, 6.3 Taylor and Maclaurin series</a><span>A free textbook chapter with worked examples, error bounds and exercises.</span></li>
+        <li><a href="https://en.wikipedia.org/wiki/Madhava_series" target="_blank" rel="noopener">Madhava series (Wikipedia)</a><span>The Kerala school's series for sin, cos and arctan, and how they were found.</span></li>
+      </ul>
+    </section>
+
+    <section id="next" data-label="Next" class="block"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="../concepts.js"></script>
+</body>
+</html>

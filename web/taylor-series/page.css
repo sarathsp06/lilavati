@@ -1,0 +1,20 @@
+/* Taylor series: the curve and its polynomial, the controls under them, the table of terms */
+#stage { touch-action: pan-y; cursor: default; }
+#stage.grab { cursor: ew-resize; }
+.under .row { display: flex; gap: .4rem .9rem; flex-wrap: wrap; align-items: center; width: 100%; }
+.under button { width: auto; margin: 0; padding: .35rem .8rem; font-size: .88rem; }
+.under .say { margin: 0; }
+.under .nlab { flex: 1; min-width: 12rem; font-size: .82rem; margin: 0; display: flex; gap: .4rem; align-items: center; }
+.under .nlab b { font-family: var(--pico-font-family-monospace); min-width: 1.6em; }
+.under input[type=range] { margin: 0; flex: 1; min-width: 8rem; }
+table.tally { font-size: .84rem; margin: 0 0 .6rem; }
+table.tally td { padding: .22rem .4rem; }
+table.tally td:not(:first-child) { text-align: right; font-family: var(--pico-font-family-monospace); white-space: nowrap; }
+table.tally tr.head td { font-size: .74rem; color: var(--ink-2, #57534e); font-family: inherit; }
+table.tally tr.sum td { border-top: 2px solid #db2777; font-weight: 600; }
+.figctl { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-top: .5rem; font-size: .85rem; }
+.figctl input { margin: 0; max-width: 14rem; }
+.figctl button { margin: 0; width: auto; padding: .3rem .8rem; font-size: .85rem; }
+@media (max-width: 900px) {
+  .under button { padding: .25rem .55rem; font-size: .78rem; }
+}
