@@ -48,9 +48,13 @@ Notes for anyone (person or AI agent) adding to or changing this site.
   lives in `web/<slug>/preview.js` (default export `(c, w, h, sec) => void`, a 560×260 canvas 2D context)
   with `previewFile: true` on its entry; page-specific styles go in `web/<slug>/page.css`, linked from the
   page, so pages never edit `web/home.js` or `web/style.css`.
+- **The home page holds still (the person's rule, 2026-11-28):** nothing animates while the home page scrolls. Each card's
+  `preview.js` is drawn once as a still picture (at 3.3 s into its animation, so make that moment show the idea) and
+  plays only while a mouse rests on the card; the hero is drawn finished. Don't add scroll-driven or always-running
+  animation to the home page.
 - **Planned concepts (the person's list, 2026-11-25):** the `soon` entries in `web/concepts.js` are the
   queue, in the person's order: Monty Hall, brachistochrone, chaos, three-body, topology, fourth dimension,
-  double slit, then Riemann sums and Taylor series.
+  double slit, then Riemann sums and Taylor series. Polygon meshes was added on request (2026-11-28).
 - **Together (shared sessions, 2026-11-25):** people can invite others with a link and explore a page together
   (chat, and one person's changes show for everyone). Every page must work with it; see
   [docs/TOGETHER.md](docs/TOGETHER.md). Controls in `<main>` and its buttons are shared automatically. State
